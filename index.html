@@ -543,11 +543,11 @@ let drag=null, justDragged=false, pan=null, pinch=null;
 const ptrs=new Map();
 svg.addEventListener('pointerdown',ev=>{
   ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
-  try{ svg.setPointerCapture(ev.pointerId); }catch(e){}
   if(ptrs.size===2){                       // second finger → pinch zoom
     drag=null; pan=null;
     const [a,b]=[...ptrs.values()];
     pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};
+    for(const id of ptrs.keys()){ try{ svg.setPointerCapture(id); }catch(e){} }
     return;
   }
   const g=ev.target.closest('.mark');
@@ -577,6 +577,7 @@ svg.addEventListener('pointermove',ev=>{
   }
   if(drag && editing){
     if(!drag.moved && Math.hypot(ev.clientX-drag.sx,ev.clientY-drag.sy)<5) return;
+    if(!drag.moved){ try{ svg.setPointerCapture(ev.pointerId); }catch(e){} }   // capture only once a real drag starts
     drag.moved=true;
     const [x,y]=svgPoint(ev);
     const [lat,lon]=inv(x,y);
@@ -586,6 +587,7 @@ svg.addEventListener('pointermove',ev=>{
   }
   if(pan){
     if(!pan.moved && Math.hypot(ev.clientX-pan.sx,ev.clientY-pan.sy)<5) return;
+    if(!pan.moved){ try{ svg.setPointerCapture(ev.pointerId); }catch(e){} }    // capture only once panning starts
     pan.moved=true;
     setView(pan.vx-(ev.clientX-pan.sx)/pan.scale, pan.vy-(ev.clientY-pan.sy)/pan.scale);
   }
