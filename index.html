@@ -106,8 +106,8 @@ svg#map text{user-select:none}
 .linkline{fill:none;stroke-width:2.2;stroke-linecap:round;opacity:.85;cursor:pointer}
 .linkline.halo{stroke-width:9;opacity:0;}
 .mark.selected .site-dot,.mark.selected .club-dot{stroke:var(--ink);stroke-width:2.4}
-#map .citylabel{font:500 10.5px Barlow,sans-serif;fill:var(--muted)}
-#map .statelabel{font:700 34px "Barlow Condensed",sans-serif;fill:var(--land-stroke);opacity:.5;letter-spacing:.35em}
+#map .citylabel{font:500 10.5px Barlow,sans-serif;font-size:calc(10.5px*var(--cityf,1));fill:var(--muted)}
+#map .statelabel{font:700 34px "Barlow Condensed",sans-serif;font-size:calc(34px*var(--cityf,1));fill:var(--land-stroke);opacity:.5;letter-spacing:.35em}
 
 @media (max-width:700px){
   #drawer{position:absolute;left:0;right:0;bottom:0;top:auto;height:62%;width:100%;flex:none;border-left:0;border-top:1px solid var(--line);box-shadow:var(--shadow);transform:translateY(103%);transition:transform .22s ease;overflow-y:auto}
@@ -210,7 +210,10 @@ const svg = document.getElementById('map');
 /* ── zoom / pan ── */
 const VB0={x:-24,y:-24,w:1048,h:700};
 let view={x:VB0.x,y:VB0.y,w:VB0.w,h:VB0.h}, zoom=1;
-function applyView(){ svg.setAttribute('viewBox',view.x+' '+view.y+' '+view.w+' '+view.h); }
+function applyView(){
+  svg.setAttribute('viewBox',view.x+' '+view.y+' '+view.w+' '+view.h);
+  svg.style.setProperty('--cityf',Math.pow(zoom,-0.65).toFixed(3));   // city labels grow only mildly with zoom
+}
 function setView(x,y){
   view.x=Math.min(Math.max(x,VB0.x),VB0.x+VB0.w-view.w);
   view.y=Math.min(Math.max(y,VB0.y),VB0.y+VB0.h-view.h);
@@ -256,15 +259,19 @@ function overlapArea(a,b){
 // already-placed labels, city names, marker dots, and the map edge —
 // else least overlap. Returned dir drives the marker's stem line.
 const MAPBOX=[-22,-22,1044,696];
-// sc = 1/zoom: markers render inside a scale(sc) group so they keep constant
-// screen size; tx/ty are local (unscaled) coords, boxes are global map units.
-function placeLabel(x,y,text,pref,obstacles,sc){
-  const w=text.length*6.3+6, h=14;
-  const C=(dir,tx,ty,anchor,bx,by)=>({dir,tx,ty,anchor,box:[x+bx*sc,y+by*sc,w*sc,h*sc]});
-  const above=C('above',0,-17,'middle',-w/2,-28);
-  const below=C('below',0,22,'middle',-w/2,11);
-  const right=C('right',13,4,'start',12,-7);
-  const left=C('left',-13,4,'end',-12-w,-7);
+// sc = 1/zoom: markers render inside a scale(sc) group so dots keep constant
+// screen size. g = zoom^0.35: labels grow gently as you zoom in, so text stays
+// readable against the expanding map. tx/ty are local coords, boxes global.
+function placeLabel(x,y,text,pref,obstacles,sc,g){
+  const w=(text.length*6.3+6)*g, h=14*g;
+  const C=(dir,tx,ty,anchor)=>{
+    const bx = anchor==='middle'?tx-w/2 : anchor==='start'?tx-1 : tx-w+1;
+    return {dir,tx,ty,anchor,box:[x+bx*sc,y+(ty-11*g)*sc,w*sc,h*sc]};
+  };
+  const above=C('above',0,-17*g,'middle');
+  const below=C('below',0,22*g,'middle');
+  const right=C('right',13*g,4*g,'start');
+  const left=C('left',-13*g,4*g,'end');
   const cands = pref==='above'?[above,below,right,left]:[below,above,right,left];
   let best=cands[0], bestA=Infinity;
   for(const c of cands){
@@ -281,7 +288,8 @@ const STEMS={above:[0,-7,0,-13], below:[0,7,0,13], right:[7,0,13,0], left:[-7,0,
 let lastClusters=[];
 const clusterKey = m => m.map(s=>s.id).sort().join('|');
 function render(){
-  const sc = 1/zoom;
+  const sc = 1/zoom, lg = Math.pow(zoom,0.35);
+  const fs = ' style="font-size:'+(11.5*lg).toFixed(2)+'px"';
   const visSites = state.sites.filter(s=>layers[s.system||'none']);
   const visClubs = layers.clubs?state.clubs:[];
 
@@ -327,31 +335,31 @@ function render(){
       const s=c.members[0];
       const col=(SYS[s.system]||SYS.none).color;
       const sel = selected&&selected.type==='site'&&selected.id===s.id;
-      const L=placeLabel(c.x,c.y,s.name,'above',obstacles,sc);
+      const L=placeLabel(c.x,c.y,s.name,'above',obstacles,sc,lg);
       const st=STEMS[L.dir];
       mh += '<g class="mark'+(sel?' selected':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'+esc(s.name)+' repeater site" transform="translate('+c.x+','+c.y+') scale('+sc+')">'
           + '<circle class="site-dot" r="7" fill="'+col+'"/>'
           + '<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
-          + '<text x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text></g>';
+          + '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text></g>';
     } else {
       const systems=[...new Set(c.members.map(m=>m.system||'none'))];
       const col=systems.length===1?(SYS[systems[0]]||SYS.none).color:'var(--indep)';
       const label=c.members[0].name+' +'+(c.members.length-1);
       const sel = selected&&selected.type==='cluster'&&selected.key===clusterKey(c.members);
-      const L=placeLabel(c.x,c.y,label,'above',obstacles,sc);
+      const L=placeLabel(c.x,c.y,label,'above',obstacles,sc,lg);
       mh += '<g class="mark'+(sel?' selected':'')+'" data-cluster="'+ci+'" tabindex="0" role="button" aria-label="'+esc(label)+', '+c.members.length+' repeater sites" transform="translate('+c.x+','+c.y+') scale('+sc+')">'
           + '<circle class="site-dot" r="12" fill="'+col+'"/>'
           + '<text class="cnum" y="4.5" text-anchor="middle">'+c.members.length+'</text>'
-          + '<text x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(label)+'</text></g>';
+          + '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(label)+'</text></g>';
     }
   });
   for(const c of visClubs){
     const [x,y]=px(c.lat,c.lon);
     const sel = selected&&selected.type==='club'&&selected.id===c.id;
-    const L=placeLabel(x,y,c.callsign,'below',obstacles,sc);
+    const L=placeLabel(x,y,c.callsign,'below',obstacles,sc,lg);
     mh += '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'+esc(c.name)+'" transform="translate('+x+','+y+') scale('+sc+')">'
         + '<rect class="club-dot" x="-5.5" y="-5.5" width="11" height="11" rx="2" transform="rotate(45)" fill="var(--clubs)"/>'
-        + '<text x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text></g>';
+        + '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text></g>';
   }
   document.getElementById('gmarks').innerHTML = mh;
 }
