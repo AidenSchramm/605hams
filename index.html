@@ -1,0 +1,695 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SoDak Ham Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#eef0ea; --panel:#f8f9f5; --panel2:#eef1e9; --ink:#242b2b; --muted:#5f6a67; --line:#d2d8cc;
+  --land:#e4e9dd; --land-stroke:#8d9684; --water:#a3c2d1; --road:#bcc3b4; --hills:#ccd6c2;
+  --clubs:#2668a2; --sdlink:#c85a1f; --pdarc:#2e8757; --bh:#7a5fae; --indep:#7c8680;
+  --accent:#c85a1f; --danger:#b3452f; --ok:#2e8757;
+  --chip-bg:#e7eae1; --shadow:0 6px 24px rgba(30,40,35,.14);
+  --discord:#5865F2; --discord-ink:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12161a; --panel:#1a2027; --panel2:#151b21; --ink:#e2e8e4; --muted:#94a19c; --line:#2b333b;
+    --land:#1d242c; --land-stroke:#4d5c68; --water:#1d3644; --road:#333e48; --hills:#26303a;
+    --clubs:#5ea3d8; --sdlink:#eb8a4a; --pdarc:#54b384; --bh:#a78ce0; --indep:#8b9791;
+    --accent:#eb8a4a; --danger:#e07a5f; --ok:#54b384;
+    --chip-bg:#242c34; --shadow:0 6px 24px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12161a; --panel:#1a2027; --panel2:#151b21; --ink:#e2e8e4; --muted:#94a19c; --line:#2b333b;
+  --land:#1d242c; --land-stroke:#4d5c68; --water:#1d3644; --road:#333e48; --hills:#26303a;
+  --clubs:#5ea3d8; --sdlink:#eb8a4a; --pdarc:#54b384; --bh:#a78ce0; --indep:#8b9791;
+  --accent:#eb8a4a; --danger:#e07a5f; --ok:#54b384;
+  --chip-bg:#242c34; --shadow:0 6px 24px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Barlow,system-ui,sans-serif;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+textarea{resize:vertical;min-height:60px}
+.mono{font-family:"IBM Plex Mono",Consolas,monospace}
+
+/* ── nav ── */
+#nav{display:flex;align-items:center;gap:14px;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+#brand{display:flex;align-items:baseline;gap:10px}
+#brand h1{margin:0;font:700 26px/1 "Barlow Condensed",sans-serif;letter-spacing:.5px;text-transform:uppercase}
+#brand .sub{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+#nav .spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.discord{background:var(--discord);border-color:var(--discord);color:var(--discord-ink)}
+.btn.discord svg{flex:none}
+.btn.toggled{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+#saveBtn{display:none}
+#saveBtn.dirty{display:inline-flex;background:var(--ok);border-color:var(--ok);color:#fff}
+#saveMsg{font-size:13px;color:var(--muted)}
+
+/* ── edit toolbar ── */
+#tools{display:none;gap:8px;align-items:center;padding:7px 16px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap;font-size:14px}
+body.editing #tools{display:flex}
+#tools .btn{padding:5px 11px;font-size:13.5px}
+#tools .hint{color:var(--muted);font-size:13px}
+
+/* ── layout ── */
+#stage{position:relative;height:calc(100dvh - var(--chrome,54px));display:flex}
+#mapwrap{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:10px}
+svg#map{width:100%;height:100%;max-height:100%}
+svg#map text{user-select:none}
+
+/* ── legend ── */
+#legend{position:absolute;left:14px;bottom:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:10px 14px;font-size:13.5px;max-width:250px}
+#legend h3{margin:0 0 6px;font:600 13px "Barlow Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#legend label{display:flex;align-items:center;gap:8px;padding:2.5px 0;cursor:pointer}
+#legend input{width:auto}
+.swatch{width:12px;height:12px;border-radius:50%;flex:none}
+.swatch.club{border-radius:2px;transform:rotate(45deg)}
+
+/* ── drawer ── */
+#drawer{flex:0 0 0px;width:0;overflow:hidden;background:var(--panel);border-left:0 solid var(--line);z-index:20}
+#drawer.open{flex-basis:min(400px,42%);width:auto;border-left-width:1px;overflow-y:auto}
+#drawer .head,#drawer .body{min-width:300px}
+#drawer .head{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);padding:14px 18px 10px;z-index:2}
+#drawer .head h2{margin:0;font:600 24px/1.1 "Barlow Condensed",sans-serif}
+#drawer .head .call{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--accent);font-weight:600}
+#drawer .head .kind{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+#closeDrawer{position:absolute;top:10px;right:10px;font-size:20px;line-height:1;padding:6px 10px;border-radius:8px}
+#closeDrawer:hover{background:var(--panel2)}
+#drawer .body{padding:14px 18px 30px;display:flex;flex-direction:column;gap:14px}
+.field label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.field .val{white-space:pre-wrap}
+.field .val a{color:var(--clubs)}
+.field .val:empty::after{content:"—";color:var(--muted)}
+.rpt{border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--panel2)}
+.rpt .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rpt .name{font-weight:600}
+.rpt .freqs{font-family:"IBM Plex Mono",monospace;font-size:13.5px;margin-top:3px}
+.chip{font-size:11px;font-weight:600;letter-spacing:.05em;padding:1.5px 8px;border-radius:20px;background:var(--chip-bg);color:var(--muted)}
+.chip.vhf{color:var(--ok)} .chip.uhf{color:var(--clubs)} .chip.link{color:var(--accent)} .chip.dig{color:var(--bh)}
+.photo{width:100%;border-radius:8px;display:block}
+.rowbtns{display:flex;gap:8px;flex-wrap:wrap}
+.btn.small{padding:4px 10px;font-size:13px}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.editgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.editgrid .wide{grid-column:1/-1}
+.sysnote{font-size:13px;color:var(--muted)}
+.warn{font-size:13px;color:var(--danger)}
+.drawer-note{font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
+
+/* ── map marks ── */
+.site-dot{stroke:var(--panel);stroke-width:1.6}
+.club-dot{stroke:var(--panel);stroke-width:1.6}
+.mark{cursor:pointer}
+body.editing .mark{cursor:grab}
+.mark.dragging{cursor:grabbing}
+.mark text{font:600 11.5px Barlow,sans-serif;fill:var(--ink);paint-order:stroke;stroke:var(--bg);stroke-width:3px;stroke-linejoin:round}
+.linkline{fill:none;stroke-width:2.2;stroke-linecap:round;opacity:.85;cursor:pointer}
+.linkline.halo{stroke-width:9;opacity:0;}
+.mark.selected .site-dot,.mark.selected .club-dot{stroke:var(--ink);stroke-width:2.4}
+.mark.linksrc .site-dot{stroke:var(--accent);stroke-width:3}
+#map .citylabel{font:500 10.5px Barlow,sans-serif;fill:var(--muted)}
+#map .statelabel{font:700 34px "Barlow Condensed",sans-serif;fill:var(--land-stroke);opacity:.5;letter-spacing:.35em}
+
+@media (max-width:700px){
+  #drawer{position:absolute;left:0;right:0;bottom:0;top:auto;height:62%;width:100%;flex:none;border-left:0;border-top:1px solid var(--line);box-shadow:var(--shadow);transform:translateY(103%);transition:transform .22s ease;overflow-y:auto}
+  #drawer.open{transform:none;width:100%}
+  #drawer .head,#drawer .body{min-width:0}
+  #legend{max-width:170px;font-size:12.5px;bottom:10px;left:10px}
+  #brand .sub{display:none}
+}
+@media (prefers-reduced-motion: reduce){#drawer{transition:none}}
+</style>
+
+<script type="application/json" id="seed">{"discord":{"url":"","label":"SD Ham Discord"},"clubs":[{"id":"c1","name":"Black Hills Amateur Radio Club","callsign":"W0BLK","city":"Rapid City","lat":44.0805,"lon":-103.231,"meeting":"Monthly meeting 7:00 PM (see w0blk.com for date/location). Rag chew net Tue & Thu 7:00 PM on 444.450.","mailing":"groups.io/g/W0BLK","website":"http://www.w0blk.com","repeaters":"146.940 & 444.575 (Radar Hill), 444.450 club UHF","notes":""},{"id":"c2","name":"Brookings Radio Research Club","callsign":"W0BXO","city":"Brookings","lat":44.3114,"lon":-96.7984,"meeting":"","mailing":"","website":"","repeaters":"","notes":""},{"id":"c3","name":"Hot Springs Amateur Radio Club","callsign":"K0HS","city":"Hot Springs","lat":43.4316,"lon":-103.4744,"meeting":"","mailing":"","website":"","repeaters":"","notes":""},{"id":"c4","name":"Hub City Amateur Radio Club","callsign":"W0ABR","city":"Aberdeen","lat":45.4647,"lon":-98.4865,"meeting":"","mailing":"","website":"","repeaters":"","notes":""},{"id":"c5","name":"Huron Amateur Radio Club","callsign":"W0NOZ","city":"Huron","lat":44.3633,"lon":-98.2143,"meeting":"","mailing":"","website":"","repeaters":"","notes":""},{"id":"c6","name":"Lake Area Radio Klub","callsign":"W0WTN","city":"Watertown","lat":44.8994,"lon":-97.1153,"meeting":"","mailing":"","website":"","repeaters":"","notes":""},{"id":"c7","name":"Northern Hills Amateur Radio Club","callsign":"KC0BXH","city":"Belle Fourche","lat":44.6714,"lon":-103.8522,"meeting":"","mailing":"","website":"","repeaters":"","notes":""},{"id":"c8","name":"Pierre Amateur Radio Club","callsign":"W0PIR","city":"Pierre","lat":44.3683,"lon":-100.351,"meeting":"2nd Thursday, 7:00 PM — Fire Station #4, 802 N Pierce Ave, Pierre","mailing":"","website":"https://sdhams.com","repeaters":"","notes":""},{"id":"c9","name":"Prairie Dog Amateur Radio Club","callsign":"W0OJY","city":"Yankton","lat":42.8711,"lon":-97.3973,"meeting":"2nd Tuesday, 7:00 PM — Christ the King Lutheran Church, 305 W 25th St, Yankton","mailing":"See pdarc.org for club mailing list","website":"https://pdarc.org","repeaters":"Linked analog system (Yankton, Vermillion, Springfield, Spencer NE) + Yankton Fusion (YSF88411 PDARC)","notes":""},{"id":"c10","name":"Sioux Empire Amateur Radio Club","callsign":"W0ZWY","city":"Sioux Falls","lat":43.5473,"lon":-96.7283,"meeting":"1st Tuesday, 7:30 PM — Minnehaha Co. Emergency Mgmt Bldg, 608 N Sigler Ave, Sioux Falls","mailing":"See w0zwy.org","website":"https://w0zwy.org","repeaters":"","notes":""}],"sites":[{"id":"s1","name":"Sioux Falls","system":"sdlink","lat":43.578,"lon":-96.703,"notes":"","photos":[],"repeaters":[{"label":"Sioux Falls UHF","type":"UHF Repeater","tx":"444.825","rx":"449.825","tone":"103.5"},{"label":"Sioux Falls UHF Link","type":"UHF Link","tx":"447.075","rx":"442.075","tone":"103.5"}]},{"id":"s2","name":"Turkey Ridge","system":"sdlink","lat":43.262,"lon":-97.142,"notes":"","photos":[],"repeaters":[{"label":"Turkey Ridge UHF","type":"UHF Repeater","tx":"444.975","rx":"449.975","tone":"146.2"},{"label":"Turkey Ridge UHF Link","type":"UHF Link","tx":"447.075","rx":"442.075","tone":"103.5"}]},{"id":"s3","name":"Colman","system":"sdlink","lat":43.985,"lon":-96.813,"notes":"","photos":[],"repeaters":[{"label":"Colman UHF Link","type":"UHF Link","tx":"443.225","rx":"448.225","tone":"146.2"}]},{"id":"s4","name":"Salem (W0SD)","system":"sdlink","lat":43.724,"lon":-97.389,"notes":"Hub of the SD-LINK east side.","photos":[],"repeaters":[{"label":"Salem W0SD VHF","type":"VHF Repeater","tx":"","rx":"","tone":""},{"label":"Salem W0SD UHF","type":"UHF Repeater","tx":"442.075","rx":"447.075","tone":"103.5"}]},{"id":"s5","name":"Toronto","system":"sdlink","lat":44.573,"lon":-96.641,"notes":"","photos":[],"repeaters":[{"label":"Toronto VHF","type":"VHF Repeater","tx":"146.775","rx":"146.175","tone":"146.2"},{"label":"Toronto UHF Link","type":"UHF Link","tx":"447.075","rx":"442.075","tone":"103.5"},{"label":"Toronto UHF Link","type":"UHF Link","tx":"447.000","rx":"442.000","tone":"146.2"}]},{"id":"s6","name":"Watertown","system":"sdlink","lat":44.921,"lon":-97.135,"notes":"","photos":[],"repeaters":[{"label":"Watertown UHF","type":"UHF Repeater","tx":"442.000","rx":"447.000","tone":"146.2"}]},{"id":"s7","name":"Wessington Springs","system":"sdlink","lat":44.081,"lon":-98.569,"notes":"","photos":[],"repeaters":[{"label":"Wessington Springs VHF","type":"VHF Repeater","tx":"147.345","rx":"147.945","tone":"146.2"},{"label":"Wessington Springs UHF","type":"UHF Repeater","tx":"444.650","rx":"449.650","tone":""},{"label":"Wessington Springs UHF Link E","type":"UHF Link","tx":"447.075","rx":"442.075","tone":"103.5"}]},{"id":"s8","name":"Crandall Hill","system":"sdlink","lat":45.32,"lon":-97.72,"notes":"","photos":[],"repeaters":[{"label":"Crandall Hill VHF","type":"VHF Repeater","tx":"146.790","rx":"146.190","tone":"146.2"},{"label":"Crandall Hill UHF Link","type":"UHF Link","tx":"449.650","rx":"444.650","tone":"151.4"}]},{"id":"s9","name":"Reliance","system":"sdlink","lat":43.879,"lon":-99.603,"notes":"","photos":[],"repeaters":[{"label":"Reliance VHF","type":"VHF Repeater","tx":"146.940","rx":"146.340","tone":"146.2"},{"label":"Reliance UHF Link E","type":"UHF Link","tx":"449.650","rx":"444.650","tone":"151.4"},{"label":"Reliance UHF Link W","type":"UHF Link","tx":"448.450","rx":"443.450","tone":"103.5"}]},{"id":"s10","name":"Murdo","system":"sdlink","lat":43.888,"lon":-100.713,"notes":"","photos":[],"repeaters":[{"label":"Murdo VHF","type":"VHF Repeater","tx":"147.300","rx":"147.900","tone":"146.2"},{"label":"Murdo UHF","type":"UHF Repeater","tx":"443.450","rx":"448.450","tone":"103.5"}]},{"id":"s11","name":"Pierre","system":"sdlink","lat":44.395,"lon":-100.37,"notes":"","photos":[],"repeaters":[{"label":"Pierre VHF","type":"VHF Repeater","tx":"146.730","rx":"146.130","tone":"146.2"},{"label":"Pierre UHF Link","type":"UHF Link","tx":"448.450","rx":"443.450","tone":"103.5"}]},{"id":"s12","name":"Philip","system":"sdlink","lat":44.039,"lon":-101.665,"notes":"","photos":[],"repeaters":[{"label":"Philip VHF","type":"VHF Repeater","tx":"147.375","rx":"147.975","tone":"146.2"},{"label":"Philip UHF Link E","type":"UHF Link","tx":"448.450","rx":"443.450","tone":"103.5"},{"label":"Philip UHF Link W","type":"UHF Link","tx":"448.650","rx":"443.650","tone":"131.8"}]},{"id":"s13","name":"Terry Peak","system":"sdlink","lat":44.319,"lon":-103.832,"notes":"","photos":[],"repeaters":[{"label":"Terry Peak VHF","type":"VHF Repeater","tx":"147.030","rx":"147.630","tone":"146.2"},{"label":"Terry Peak UHF","type":"UHF Repeater","tx":"443.650","rx":"448.650","tone":"131.8"}]},{"id":"s14","name":"Rapid City","system":"sdlink","lat":44.105,"lon":-103.26,"notes":"","photos":[],"repeaters":[{"label":"Rapid City UHF","type":"UHF Repeater","tx":"444.750","rx":"449.750","tone":"146.2"}]},{"id":"s15","name":"Yankton","system":"pdarc","lat":42.895,"lon":-97.43,"notes":"UNVERIFIED seed data — PDARC publishes its frequency table as an image; edit with real frequencies from pdarc.org/repeaters.","photos":[],"repeaters":[{"label":"Yankton VHF","type":"VHF Repeater","tx":"","rx":"","tone":""},{"label":"Yankton Fusion","type":"Digital","tx":"","rx":"","tone":"YSF88411 PDARC"}]},{"id":"s16","name":"Vermillion","system":"pdarc","lat":42.78,"lon":-96.929,"notes":"UNVERIFIED seed data — edit with real frequencies.","photos":[],"repeaters":[{"label":"Vermillion","type":"VHF Repeater","tx":"","rx":"","tone":""}]},{"id":"s17","name":"Springfield","system":"pdarc","lat":42.854,"lon":-97.897,"notes":"UNVERIFIED seed data — edit with real frequencies.","photos":[],"repeaters":[{"label":"Springfield","type":"VHF Repeater","tx":"","rx":"","tone":""}]},{"id":"s18","name":"Spencer, NE","system":"pdarc","lat":42.874,"lon":-98.703,"notes":"UNVERIFIED seed data — edit with real frequencies.","photos":[],"repeaters":[{"label":"Spencer NE","type":"VHF Repeater","tx":"","rx":"","tone":""}]},{"id":"s19","name":"Radar Hill (Rapid City)","system":"bh","lat":44.062,"lon":-103.16,"notes":"W0BLK. Verify against w0blk.com.","photos":[],"repeaters":[{"label":"Radar Hill VHF","type":"VHF Repeater","tx":"146.940","rx":"146.340","tone":""},{"label":"BHARC Club UHF","type":"UHF Repeater","tx":"444.450","rx":"449.450","tone":"146.2"},{"label":"Radar Hill UHF","type":"UHF Repeater","tx":"444.575","rx":"449.575","tone":""}]},{"id":"s20","name":"Terry Peak (BHARC)","system":"bh","lat":44.345,"lon":-103.87,"notes":"PLACEHOLDER — Black Hills system site list was not published online in a readable form; edit/add sites with real data.","photos":[],"repeaters":[{"label":"Terry Peak (BHARC)","type":"VHF Repeater","tx":"","rx":"","tone":""}]}],"links":[{"a":"s4","b":"s1","system":"sdlink"},{"a":"s4","b":"s2","system":"sdlink"},{"a":"s4","b":"s3","system":"sdlink"},{"a":"s4","b":"s5","system":"sdlink"},{"a":"s4","b":"s7","system":"sdlink"},{"a":"s5","b":"s6","system":"sdlink"},{"a":"s7","b":"s8","system":"sdlink"},{"a":"s7","b":"s9","system":"sdlink"},{"a":"s9","b":"s10","system":"sdlink"},{"a":"s10","b":"s11","system":"sdlink"},{"a":"s10","b":"s12","system":"sdlink"},{"a":"s12","b":"s13","system":"sdlink"},{"a":"s13","b":"s14","system":"sdlink"},{"a":"s15","b":"s16","system":"pdarc"},{"a":"s15","b":"s17","system":"pdarc"},{"a":"s17","b":"s18","system":"pdarc"},{"a":"s19","b":"s20","system":"bh"}]}</script>
+
+<nav id="nav">
+  <div id="brand">
+    <h1>SoDak Ham Map</h1>
+    <span class="sub">South Dakota clubs &amp; linked repeaters</span>
+  </div>
+  <div class="spacer"></div>
+  <a id="discordBtn" class="btn discord" href="#" target="_blank" rel="noopener">
+    <svg width="18" height="14" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><path d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z"/></svg>
+    <span id="discordLabel">SD Ham Discord</span>
+  </a>
+  <button id="editBtn" class="btn">✎ Edit</button>
+  <button id="saveBtn" class="btn">Save changes</button>
+  <span id="saveMsg"></span>
+</nav>
+
+<div id="tools">
+  <span class="hint">Edit mode:</span>
+  <button class="btn small" data-tool="addsite">+ Repeater site</button>
+  <button class="btn small" data-tool="addclub">+ Club</button>
+  <button class="btn small" data-tool="link">⌁ Link two sites</button>
+  <span class="hint" id="toolHint">Drag any marker to move it. Click a marker to edit its details. Click a link line to change or delete it.</span>
+  <span class="spacer" style="flex:1"></span>
+  <label style="display:flex;gap:6px;align-items:center;font-size:13px">Discord invite URL
+    <input id="discordUrl" type="url" placeholder="https://discord.gg/..." style="width:220px">
+  </label>
+  <label id="ghTokenWrap" style="display:none;gap:6px;align-items:center;font-size:13px" title="Fine-grained personal access token with Contents read/write on the site repo. Stored only in this browser — needed to save edits.">GitHub token
+    <input id="ghToken" type="password" autocomplete="off" placeholder="github_pat_…" style="width:170px">
+  </label>
+</div>
+
+<div id="stage">
+  <div id="mapwrap"><svg id="map" viewBox="-24 -24 1048 700" role="application" aria-label="Map of South Dakota amateur radio clubs and repeaters"></svg></div>
+
+  <div id="legend">
+    <h3>Layers</h3>
+    <label><input type="checkbox" data-layer="clubs" checked><span class="swatch club" style="background:var(--clubs)"></span>Clubs</label>
+    <label><input type="checkbox" data-layer="sdlink" checked><span class="swatch" style="background:var(--sdlink)"></span>SD-LINK system</label>
+    <label><input type="checkbox" data-layer="pdarc" checked><span class="swatch" style="background:var(--pdarc)"></span>Prairie Dog ARC system</label>
+    <label><input type="checkbox" data-layer="bh" checked><span class="swatch" style="background:var(--bh)"></span>Black Hills system</label>
+    <label><input type="checkbox" data-layer="none" checked><span class="swatch" style="background:var(--indep)"></span>Independent sites</label>
+  </div>
+
+  <aside id="drawer" aria-live="polite">
+    <div class="head">
+      <div class="kind" id="dKind"></div>
+      <h2 id="dTitle"></h2>
+      <div class="call" id="dCall"></div>
+      <button id="closeDrawer" aria-label="Close panel">✕</button>
+    </div>
+    <div class="body" id="dBody"></div>
+  </aside>
+</div>
+
+<script>
+"use strict";
+/* ───────────────────────── state ───────────────────────── */
+const seedEl = document.getElementById('seed');
+let state = JSON.parse(seedEl.textContent);
+// Hosting mode: inside the Claude artifact viewer, saves publish a new artifact
+// version. On plain static hosting (GitHub Pages / 605hams.com), data lives in
+// data.json next to this file and saves commit it via the GitHub API.
+const IS_ARTIFACT = !!(window.claude && window.claude.use);
+const GH = {owner:'AidenSchramm', repo:'605hams', branch:'main', path:'data.json'};
+let dirty = false, editing = false, tool = null, linkSrc = null;
+let selected = null;               // {type:'club'|'site'|'link', id or index}
+let readOnly = false;
+const layers = {clubs:true, sdlink:true, pdarc:true, bh:true, none:true};
+const SYS = {
+  sdlink:{name:'SD-LINK', color:'var(--sdlink)'},
+  pdarc:{name:'Prairie Dog ARC', color:'var(--pdarc)'},
+  bh:{name:'Black Hills', color:'var(--bh)'},
+  none:{name:'Independent', color:'var(--indep)'}
+};
+const uid = p => p + Math.random().toString(36).slice(2,8);
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* ───────────────────────── projection ───────────────────────── */
+const LON0=-104.06, LON1=-96.40, LAT0=42.42, LAT1=45.97;
+const K = Math.cos(44.2*Math.PI/180);
+const S = 1000/((LON1-LON0)*K);
+const H = (LAT1-LAT0)*S;
+const px = (lat,lon)=>[(lon-LON0)*K*S, (LAT1-lat)*S];
+const inv = (x,y)=>[LAT1 - y/S, LON0 + x/(K*S)];
+const pts = a => a.map(p=>px(p[0],p[1]).map(n=>n.toFixed(1)).join(',')).join(' ');
+
+/* ───────────────────────── base map geometry ───────────────────────── */
+const BORDER = [[45.945,-104.05],[45.945,-102.0],[45.945,-99.5],[45.94,-97.5],[45.935,-96.563],
+ [45.75,-96.69],[45.59,-96.83],[45.44,-96.62],[45.30,-96.47],[44.5,-96.453],[43.85,-96.453],[43.50,-96.453],
+ [43.30,-96.53],[43.13,-96.45],[42.90,-96.55],[42.70,-96.62],[42.52,-96.50],[42.49,-96.44],
+ [42.60,-96.72],[42.77,-96.95],[42.83,-97.22],[42.86,-97.40],[42.80,-97.65],[42.72,-97.90],[42.77,-98.10],
+ [42.85,-98.30],[42.92,-98.42],[43.00,-98.50],[43.00,-100.5],[43.00,-102.5],[43.00,-104.05]];
+const MISSOURI = [[45.94,-100.32],[45.55,-100.42],[45.10,-100.30],[44.75,-100.50],[44.45,-100.40],[44.365,-100.37],
+ [44.15,-100.20],[44.05,-99.85],[44.02,-99.45],[43.80,-99.32],[43.55,-99.20],[43.30,-99.05],[43.10,-98.70],[43.00,-98.50]];
+const I90 = [[43.54,-96.75],[43.65,-97.60],[43.71,-98.03],[43.81,-99.33],[43.89,-100.71],[43.83,-101.51],
+ [43.99,-102.24],[44.08,-103.23],[44.41,-103.51],[44.49,-103.86],[44.55,-104.05]];
+const I29 = [[42.49,-96.48],[43.00,-96.58],[43.54,-96.73],[44.31,-96.77],[44.90,-97.10],[45.66,-96.99],[45.94,-96.92]];
+const CITIES = [["Aberdeen",45.465,-98.487],["Mitchell",43.71,-98.03],["Spearfish",44.49,-103.86],["Mobridge",45.54,-100.43],["Chamberlain",43.81,-99.33]];
+let cityObstacles = [];
+
+const svg = document.getElementById('map');
+function baseMap(){
+  let g = '<g id="base">';
+  g += '<polygon points="'+pts(BORDER)+'" fill="var(--land)" stroke="var(--land-stroke)" stroke-width="2" stroke-linejoin="round"/>';
+  g += '<polyline points="'+pts(I90)+'" stroke="var(--road)" stroke-width="2" fill="none" stroke-dasharray="7 5"/>';
+  g += '<polyline points="'+pts(I29)+'" stroke="var(--road)" stroke-width="2" fill="none" stroke-dasharray="7 5"/>';
+  g += '<polyline points="'+pts(MISSOURI)+'" stroke="var(--water)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+  const [slx,sly]=px(45.55,-102.6);
+  g += '<text class="statelabel" x="'+slx+'" y="'+sly+'">SOUTH DAKOTA</text>';
+  cityObstacles=[];
+  for(const c of CITIES){
+    const [x,y]=px(c[1],c[2]);
+    g += '<circle cx="'+x+'" cy="'+y+'" r="2.2" fill="var(--land-stroke)"/><text class="citylabel" x="'+(x+5)+'" y="'+(y+3)+'">'+c[0]+'</text>';
+    cityObstacles.push([x-3,y-3,6,6],[x+5,y-6,c[0].length*5.4+4,12]);
+  }
+  g += '</g><g id="glinks"></g><g id="gmarks"></g>';
+  svg.innerHTML = g;
+}
+
+/* ───────────────────────── dynamic render ───────────────────────── */
+const site = id => state.sites.find(s=>s.id===id);
+const club = id => state.clubs.find(c=>c.id===id);
+
+function overlapArea(a,b){
+  const w=Math.min(a[0]+a[2],b[0]+b[2])-Math.max(a[0],b[0]);
+  const h=Math.min(a[1]+a[3],b[1]+b[3])-Math.max(a[1],b[1]);
+  return (w>0&&h>0)?w*h:0;
+}
+// Try above/below/right/left of the marker; take the first spot free of
+// already-placed labels, city names, marker dots, and the map edge —
+// else least overlap. Returned dir drives the marker's stem line.
+const MAPBOX=[-22,-22,1044,696];
+function placeLabel(x,y,text,pref,obstacles){
+  const w=text.length*6.3+6, h=14;
+  const above={dir:'above',tx:x,ty:y-17,anchor:'middle',box:[x-w/2,y-28,w,h]};
+  const below={dir:'below',tx:x,ty:y+22,anchor:'middle',box:[x-w/2,y+11,w,h]};
+  const right={dir:'right',tx:x+13,ty:y+4,anchor:'start',box:[x+12,y-7,w,h]};
+  const left={dir:'left',tx:x-13,ty:y+4,anchor:'end',box:[x-12-w,y-7,w,h]};
+  const cands = pref==='above'?[above,below,right,left]:[below,above,right,left];
+  let best=cands[0], bestA=Infinity;
+  for(const c of cands){
+    let a=obstacles.reduce((t,o)=>t+overlapArea(c.box,o),0);
+    a += (w*h-overlapArea(c.box,MAPBOX))*4;   // heavy penalty for going off-map
+    if(a===0){ best=c; bestA=0; break; }
+    if(a<bestA){ best=c; bestA=a; }
+  }
+  obstacles.push(best.box);
+  return best;
+}
+const STEMS={above:[0,-7,0,-13], below:[0,7,0,13], right:[7,0,13,0], left:[-7,0,-13,0]};
+
+function render(){
+  // links
+  let lh='';
+  state.links.forEach((L,i)=>{
+    const a=site(L.a), b=site(L.b);
+    if(!a||!b||!layers[L.system||'none']) return;
+    const [x1,y1]=px(a.lat,a.lon), [x2,y2]=px(b.lat,b.lon);
+    const col=(SYS[L.system]||SYS.none).color;
+    lh += '<line class="linkline halo" data-link="'+i+'" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"/>';
+    lh += '<line class="linkline" data-link="'+i+'" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"'+(selected&&selected.type==='link'&&selected.id===i?' stroke-width="4" opacity="1"':'')+'/>';
+  });
+  document.getElementById('glinks').innerHTML = lh;
+
+  // markers — two passes: collect dot obstacles, then place labels greedily
+  const visSites = state.sites.filter(s=>layers[s.system||'none']);
+  const visClubs = layers.clubs?state.clubs:[];
+  const obstacles = cityObstacles.slice();
+  for(const s of visSites){ const [x,y]=px(s.lat,s.lon); obstacles.push([x-8,y-14,16,22]); }
+  for(const c of visClubs){ const [x,y]=px(c.lat,c.lon); obstacles.push([x-8,y-8,16,16]); }
+  let mh='';
+  for(const s of visSites){
+    const [x,y]=px(s.lat,s.lon);
+    const col=(SYS[s.system]||SYS.none).color;
+    const sel = selected&&selected.type==='site'&&selected.id===s.id;
+    const L=placeLabel(x,y,s.name,'above',obstacles);
+    const st=STEMS[L.dir];
+    mh += '<g class="mark'+(sel?' selected':'')+(linkSrc===s.id?' linksrc':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'+esc(s.name)+' repeater site" transform="translate('+x+','+y+')">'
+        + '<circle class="site-dot" r="7" fill="'+col+'"/>'
+        + '<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
+        + '<text x="'+(L.tx-x).toFixed(1)+'" y="'+(L.ty-y).toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text></g>';
+  }
+  for(const c of visClubs){
+    const [x,y]=px(c.lat,c.lon);
+    const sel = selected&&selected.type==='club'&&selected.id===c.id;
+    const L=placeLabel(x,y,c.callsign,'below',obstacles);
+    mh += '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'+esc(c.name)+'" transform="translate('+x+','+y+')">'
+        + '<rect class="club-dot" x="-5.5" y="-5.5" width="11" height="11" rx="2" transform="rotate(45)" fill="var(--clubs)"/>'
+        + '<text x="'+(L.tx-x).toFixed(1)+'" y="'+(L.ty-y).toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text></g>';
+  }
+  document.getElementById('gmarks').innerHTML = mh;
+}
+
+/* ───────────────────────── drawer ───────────────────────── */
+const drawer=document.getElementById('drawer');
+const dKind=document.getElementById('dKind'), dTitle=document.getElementById('dTitle'),
+      dCall=document.getElementById('dCall'), dBody=document.getElementById('dBody');
+
+function closeDrawer(){ selected=null; drawer.classList.remove('open'); render(); }
+document.getElementById('closeDrawer').onclick = closeDrawer;
+
+function field(lab, val, link){
+  let v = esc(val);
+  if(link && val){ const href=/^https?:/.test(val)?val:'https://'+val; v='<a href="'+esc(href)+'" target="_blank" rel="noopener">'+esc(val)+'</a>'; }
+  return '<div class="field"><label>'+lab+'</label><div class="val">'+v+'</div></div>';
+}
+function chipFor(t){
+  t=(t||'').toLowerCase();
+  if(t.includes('digital')||t.includes('fusion')) return '<span class="chip dig">DIGITAL</span>';
+  if(t.includes('link')) return '<span class="chip link">LINK</span>';
+  if(t.includes('vhf')) return '<span class="chip vhf">VHF</span>';
+  if(t.includes('uhf')) return '<span class="chip uhf">UHF</span>';
+  return '<span class="chip">'+esc(t.toUpperCase()||'RPT')+'</span>';
+}
+function rptView(r){
+  const f=[];
+  if(r.tx) f.push('TX '+r.tx); if(r.rx) f.push('RX '+r.rx);
+  let s='<div class="rpt"><div class="top"><span class="name">'+esc(r.label)+'</span>'+chipFor(r.type)+'</div>';
+  s+='<div class="freqs">'+(f.length?esc(f.join('  /  ')):'<span style="color:var(--muted)">frequency not set</span>');
+  if(r.tone) s+='  ·  Tone '+esc(r.tone);
+  s+='</div></div>';
+  return s;
+}
+function ed(label, id, val, ph){ return '<div class="field"><label>'+label+'</label><input data-ed="'+id+'" value="'+esc(val)+'" placeholder="'+esc(ph||'')+'"></div>'; }
+function edArea(label, id, val, ph){ return '<div class="field"><label>'+label+'</label><textarea data-ed="'+id+'" placeholder="'+esc(ph||'')+'">'+esc(val)+'</textarea></div>'; }
+
+function openClub(id){
+  const c=club(id); if(!c) return;
+  selected={type:'club',id}; drawer.classList.add('open');
+  dKind.textContent='Amateur Radio Club'; dTitle.textContent=c.name; dCall.textContent=c.callsign+' · '+c.city;
+  if(!editing){
+    dBody.innerHTML =
+      field('Meetings', c.meeting) +
+      field('Mailing list', c.mailing, true) +
+      field('Website', c.website, true) +
+      field('Repeaters maintained', c.repeaters) +
+      (c.notes?field('Notes',c.notes):'') +
+      '<div class="drawer-note">Coordinates: '+c.lat.toFixed(4)+', '+c.lon.toFixed(4)+'</div>';
+  } else {
+    dBody.innerHTML =
+      '<div class="editgrid">'+
+        '<div class="wide">'+ed('Club name','name',c.name)+'</div>'+
+        ed('Callsign','callsign',c.callsign)+ed('City','city',c.city)+
+        '<div class="wide">'+edArea('Meetings','meeting',c.meeting,'e.g. 2nd Tuesday, 7:00 PM — location')+'</div>'+
+        '<div class="wide">'+ed('Mailing list','mailing',c.mailing,'groups.io / email list URL')+'</div>'+
+        '<div class="wide">'+ed('Website','website',c.website,'https://…')+'</div>'+
+        '<div class="wide">'+edArea('Repeaters maintained','repeaters',c.repeaters)+'</div>'+
+        '<div class="wide">'+edArea('Notes','notes',c.notes)+'</div>'+
+      '</div>'+
+      '<div class="rowbtns"><button class="btn small danger" id="delEntity">Delete club</button></div>'+
+      '<div class="drawer-note">Drag the marker on the map to move this club.</div>';
+    wireEdits(c);
+  }
+  render();
+}
+
+function openSite(id){
+  const s=site(id); if(!s) return;
+  selected={type:'site',id}; drawer.classList.add('open');
+  const sys=SYS[s.system]||SYS.none;
+  dKind.textContent='Repeater Site — '+sys.name; dTitle.textContent=s.name; dCall.textContent='';
+  let photos = (s.photos||[]).map((p,i)=>'<div><img class="photo" src="'+p+'" alt="Site photo">'
+      +(editing?'<div class="rowbtns" style="margin-top:4px"><button class="btn small danger" data-delphoto="'+i+'">Remove photo</button></div>':'')+'</div>').join('');
+  if(!editing){
+    dBody.innerHTML =
+      (s.repeaters||[]).map(rptView).join('') +
+      (s.notes?field('Notes',s.notes):'') +
+      photos +
+      '<div class="drawer-note">Coordinates: '+s.lat.toFixed(4)+', '+s.lon.toFixed(4)+'</div>';
+  } else {
+    let rpts=(s.repeaters||[]).map((r,i)=>
+      '<div class="rpt"><div class="editgrid">'+
+      '<div class="wide">'+ed('Label','r'+i+'.label',r.label)+'</div>'+
+      '<div class="field"><label>Type</label><select data-ed="r'+i+'.type">'+
+        ['VHF Repeater','UHF Repeater','UHF Link','VHF Link','Digital','Other'].map(t=>'<option'+(r.type===t?' selected':'')+'>'+t+'</option>').join('')+
+      '</select></div>'+
+      ed('Tone (CTCSS)','r'+i+'.tone',r.tone)+
+      ed('TX','r'+i+'.tx',r.tx)+ed('RX','r'+i+'.rx',r.rx)+
+      '<div class="wide rowbtns"><button class="btn small danger" data-delrpt="'+i+'">Remove repeater</button></div>'+
+      '</div></div>').join('');
+    dBody.innerHTML =
+      '<div class="editgrid">'+
+      '<div class="wide">'+ed('Site name','name',s.name)+'</div>'+
+      '<div class="wide field"><label>System</label><select data-ed="system">'+
+        Object.keys(SYS).map(k=>'<option value="'+k+'"'+(s.system===k?' selected':'')+'>'+SYS[k].name+'</option>').join('')+
+      '</select></div>'+
+      '<div class="wide">'+edArea('Notes','notes',s.notes)+'</div>'+
+      '</div>'+
+      '<div class="field"><label>Repeaters at this site</label></div>'+rpts+
+      '<div class="rowbtns"><button class="btn small" id="addRpt">+ Add repeater</button></div>'+
+      '<div class="field"><label>Photos</label>'+ (photos||'<div class="sysnote">No photos yet.</div>') +
+      '<input type="file" id="photoIn" accept="image/*" style="margin-top:6px"></div>'+
+      '<div class="rowbtns"><button class="btn small danger" id="delEntity">Delete site</button></div>'+
+      '<div class="drawer-note">Drag the marker on the map to move this site. Links follow automatically.</div>';
+    wireEdits(s);
+  }
+  render();
+}
+
+function openLink(i){
+  const L=state.links[i]; if(!L) return;
+  selected={type:'link',id:i}; drawer.classList.add('open');
+  const a=site(L.a),b=site(L.b);
+  dKind.textContent='Repeater link'; dTitle.textContent=(a?a.name:'?')+' ⌁ '+(b?b.name:'?'); dCall.textContent=(SYS[L.system]||SYS.none).name;
+  if(!editing){
+    dBody.innerHTML='<div class="sysnote">This line marks an RF link between the two sites in the '+(SYS[L.system]||SYS.none).name+' system. Turn on Edit mode to change or remove it.</div>';
+  } else {
+    dBody.innerHTML =
+      '<div class="field"><label>System</label><select data-ed="system">'+
+      Object.keys(SYS).map(k=>'<option value="'+k+'"'+(L.system===k?' selected':'')+'>'+SYS[k].name+'</option>').join('')+
+      '</select></div>'+
+      '<div class="rowbtns"><button class="btn small danger" id="delEntity">Delete link</button></div>';
+    dBody.querySelector('[data-ed="system"]').addEventListener('change',e=>{L.system=e.target.value; markDirty(); render();});
+    dBody.querySelector('#delEntity').onclick=()=>{ state.links.splice(i,1); markDirty(); closeDrawer(); };
+  }
+  render();
+}
+
+function wireEdits(obj){
+  dBody.querySelectorAll('[data-ed]').forEach(el=>{
+    el.addEventListener('input',()=>{
+      const k=el.getAttribute('data-ed');
+      const m=k.match(/^r(\d+)\.(\w+)$/);
+      if(m) obj.repeaters[+m[1]][m[2]]=el.value;
+      else obj[k]=el.value;
+      markDirty();
+      if(k==='name'||k==='callsign'||k==='system') render();
+      if(k==='name') dTitle.textContent=obj.name;
+    });
+  });
+  const del=dBody.querySelector('#delEntity');
+  if(del) del.onclick=()=>{
+    if(!confirm('Delete "'+(obj.name)+'"? This also removes its links.')) return;
+    if(selected.type==='club') state.clubs=state.clubs.filter(c=>c.id!==obj.id);
+    else { state.sites=state.sites.filter(s=>s.id!==obj.id); state.links=state.links.filter(L=>L.a!==obj.id&&L.b!==obj.id); }
+    markDirty(); closeDrawer();
+  };
+  const addR=dBody.querySelector('#addRpt');
+  if(addR) addR.onclick=()=>{ obj.repeaters.push({label:obj.name+' — new',type:'VHF Repeater',tx:'',rx:'',tone:''}); markDirty(); openSite(obj.id); };
+  dBody.querySelectorAll('[data-delrpt]').forEach(b=>b.onclick=()=>{ obj.repeaters.splice(+b.getAttribute('data-delrpt'),1); markDirty(); openSite(obj.id); });
+  dBody.querySelectorAll('[data-delphoto]').forEach(b=>b.onclick=()=>{ obj.photos.splice(+b.getAttribute('data-delphoto'),1); markDirty(); openSite(obj.id); });
+  const ph=dBody.querySelector('#photoIn');
+  if(ph) ph.addEventListener('change',()=>{
+    const f=ph.files[0]; if(!f) return;
+    const img=new Image();
+    img.onload=()=>{
+      const max=1000, sc=Math.min(1,max/Math.max(img.width,img.height));
+      const cv=document.createElement('canvas');
+      cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      const uri=cv.toDataURL('image/jpeg',0.8);
+      obj.photos=obj.photos||[]; obj.photos.push(uri);
+      URL.revokeObjectURL(img.src);
+      if(JSON.stringify(state).length>9e6) alert('Heads up: stored photos are getting large. The page has a 16 MB limit — consider removing older photos.');
+      markDirty(); openSite(obj.id);
+    };
+    img.src=URL.createObjectURL(f);
+  });
+}
+
+/* ───────────────────────── map interaction ───────────────────────── */
+function svgPoint(ev){
+  const pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+  const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+  return [p.x,p.y];
+}
+let drag=null, justDragged=false;
+svg.addEventListener('pointerdown',ev=>{
+  const g=ev.target.closest('.mark');
+  if(!g) return;
+  const id=g.getAttribute('data-site')||g.getAttribute('data-club');
+  const obj=g.hasAttribute('data-site')?site(id):club(id);
+  if(!obj) return;
+  if(editing && tool==='link' && g.hasAttribute('data-site')){ handleLinkClick(id); ev.preventDefault(); return; }
+  drag={obj, isSite:g.hasAttribute('data-site'), moved:false, sx:ev.clientX, sy:ev.clientY};
+  if(editing){ svg.setPointerCapture(ev.pointerId); g.classList.add('dragging'); }
+});
+svg.addEventListener('pointermove',ev=>{
+  if(!drag||!editing) return;
+  if(!drag.moved && Math.hypot(ev.clientX-drag.sx,ev.clientY-drag.sy)<5) return;
+  drag.moved=true;
+  const [x,y]=svgPoint(ev);
+  const [lat,lon]=inv(x,y);
+  drag.obj.lat=+lat.toFixed(4); drag.obj.lon=+lon.toFixed(4);
+  render();
+});
+svg.addEventListener('pointerup',ev=>{
+  if(!drag) return;
+  const d=drag; drag=null;
+  document.querySelectorAll('.mark.dragging').forEach(m=>m.classList.remove('dragging'));
+  if(d.moved){ justDragged=true; markDirty(); return; }
+  d.isSite?openSite(d.obj.id):openClub(d.obj.id);
+});
+svg.addEventListener('click',ev=>{
+  if(justDragged){ justDragged=false; return; }
+  const ln=ev.target.closest('.linkline');
+  if(ln){ openLink(+ln.getAttribute('data-link')); return; }
+  if(ev.target.closest('.mark')) return;
+  if(editing && (tool==='addsite'||tool==='addclub')){
+    const [x,y]=svgPoint(ev); const [lat,lon]=inv(x,y);
+    if(tool==='addsite'){
+      const s={id:uid('s'),name:'New site',system:'none',lat:+lat.toFixed(4),lon:+lon.toFixed(4),notes:'',photos:[],repeaters:[]};
+      state.sites.push(s); setTool(null); markDirty(); openSite(s.id);
+    } else {
+      const c={id:uid('c'),name:'New club',callsign:'CALL',city:'',lat:+lat.toFixed(4),lon:+lon.toFixed(4),meeting:'',mailing:'',website:'',repeaters:'',notes:''};
+      state.clubs.push(c); setTool(null); markDirty(); openClub(c.id);
+    }
+    return;
+  }
+  closeDrawer();
+});
+svg.addEventListener('keydown',ev=>{
+  if(ev.key!=='Enter'&&ev.key!==' ') return;
+  const g=ev.target.closest&&ev.target.closest('.mark'); if(!g) return;
+  ev.preventDefault();
+  g.hasAttribute('data-site')?openSite(g.getAttribute('data-site')):openClub(g.getAttribute('data-club'));
+});
+
+function handleLinkClick(id){
+  if(!linkSrc){ linkSrc=id; setHint('Now click the second site to complete the link.'); render(); return; }
+  if(linkSrc===id){ linkSrc=null; setHint(''); render(); return; }
+  const a=site(linkSrc), sys=(a&&a.system)||'none';
+  state.links.push({a:linkSrc,b:id,system:sys});
+  const i=state.links.length-1;
+  linkSrc=null; setTool(null); markDirty(); openLink(i);
+}
+
+/* ───────────────────────── toolbar / nav ───────────────────────── */
+const toolHint=document.getElementById('toolHint');
+const defaultHint='Drag any marker to move it. Click a marker to edit its details. Click a link line to change or delete it.';
+function setHint(t){ toolHint.textContent=t||defaultHint; }
+function setTool(t){
+  tool=(tool===t)?null:t; linkSrc=null;
+  document.querySelectorAll('#tools [data-tool]').forEach(b=>b.classList.toggle('toggled',b.getAttribute('data-tool')===tool));
+  setHint(tool==='addsite'?'Click the map where the new repeater site goes.':
+          tool==='addclub'?'Click the map where the new club goes.':
+          tool==='link'?'Click the first site of the link.':'');
+  render();
+}
+document.querySelectorAll('#tools [data-tool]').forEach(b=>b.onclick=()=>setTool(b.getAttribute('data-tool')));
+
+const editBtn=document.getElementById('editBtn');
+editBtn.onclick=()=>{
+  editing=!editing;
+  document.body.classList.toggle('editing',editing);
+  editBtn.classList.toggle('toggled',editing);
+  editBtn.textContent=editing?'✓ Done editing':'✎ Edit';
+  setTool(null);
+  if(selected){ // re-open panel in the new mode
+    if(selected.type==='club') openClub(selected.id);
+    else if(selected.type==='site') openSite(selected.id);
+    else openLink(selected.id);
+  }
+  syncChrome();
+};
+
+const discordBtn=document.getElementById('discordBtn');
+const discordUrlIn=document.getElementById('discordUrl');
+function syncDiscord(){
+  const u=(state.discord&&state.discord.url||'').trim();
+  discordBtn.href=u||'#';
+  document.getElementById('discordLabel').textContent=(state.discord&&state.discord.label)||'SD Ham Discord';
+  discordUrlIn.value=u;
+}
+discordBtn.addEventListener('click',e=>{
+  if(!(state.discord&&state.discord.url)){
+    e.preventDefault();
+    alert(editing?'Paste the Discord invite URL in the toolbar field, then hit Save.':'No Discord invite set yet — an editor can add one in Edit mode.');
+  }
+});
+discordUrlIn.addEventListener('input',()=>{ state.discord.url=discordUrlIn.value.trim(); markDirty(); syncDiscord(); });
+
+document.querySelectorAll('#legend [data-layer]').forEach(cb=>cb.addEventListener('change',()=>{
+  layers[cb.getAttribute('data-layer')]=cb.checked; render();
+}));
+
+function syncChrome(){
+  const nav=document.getElementById('nav').offsetHeight+(editing?document.getElementById('tools').offsetHeight:0);
+  document.documentElement.style.setProperty('--chrome',nav+'px');
+}
+window.addEventListener('resize',syncChrome);
+
+/* ───────────────────────── saving ───────────────────────── */
+const saveBtn=document.getElementById('saveBtn'), saveMsg=document.getElementById('saveMsg');
+function markDirty(){ if(readOnly) return; dirty=true; saveBtn.classList.add('dirty'); saveMsg.textContent='Unsaved changes'; }
+window.addEventListener('beforeunload',e=>{ if(dirty){ e.preventDefault(); e.returnValue=''; } });
+
+async function saveArtifact(){
+  const artifact=await window.claude.use('artifact');
+  if(!artifact) throw {code:'not_granted'};
+  const res=await fetch(location.pathname,{cache:'no-store'});
+  if(!res.ok) throw {code:'upstream_error',message:'could not read page source'};
+  let src=await res.text();
+  const json=JSON.stringify(state).replace(/</g,'\\u003c');
+  const re=/(<script type="application\/json" id="seed">)[\s\S]*?(<\/script>)/;
+  if(!re.test(src)) throw {code:'upstream_error',message:'seed block not found'};
+  src=src.replace(re,'$1'+json.replace(/\$/g,'$$$$')+'$2');
+  await artifact.publish(src);
+  saveMsg.textContent='Saved — reloading…';
+}
+
+function ghHeaders(t){return {Authorization:'Bearer '+t,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};}
+async function ghSha(token){
+  const r=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/git/trees/'+GH.branch+'?t='+Date.now(),{headers:ghHeaders(token),cache:'no-store'});
+  if(r.status===401||r.status===403) throw {code:'bad_token'};
+  if(!r.ok) return null;
+  const t=await r.json();
+  const e=(t.tree||[]).find(x=>x.path===GH.path);
+  return e?e.sha:null;
+}
+async function saveGithub(){
+  const token=(localStorage.getItem('gh605_token')||'').trim();
+  if(!token) throw {code:'no_token'};
+  const api='https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path;
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  for(let attempt=0;attempt<2;attempt++){
+    const sha=await ghSha(token);
+    const p=await fetch(api,{method:'PUT',headers:ghHeaders(token),
+      body:JSON.stringify(Object.assign({message:'Update map data via site editor',content:b64,branch:GH.branch},sha?{sha}:{}))});
+    if(p.ok){ saveMsg.textContent='Saved — live for visitors in about a minute.'; return; }
+    if(p.status===401||p.status===403) throw {code:'bad_token'};
+    if(p.status===409||p.status===422) continue;   // sha race — refetch and retry once
+    throw {code:'upstream_error'};
+  }
+  throw {code:'conflict'};
+}
+
+saveBtn.onclick=async()=>{
+  if(!dirty) return;
+  saveBtn.disabled=true; saveMsg.textContent='Saving…';
+  try{
+    if(IS_ARTIFACT) await saveArtifact(); else await saveGithub();
+    dirty=false;
+  }catch(err){
+    const code=err&&err.code||'upstream_error';
+    if(code==='conflict'){ saveMsg.textContent=IS_ARTIFACT?'Someone else saved first — reloading their version…':'Someone else saved first — reload the page, redo your change, and save again.'; if(IS_ARTIFACT) dirty=false; }
+    else if(code==='no_token'){ saveMsg.textContent='Paste your GitHub token in the Edit toolbar first (fine-grained, Contents read/write on '+GH.owner+'/'+GH.repo+').'; }
+    else if(code==='bad_token'){ saveMsg.textContent='GitHub rejected the token — check it has Contents write access to '+GH.owner+'/'+GH.repo+'.'; }
+    else if(code==='not_writer'||code==='not_granted'||code==='consent_required'){
+      readOnly=true; dirty=false; saveBtn.classList.remove('dirty');
+      saveMsg.textContent='This view is read-only — changes won’t be saved.';
+    }
+    else if(code==='too_large'){ saveMsg.textContent='Too large to save — remove some photos and try again.'; }
+    else{ saveMsg.textContent='Save failed — try again in a moment.'; }
+  }finally{ saveBtn.disabled=false; if(!dirty&&!readOnly) saveBtn.classList.remove('dirty'); }
+};
+
+/* ───────────────────────── boot ───────────────────────── */
+if(!IS_ARTIFACT){
+  const wrap=document.getElementById('ghTokenWrap'), tok=document.getElementById('ghToken');
+  wrap.style.display='flex';
+  tok.value=localStorage.getItem('gh605_token')||'';
+  tok.addEventListener('input',()=>localStorage.setItem('gh605_token',tok.value.trim()));
+  // data.json is the source of truth on static hosting; the embedded seed is the fallback
+  fetch(GH.path+'?t='+Date.now(),{cache:'no-store'})
+    .then(r=>r.ok?r.json():null)
+    .then(d=>{ if(d&&d.clubs&&d.sites){ state=d; render(); syncDiscord(); } })
+    .catch(()=>{});
+}
+baseMap();
+render();
+syncDiscord();
+syncChrome();
+</script>
