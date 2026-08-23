@@ -61,9 +61,12 @@ body.editing #tools{display:flex}
 
 /* ── layout ── */
 #stage{position:relative;height:calc(100dvh - var(--chrome,54px));display:flex}
-#mapwrap{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:10px}
-svg#map{width:100%;height:100%;max-height:100%}
+#mapwrap{flex:1;min-width:0;position:relative;display:flex;align-items:center;justify-content:center;padding:10px}
+svg#map{width:100%;height:100%;max-height:100%;touch-action:none}
 svg#map text{user-select:none}
+#zoomctl{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
+#zoomctl button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow);font-size:19px;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center}
+#zoomctl button:hover{border-color:var(--muted)}
 
 /* ── legend ── */
 #legend{position:absolute;left:14px;bottom:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:10px 14px;font-size:13.5px;max-width:250px}
@@ -74,9 +77,9 @@ svg#map text{user-select:none}
 .swatch.club{border-radius:2px;transform:rotate(45deg)}
 
 /* ── drawer ── */
-#drawer{flex:0 0 0px;width:0;overflow:hidden;background:var(--panel);border-left:0 solid var(--line);z-index:20}
-#drawer.open{flex-basis:min(400px,42%);width:auto;border-left-width:1px;overflow-y:auto}
-#drawer .head,#drawer .body{min-width:300px}
+#drawer{flex:0 0 min(400px,38%);width:auto;background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;z-index:20}
+#drawer .head,#drawer .body{min-width:280px}
+#drawer.empty #closeDrawer{display:none}
 #drawer .head{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);padding:14px 18px 10px;z-index:2}
 #drawer .head h2{margin:0;font:600 24px/1.1 "Barlow Condensed",sans-serif}
 #drawer .head .call{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--accent);font-weight:600}
@@ -155,13 +158,16 @@ body.editing .mark{cursor:grab}
   <label style="display:flex;gap:6px;align-items:center;font-size:13px">Discord invite URL
     <input id="discordUrl" type="url" placeholder="https://discord.gg/..." style="width:220px">
   </label>
-  <label id="ghTokenWrap" style="display:none;gap:6px;align-items:center;font-size:13px" title="Fine-grained personal access token with Contents read/write on the site repo. Stored only in this browser — needed to save edits.">GitHub token
-    <input id="ghToken" type="password" autocomplete="off" placeholder="github_pat_…" style="width:170px">
-  </label>
 </div>
 
 <div id="stage">
-  <div id="mapwrap"><svg id="map" viewBox="-24 -24 1048 700" role="application" aria-label="Map of South Dakota amateur radio clubs and repeaters"></svg></div>
+  <div id="mapwrap"><svg id="map" viewBox="-24 -24 1048 700" role="application" aria-label="Map of South Dakota amateur radio clubs and repeaters"></svg>
+    <div id="zoomctl">
+      <button id="zin" aria-label="Zoom in">+</button>
+      <button id="zout" aria-label="Zoom out">−</button>
+      <button id="zreset" aria-label="Reset view" style="font-size:15px">⌂</button>
+    </div>
+  </div>
 
   <div id="legend">
     <h3>Layers</h3>
@@ -188,11 +194,13 @@ body.editing .mark{cursor:grab}
 /* ───────────────────────── state ───────────────────────── */
 const seedEl = document.getElementById('seed');
 let state = JSON.parse(seedEl.textContent);
-// Hosting mode: inside the Claude artifact viewer, saves publish a new artifact
-// version. On plain static hosting (GitHub Pages / 605hams.com), data lives in
-// data.json next to this file and saves commit it via the GitHub API.
+// Hosting mode: inside the Claude artifact viewer, editing is enabled and saves
+// publish a new artifact version. On static hosting (605hams.com) the site is
+// read-only: it renders data.json from the repo (localhost keeps the edit UI
+// for development, but saves only work in the artifact).
 const IS_ARTIFACT = !!(window.claude && window.claude.use);
-const GH = {owner:'AidenSchramm', repo:'605hams', branch:'main', path:'data.json'};
+const CAN_EDIT = IS_ARTIFACT || location.hostname==='localhost';
+const DATA_PATH = 'data.json';
 let dirty = false, editing = false, tool = null, linkSrc = null;
 let selected = null;               // {type:'club'|'site'|'link', id or index}
 let readOnly = false;
@@ -230,6 +238,25 @@ const CITIES = [["Aberdeen",45.465,-98.487],["Mitchell",43.71,-98.03],["Spearfis
 let cityObstacles = [];
 
 const svg = document.getElementById('map');
+
+/* ── zoom / pan ── */
+const VB0={x:-24,y:-24,w:1048,h:700};
+let view={x:VB0.x,y:VB0.y,w:VB0.w,h:VB0.h}, zoom=1;
+function applyView(){ svg.setAttribute('viewBox',view.x+' '+view.y+' '+view.w+' '+view.h); }
+function setView(x,y){
+  view.x=Math.min(Math.max(x,VB0.x),VB0.x+VB0.w-view.w);
+  view.y=Math.min(Math.max(y,VB0.y),VB0.y+VB0.h-view.h);
+  applyView();
+}
+function setZoom(z,cx,cy){          // cx,cy: map point to hold fixed
+  z=Math.min(10,Math.max(1,z));
+  const w=VB0.w/z, h=VB0.h/z;
+  const x=cx-(cx-view.x)*(w/view.w), y=cy-(cy-view.y)*(h/view.h);
+  const changed=Math.abs(z-zoom)>1e-9;
+  view.w=w; view.h=h; zoom=z; setView(x,y);
+  if(changed) render();             // labels re-place at the new scale
+}
+
 function baseMap(){
   let g = '<g id="base">';
   g += '<polygon points="'+pts(BORDER)+'" fill="var(--land)" stroke="var(--land-stroke)" stroke-width="2" stroke-linejoin="round"/>';
@@ -261,17 +288,20 @@ function overlapArea(a,b){
 // already-placed labels, city names, marker dots, and the map edge —
 // else least overlap. Returned dir drives the marker's stem line.
 const MAPBOX=[-22,-22,1044,696];
-function placeLabel(x,y,text,pref,obstacles){
+// sc = 1/zoom: markers render inside a scale(sc) group so they keep constant
+// screen size; tx/ty are local (unscaled) coords, boxes are global map units.
+function placeLabel(x,y,text,pref,obstacles,sc){
   const w=text.length*6.3+6, h=14;
-  const above={dir:'above',tx:x,ty:y-17,anchor:'middle',box:[x-w/2,y-28,w,h]};
-  const below={dir:'below',tx:x,ty:y+22,anchor:'middle',box:[x-w/2,y+11,w,h]};
-  const right={dir:'right',tx:x+13,ty:y+4,anchor:'start',box:[x+12,y-7,w,h]};
-  const left={dir:'left',tx:x-13,ty:y+4,anchor:'end',box:[x-12-w,y-7,w,h]};
+  const C=(dir,tx,ty,anchor,bx,by)=>({dir,tx,ty,anchor,box:[x+bx*sc,y+by*sc,w*sc,h*sc]});
+  const above=C('above',0,-17,'middle',-w/2,-28);
+  const below=C('below',0,22,'middle',-w/2,11);
+  const right=C('right',13,4,'start',12,-7);
+  const left=C('left',-13,4,'end',-12-w,-7);
   const cands = pref==='above'?[above,below,right,left]:[below,above,right,left];
   let best=cands[0], bestA=Infinity;
   for(const c of cands){
     let a=obstacles.reduce((t,o)=>t+overlapArea(c.box,o),0);
-    a += (w*h-overlapArea(c.box,MAPBOX))*4;   // heavy penalty for going off-map
+    a += (c.box[2]*c.box[3]-overlapArea(c.box,MAPBOX))*4;   // heavy penalty for going off-map
     if(a===0){ best=c; bestA=0; break; }
     if(a<bestA){ best=c; bestA=a; }
   }
@@ -288,36 +318,37 @@ function render(){
     if(!a||!b||!layers[L.system||'none']) return;
     const [x1,y1]=px(a.lat,a.lon), [x2,y2]=px(b.lat,b.lon);
     const col=(SYS[L.system]||SYS.none).color;
-    lh += '<line class="linkline halo" data-link="'+i+'" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"/>';
-    lh += '<line class="linkline" data-link="'+i+'" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"'+(selected&&selected.type==='link'&&selected.id===i?' stroke-width="4" opacity="1"':'')+'/>';
+    lh += '<line class="linkline halo" data-link="'+i+'" vector-effect="non-scaling-stroke" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"/>';
+    lh += '<line class="linkline" data-link="'+i+'" vector-effect="non-scaling-stroke" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"'+(selected&&selected.type==='link'&&selected.id===i?' stroke-width="4" opacity="1"':'')+'/>';
   });
   document.getElementById('glinks').innerHTML = lh;
 
   // markers — two passes: collect dot obstacles, then place labels greedily
+  const sc = 1/zoom;
   const visSites = state.sites.filter(s=>layers[s.system||'none']);
   const visClubs = layers.clubs?state.clubs:[];
   const obstacles = cityObstacles.slice();
-  for(const s of visSites){ const [x,y]=px(s.lat,s.lon); obstacles.push([x-8,y-14,16,22]); }
-  for(const c of visClubs){ const [x,y]=px(c.lat,c.lon); obstacles.push([x-8,y-8,16,16]); }
+  for(const s of visSites){ const [x,y]=px(s.lat,s.lon); obstacles.push([x-8*sc,y-14*sc,16*sc,22*sc]); }
+  for(const c of visClubs){ const [x,y]=px(c.lat,c.lon); obstacles.push([x-8*sc,y-8*sc,16*sc,16*sc]); }
   let mh='';
   for(const s of visSites){
     const [x,y]=px(s.lat,s.lon);
     const col=(SYS[s.system]||SYS.none).color;
     const sel = selected&&selected.type==='site'&&selected.id===s.id;
-    const L=placeLabel(x,y,s.name,'above',obstacles);
+    const L=placeLabel(x,y,s.name,'above',obstacles,sc);
     const st=STEMS[L.dir];
-    mh += '<g class="mark'+(sel?' selected':'')+(linkSrc===s.id?' linksrc':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'+esc(s.name)+' repeater site" transform="translate('+x+','+y+')">'
+    mh += '<g class="mark'+(sel?' selected':'')+(linkSrc===s.id?' linksrc':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'+esc(s.name)+' repeater site" transform="translate('+x+','+y+') scale('+sc+')">'
         + '<circle class="site-dot" r="7" fill="'+col+'"/>'
         + '<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
-        + '<text x="'+(L.tx-x).toFixed(1)+'" y="'+(L.ty-y).toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text></g>';
+        + '<text x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text></g>';
   }
   for(const c of visClubs){
     const [x,y]=px(c.lat,c.lon);
     const sel = selected&&selected.type==='club'&&selected.id===c.id;
-    const L=placeLabel(x,y,c.callsign,'below',obstacles);
-    mh += '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'+esc(c.name)+'" transform="translate('+x+','+y+')">'
+    const L=placeLabel(x,y,c.callsign,'below',obstacles,sc);
+    mh += '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'+esc(c.name)+'" transform="translate('+x+','+y+') scale('+sc+')">'
         + '<rect class="club-dot" x="-5.5" y="-5.5" width="11" height="11" rx="2" transform="rotate(45)" fill="var(--clubs)"/>'
-        + '<text x="'+(L.tx-x).toFixed(1)+'" y="'+(L.ty-y).toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text></g>';
+        + '<text x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text></g>';
   }
   document.getElementById('gmarks').innerHTML = mh;
 }
@@ -327,8 +358,18 @@ const drawer=document.getElementById('drawer');
 const dKind=document.getElementById('dKind'), dTitle=document.getElementById('dTitle'),
       dCall=document.getElementById('dCall'), dBody=document.getElementById('dBody');
 
-function closeDrawer(){ selected=null; drawer.classList.remove('open'); render(); }
+function closeDrawer(){ selected=null; drawer.classList.remove('open'); renderEmptyDrawer(); render(); }
 document.getElementById('closeDrawer').onclick = closeDrawer;
+function renderEmptyDrawer(){
+  drawer.classList.add('empty');
+  dKind.textContent='South Dakota Amateur Radio';
+  dTitle.textContent='Explore the map';
+  dCall.textContent='';
+  dBody.innerHTML=
+    '<div class="sysnote">Click a <b>club</b> (blue diamond) or <b>repeater site</b> (colored dot) to see details — meeting times, frequencies, tones, and site photos.</div>'+
+    '<div class="sysnote">Colored lines connect repeaters that are RF-linked into a system. Use the legend to show or hide layers.</div>'+
+    '<div class="sysnote">Scroll or pinch to zoom, drag to pan, and use the buttons in the corner of the map.</div>';
+}
 
 function field(lab, val, link){
   let v = esc(val);
@@ -357,7 +398,7 @@ function edArea(label, id, val, ph){ return '<div class="field"><label>'+label+'
 
 function openClub(id){
   const c=club(id); if(!c) return;
-  selected={type:'club',id}; drawer.classList.add('open');
+  selected={type:'club',id}; drawer.classList.add('open'); drawer.classList.remove('empty');
   dKind.textContent='Amateur Radio Club'; dTitle.textContent=c.name; dCall.textContent=c.callsign+' · '+c.city;
   if(!editing){
     dBody.innerHTML =
@@ -387,7 +428,7 @@ function openClub(id){
 
 function openSite(id){
   const s=site(id); if(!s) return;
-  selected={type:'site',id}; drawer.classList.add('open');
+  selected={type:'site',id}; drawer.classList.add('open'); drawer.classList.remove('empty');
   const sys=SYS[s.system]||SYS.none;
   dKind.textContent='Repeater Site — '+sys.name; dTitle.textContent=s.name; dCall.textContent='';
   let photos = (s.photos||[]).map((p,i)=>'<div><img class="photo" src="'+p+'" alt="Site photo">'
@@ -430,7 +471,7 @@ function openSite(id){
 
 function openLink(i){
   const L=state.links[i]; if(!L) return;
-  selected={type:'link',id:i}; drawer.classList.add('open');
+  selected={type:'link',id:i}; drawer.classList.add('open'); drawer.classList.remove('empty');
   const a=site(L.a),b=site(L.b);
   dKind.textContent='Repeater link'; dTitle.textContent=(a?a.name:'?')+' ⌁ '+(b?b.name:'?'); dCall.textContent=(SYS[L.system]||SYS.none).name;
   if(!editing){
@@ -495,33 +536,76 @@ function svgPoint(ev){
   const p=pt.matrixTransform(svg.getScreenCTM().inverse());
   return [p.x,p.y];
 }
-let drag=null, justDragged=false;
+let drag=null, justDragged=false, pan=null, pinch=null;
+const ptrs=new Map();
 svg.addEventListener('pointerdown',ev=>{
+  ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
+  try{ svg.setPointerCapture(ev.pointerId); }catch(e){}
+  if(ptrs.size===2){                       // second finger → pinch zoom
+    drag=null; pan=null;
+    const [a,b]=[...ptrs.values()];
+    pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};
+    return;
+  }
   const g=ev.target.closest('.mark');
-  if(!g) return;
-  const id=g.getAttribute('data-site')||g.getAttribute('data-club');
-  const obj=g.hasAttribute('data-site')?site(id):club(id);
-  if(!obj) return;
-  if(editing && tool==='link' && g.hasAttribute('data-site')){ handleLinkClick(id); ev.preventDefault(); return; }
-  drag={obj, isSite:g.hasAttribute('data-site'), moved:false, sx:ev.clientX, sy:ev.clientY};
-  if(editing){ svg.setPointerCapture(ev.pointerId); g.classList.add('dragging'); }
+  if(g){
+    const id=g.getAttribute('data-site')||g.getAttribute('data-club');
+    const obj=g.hasAttribute('data-site')?site(id):club(id);
+    if(!obj) return;
+    if(editing && tool==='link' && g.hasAttribute('data-site')){ handleLinkClick(id); ev.preventDefault(); return; }
+    drag={obj, isSite:g.hasAttribute('data-site'), moved:false, sx:ev.clientX, sy:ev.clientY};
+    if(editing) g.classList.add('dragging');
+    return;
+  }
+  pan={sx:ev.clientX, sy:ev.clientY, vx:view.x, vy:view.y, scale:svg.getScreenCTM().a, moved:false};
 });
 svg.addEventListener('pointermove',ev=>{
-  if(!drag||!editing) return;
-  if(!drag.moved && Math.hypot(ev.clientX-drag.sx,ev.clientY-drag.sy)<5) return;
-  drag.moved=true;
-  const [x,y]=svgPoint(ev);
-  const [lat,lon]=inv(x,y);
-  drag.obj.lat=+lat.toFixed(4); drag.obj.lon=+lon.toFixed(4);
-  render();
+  const p=ptrs.get(ev.pointerId); if(p){ p.x=ev.clientX; p.y=ev.clientY; }
+  if(pinch && ptrs.size===2){
+    const [a,b]=[...ptrs.values()];
+    const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(d>0 && pinch.d>0){
+      const pt=svg.createSVGPoint(); pt.x=(a.x+b.x)/2; pt.y=(a.y+b.y)/2;
+      const m=pt.matrixTransform(svg.getScreenCTM().inverse());
+      setZoom(zoom*d/pinch.d, m.x, m.y);
+    }
+    pinch.d=d;
+    return;
+  }
+  if(drag && editing){
+    if(!drag.moved && Math.hypot(ev.clientX-drag.sx,ev.clientY-drag.sy)<5) return;
+    drag.moved=true;
+    const [x,y]=svgPoint(ev);
+    const [lat,lon]=inv(x,y);
+    drag.obj.lat=+lat.toFixed(4); drag.obj.lon=+lon.toFixed(4);
+    render();
+    return;
+  }
+  if(pan){
+    if(!pan.moved && Math.hypot(ev.clientX-pan.sx,ev.clientY-pan.sy)<5) return;
+    pan.moved=true;
+    setView(pan.vx-(ev.clientX-pan.sx)/pan.scale, pan.vy-(ev.clientY-pan.sy)/pan.scale);
+  }
 });
 svg.addEventListener('pointerup',ev=>{
+  ptrs.delete(ev.pointerId);
+  if(pinch){ if(ptrs.size<2){ pinch=null; justDragged=true; } return; }
+  if(pan){ if(pan.moved) justDragged=true; pan=null; return; }
   if(!drag) return;
   const d=drag; drag=null;
   document.querySelectorAll('.mark.dragging').forEach(m=>m.classList.remove('dragging'));
   if(d.moved){ justDragged=true; markDirty(); return; }
   d.isSite?openSite(d.obj.id):openClub(d.obj.id);
 });
+svg.addEventListener('pointercancel',ev=>{ ptrs.delete(ev.pointerId); pinch=null; pan=null; drag=null; });
+svg.addEventListener('wheel',ev=>{
+  ev.preventDefault();
+  const [mx,my]=svgPoint(ev);
+  setZoom(zoom*(ev.deltaY<0?1.25:0.8), mx, my);
+},{passive:false});
+document.getElementById('zin').onclick=()=>setZoom(zoom*1.5, view.x+view.w/2, view.y+view.h/2);
+document.getElementById('zout').onclick=()=>setZoom(zoom/1.5, view.x+view.w/2, view.y+view.h/2);
+document.getElementById('zreset').onclick=()=>{ view={x:VB0.x,y:VB0.y,w:VB0.w,h:VB0.h}; zoom=1; applyView(); render(); };
 svg.addEventListener('click',ev=>{
   if(justDragged){ justDragged=false; return; }
   const ln=ev.target.closest('.linkline');
@@ -630,43 +714,16 @@ async function saveArtifact(){
   saveMsg.textContent='Saved — reloading…';
 }
 
-function ghHeaders(t){return {Authorization:'Bearer '+t,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};}
-async function ghSha(token){
-  const r=await fetch('https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/git/trees/'+GH.branch+'?t='+Date.now(),{headers:ghHeaders(token),cache:'no-store'});
-  if(r.status===401||r.status===403) throw {code:'bad_token'};
-  if(!r.ok) return null;
-  const t=await r.json();
-  const e=(t.tree||[]).find(x=>x.path===GH.path);
-  return e?e.sha:null;
-}
-async function saveGithub(){
-  const token=(localStorage.getItem('gh605_token')||'').trim();
-  if(!token) throw {code:'no_token'};
-  const api='https://api.github.com/repos/'+GH.owner+'/'+GH.repo+'/contents/'+GH.path;
-  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
-  for(let attempt=0;attempt<2;attempt++){
-    const sha=await ghSha(token);
-    const p=await fetch(api,{method:'PUT',headers:ghHeaders(token),
-      body:JSON.stringify(Object.assign({message:'Update map data via site editor',content:b64,branch:GH.branch},sha?{sha}:{}))});
-    if(p.ok){ saveMsg.textContent='Saved — live for visitors in about a minute.'; return; }
-    if(p.status===401||p.status===403) throw {code:'bad_token'};
-    if(p.status===409||p.status===422) continue;   // sha race — refetch and retry once
-    throw {code:'upstream_error'};
-  }
-  throw {code:'conflict'};
-}
-
 saveBtn.onclick=async()=>{
   if(!dirty) return;
+  if(!IS_ARTIFACT){ saveMsg.textContent='Preview only — the live site is read-only; update data.json in the repo instead.'; return; }
   saveBtn.disabled=true; saveMsg.textContent='Saving…';
   try{
-    if(IS_ARTIFACT) await saveArtifact(); else await saveGithub();
+    await saveArtifact();
     dirty=false;
   }catch(err){
     const code=err&&err.code||'upstream_error';
-    if(code==='conflict'){ saveMsg.textContent=IS_ARTIFACT?'Someone else saved first — reloading their version…':'Someone else saved first — reload the page, redo your change, and save again.'; if(IS_ARTIFACT) dirty=false; }
-    else if(code==='no_token'){ saveMsg.textContent='Paste your GitHub token in the Edit toolbar first (fine-grained, Contents read/write on '+GH.owner+'/'+GH.repo+').'; }
-    else if(code==='bad_token'){ saveMsg.textContent='GitHub rejected the token — check it has Contents write access to '+GH.owner+'/'+GH.repo+'.'; }
+    if(code==='conflict'){ saveMsg.textContent='Someone else saved first — reloading their version…'; dirty=false; }
     else if(code==='not_writer'||code==='not_granted'||code==='consent_required'){
       readOnly=true; dirty=false; saveBtn.classList.remove('dirty');
       saveMsg.textContent='This view is read-only — changes won’t be saved.';
@@ -677,18 +734,16 @@ saveBtn.onclick=async()=>{
 };
 
 /* ───────────────────────── boot ───────────────────────── */
+if(!CAN_EDIT) editBtn.style.display='none';
 if(!IS_ARTIFACT){
-  const wrap=document.getElementById('ghTokenWrap'), tok=document.getElementById('ghToken');
-  wrap.style.display='flex';
-  tok.value=localStorage.getItem('gh605_token')||'';
-  tok.addEventListener('input',()=>localStorage.setItem('gh605_token',tok.value.trim()));
   // data.json is the source of truth on static hosting; the embedded seed is the fallback
-  fetch(GH.path+'?t='+Date.now(),{cache:'no-store'})
+  fetch(DATA_PATH+'?t='+Date.now(),{cache:'no-store'})
     .then(r=>r.ok?r.json():null)
     .then(d=>{ if(d&&d.clubs&&d.sites){ state=d; render(); syncDiscord(); } })
     .catch(()=>{});
 }
 baseMap();
+renderEmptyDrawer();
 render();
 syncDiscord();
 syncChrome();

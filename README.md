@@ -5,22 +5,23 @@ Interactive map of South Dakota amateur radio clubs and linked repeater systems
 
 ## How it works
 
-- `index.html` — the whole app (map, popups, edit mode). No build step.
+- `index.html` — the whole app (map, popups, zoom/pan). No build step.
 - `data.json` — all club/repeater/link data. The page loads this at startup.
 - `CNAME` — custom domain for GitHub Pages.
 
-## Editing
+The public site is **read-only** — visitors can browse, zoom, and click markers,
+but there is no editing UI on the live site.
 
-Anyone can view. To edit, open the site, click **✎ Edit**, make changes, and hit
-**Save changes**. Saving commits `data.json` back to this repo through the GitHub
-API, which requires a token pasted once into the Edit toolbar (stored only in
-that browser):
+## Updating the data
 
-1. GitHub → Settings → Developer settings → **Fine-grained personal access tokens**
-2. New token, scoped to **only this repository**, with **Contents: Read and write**
-3. Paste it into the "GitHub token" field in the site's Edit toolbar
+Edit `data.json` in this repo (the pencil icon on github.com works fine) and
+commit — the site picks up the change when GitHub Pages redeploys, about a
+minute later.
 
-Edits go live when GitHub Pages redeploys (about a minute after saving).
+Structure: `clubs` (name, callsign, city, lat/lon, meeting, mailing, website,
+repeaters, notes), `sites` (name, system: `sdlink`/`pdarc`/`bh`/`none`, lat/lon,
+notes, photos, repeaters[]), and `links` (pairs of site ids with a system).
 
-You can also just edit `data.json` directly in the repo — the site renders
-whatever is committed.
+For visual editing (drag markers, forms, photo upload), open the site from
+`http://localhost` — the edit UI appears in development only. Preview changes
+locally, then copy the resulting data into `data.json`.
