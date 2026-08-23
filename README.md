@@ -1,4 +1,4 @@
-# 605hams.com — SoDak Ham Map
+# 605hams.com — 605 Ham Map
 
 Interactive map of South Dakota amateur radio clubs and linked repeater systems
 (SD-LINK, Prairie Dog ARC, Black Hills), hosted on GitHub Pages.
