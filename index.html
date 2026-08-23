@@ -499,6 +499,9 @@ const clusterKey = m => m.map(s=>s.id).sort().join('|');
 function render(){
   const sc = (1/(screenScale()||1))*UI, lg = Math.pow(zoom,0.16)*UI;
   const fs = ' style="font-size:'+(LBL*Math.pow(zoom,0.16)*UI).toFixed(2)+'px"';
+  // dots grow gently with zoom, same curve as the labels
+  const dg = Math.pow(zoom,0.16);
+  const RS = R_SITE*dg, RC = R_CLUSTER*dg, RB = R_CLUB*dg;
   const visSites = state.sites.filter(s=>layers[s.system||'none']);
   const visClubs = layers.clubs ? state.clubs : [];
 
@@ -535,10 +538,10 @@ function render(){
   // obstacles: city labels first, then every dot, then labels greedily
   const obstacles = cityObstacles.slice();
   for(const c of clusters){
-    const r = c.members.length>1 ? R_CLUSTER+2 : R_SITE+2;
+    const r = c.members.length>1 ? RC+2 : RS+2;
     obstacles.push([c.x-r*sc, c.y-(r+6)*sc, 2*r*sc, (2*r+6)*sc]);
   }
-  for(const c of visClubs){ const p=px(c.lat,c.lon); obstacles.push([p[0]-(R_CLUB+2)*sc, p[1]-(R_CLUB+2)*sc, (R_CLUB+2)*2*sc, (R_CLUB+2)*2*sc]); }
+  for(const c of visClubs){ const p=px(c.lat,c.lon); obstacles.push([p[0]-(RB+2)*sc, p[1]-(RB+2)*sc, (RB+2)*2*sc, (RB+2)*2*sc]); }
 
   let mh='';
   clusters.forEach((c,ci)=>{
@@ -546,10 +549,10 @@ function render(){
     if(c.members.length===1){
       const s=c.members[0], col=sysOf(s.system).color;
       const sel = selected && selected.type==='site' && selected.id===s.id;
-      const L = placeLabel(c.x,c.y,s.name,'above',obstacles,sc,lg), st=STEMS[L.dir];
+      const L = placeLabel(c.x,c.y,s.name,'above',obstacles,sc,lg), st=STEMS[L.dir].map(v=>(v*dg).toFixed(1));
       mh += '<g class="mark'+(sel?' selected':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'
           + esc(s.name)+' repeater site"'+tr+'>'
-          + '<circle class="site-dot" r="'+R_SITE+'" fill="'+col+'"/>'
+          + '<circle class="site-dot" r="'+RS.toFixed(1)+'" fill="'+col+'"/>'
           + (L.hide ? '' :
               '<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
             + '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text>')
@@ -562,8 +565,8 @@ function render(){
       const L = placeLabel(c.x,c.y,label,'above',obstacles,sc,lg);
       mh += '<g class="mark'+(sel?' selected':'')+'" data-cluster="'+ci+'" tabindex="0" role="button" aria-label="'
           + esc(label)+', '+c.members.length+' repeater sites"'+tr+'>'
-          + '<circle class="site-dot" r="'+R_CLUSTER+'" fill="'+col+'"/>'
-          + '<text class="cnum" y="5.5" text-anchor="middle" style="font-size:15px">'+c.members.length+'</text>'
+          + '<circle class="site-dot" r="'+RC.toFixed(1)+'" fill="'+col+'"/>'
+          + '<text class="cnum" y="'+(5.5*dg).toFixed(1)+'" text-anchor="middle" style="font-size:'+(15*dg).toFixed(1)+'px">'+c.members.length+'</text>'
           + (L.hide ? '' : '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(label)+'</text>')
           + '</g>';
     }
@@ -574,7 +577,7 @@ function render(){
     const L = placeLabel(p[0],p[1],c.callsign,'below',obstacles,sc,lg);
     mh += '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'
         + esc(c.name)+'" transform="translate('+p[0]+','+p[1]+') scale('+sc+')">'
-        + '<rect class="club-dot" x="'+(-R_CLUB)+'" y="'+(-R_CLUB)+'" width="'+(R_CLUB*2)+'" height="'+(R_CLUB*2)+'" rx="2.5" transform="rotate(45)" fill="var(--clubs)"/>'
+        + '<rect class="club-dot" x="'+(-RB).toFixed(1)+'" y="'+(-RB).toFixed(1)+'" width="'+(RB*2).toFixed(1)+'" height="'+(RB*2).toFixed(1)+'" rx="'+(2.5*dg).toFixed(1)+'" transform="rotate(45)" fill="var(--clubs)"/>'
         + (L.hide ? '' : '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text>')
         + '</g>';
   }
