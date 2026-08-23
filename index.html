@@ -1,126 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#c85a1f">
-<title>605 Ham Map</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23c85a1f'/%3E%3Cg%20fill='none'%20stroke='%23fff'%20stroke-width='4'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M32%2020v26M23%2052l9-24%209%2024M24%209q-6%207%200%2014M40%209q6%207%200%2014M19%205q-9%2011%200%2022M45%205q9%2011%200%2022'/%3E%3C/g%3E%3Ccircle%20cx='32'%20cy='16'%20r='3.5'%20fill='%23fff'/%3E%3C/svg%3E">
+<title>605 Ham Map — South Dakota amateur radio clubs &amp; repeaters</title>
+<meta name="description" content="Interactive map of South Dakota amateur radio clubs and linked repeater systems — SD-LINK, Prairie Dog ARC, and the Northern Hills linked system. Frequencies, tones, meeting times, and club contacts.">
+<link rel="canonical" href="https://605hams.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="605 Ham Map">
+<meta property="og:title" content="605 Ham Map — South Dakota amateur radio">
+<meta property="og:description" content="Every South Dakota ham club and linked repeater system on one map. Frequencies, tones, meeting times, and contacts.">
+<meta property="og:url" content="https://605hams.com/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
+
 :root{
   --bg:#eef0ea; --panel:#f8f9f5; --panel2:#eef1e9; --ink:#242b2b; --muted:#5f6a67; --line:#d2d8cc;
-  --land:#e4e9dd; --land-stroke:#8d9684; --water:#a3c2d1; --road:#bcc3b4; --hills:#ccd6c2;
-  --clubs:#2668a2; --sdlink:#c85a1f; --pdarc:#2e8757; --bh:#7a5fae; --indep:#7c8680;
-  --accent:#c85a1f; --danger:#b3452f; --ok:#2e8757;
+  --land:#e4e9dd; --land-stroke:#8d9684; --water:#9dc0d2; --water-line:#8fb6ca; --road:#c2bda8; --county:#c5ccba;
+  --clubs:#2668a2; --sdlink:#c85a1f; --pdarc:#2e8757; --nh:#7a5fae; --indep:#7c8680;
+  --accent:#c85a1f; --ok:#2e8757; --danger:#b3452f; --warn-bg:#f6e9e3;
   --chip-bg:#e7eae1; --shadow:0 6px 24px rgba(30,40,35,.14);
-  --discord:#5865F2; --discord-ink:#ffffff;
+  --discord:#5865F2; --discord-hi:#4752c4; --discord-ink:#ffffff; --map-pin:#d0552f;
+  --plate:#ffffff;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#12161a; --panel:#1a2027; --panel2:#151b21; --ink:#e2e8e4; --muted:#94a19c; --line:#2b333b;
-    --land:#1d242c; --land-stroke:#4d5c68; --water:#1d3644; --road:#333e48; --hills:#26303a;
-    --clubs:#5ea3d8; --sdlink:#eb8a4a; --pdarc:#54b384; --bh:#a78ce0; --indep:#8b9791;
-    --accent:#eb8a4a; --danger:#e07a5f; --ok:#54b384;
+    --land:#1d242c; --land-stroke:#4d5c68; --water:#1c3a4a; --water-line:#2b5a70; --road:#3d4550; --county:#2c353e;
+    --clubs:#5ea3d8; --sdlink:#eb8a4a; --pdarc:#54b384; --nh:#a78ce0; --indep:#8b9791;
+    --accent:#eb8a4a; --ok:#54b384; --danger:#e07a5f; --warn-bg:#33231e;
     --chip-bg:#242c34; --shadow:0 6px 24px rgba(0,0,0,.45);
+    --discord:#5865F2; --discord-hi:#6b76f5; --map-pin:#eb8a4a;
+    --plate:#f2f3ef;
   }
 }
 :root[data-theme="dark"]{
   --bg:#12161a; --panel:#1a2027; --panel2:#151b21; --ink:#e2e8e4; --muted:#94a19c; --line:#2b333b;
-  --land:#1d242c; --land-stroke:#4d5c68; --water:#1d3644; --road:#333e48; --hills:#26303a;
-  --clubs:#5ea3d8; --sdlink:#eb8a4a; --pdarc:#54b384; --bh:#a78ce0; --indep:#8b9791;
-  --accent:#eb8a4a; --danger:#e07a5f; --ok:#54b384;
+  --land:#1d242c; --land-stroke:#4d5c68; --water:#1c3a4a; --water-line:#2b5a70; --road:#3d4550; --county:#2c353e;
+  --clubs:#5ea3d8; --sdlink:#eb8a4a; --pdarc:#54b384; --nh:#a78ce0; --indep:#8b9791;
+  --accent:#eb8a4a; --ok:#54b384; --danger:#e07a5f; --warn-bg:#33231e;
   --chip-bg:#242c34; --shadow:0 6px 24px rgba(0,0,0,.45);
+  --discord:#5865F2; --discord-hi:#6b76f5; --map-pin:#eb8a4a;
+  --plate:#f2f3ef;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Barlow,system-ui,sans-serif;overflow:hidden}
+html{height:100%}
+body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;
+     background:var(--bg);color:var(--ink);font:15px/1.5 Barlow,system-ui,-apple-system,sans-serif;
+     -webkit-text-size-adjust:100%}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:var(--clubs)}
 button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-input,select,textarea{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
-textarea{resize:vertical;min-height:60px}
-.mono{font-family:"IBM Plex Mono",Consolas,monospace}
+img{max-width:100%}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
 /* ── nav ── */
-#nav{display:flex;align-items:center;gap:14px;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
-#brand{display:flex;align-items:baseline;gap:10px}
-#brand h1{margin:0;font:700 26px/1 "Barlow Condensed",sans-serif;letter-spacing:.5px;text-transform:uppercase}
-#brand .sub{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+#nav{flex:none;display:flex;align-items:center;gap:12px;padding:8px 16px;
+     background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+#brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+#brand h1{margin:0;font:700 26px/1 "Barlow Condensed","Barlow",sans-serif;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+#brand .sub{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 #nav .spacer{flex:1}
-.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-weight:600;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 15px;border-radius:9px;
+     border:1px solid var(--line);background:var(--panel2);font-weight:600;white-space:nowrap;text-decoration:none;color:inherit}
 .btn:hover{border-color:var(--muted)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.small{padding:5px 11px;font-size:13px;border-radius:7px}
 .btn.discord{background:var(--discord);border-color:var(--discord);color:var(--discord-ink)}
+.btn.discord:hover{background:var(--discord-hi);border-color:var(--discord-hi)}
 .btn.discord svg{flex:none}
+.btn.maps{display:inline-flex;background:var(--panel2);color:var(--ink)}
+.btn.maps svg{flex:none;color:var(--map-pin)}
+.btn.maps:hover{border-color:var(--muted)}
+#discordBtn{font-size:15px;padding:9px 18px}
+#discordBtn .full{display:inline}
+#discordBtn .short{display:none}
 
 /* ── layout ── */
-#stage{position:relative;height:calc(100dvh - var(--chrome,54px));display:flex}
-#mapwrap{flex:1;min-width:0;position:relative;display:flex;align-items:center;justify-content:center;padding:10px}
-svg#map{width:100%;height:100%;max-height:100%;touch-action:none}
+#stage{flex:1;min-height:0;position:relative;display:flex}
+#mapwrap{flex:1;min-width:0;position:relative}
+svg#map{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
 svg#map text{user-select:none}
 #zoomctl{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
-#zoomctl button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow);font-size:19px;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center}
+#zoomctl button{width:40px;height:40px;border-radius:9px;border:1px solid var(--line);background:var(--panel);
+  box-shadow:var(--shadow);font-size:19px;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center}
 #zoomctl button:hover{border-color:var(--muted)}
 
 /* ── legend ── */
-#legend{position:absolute;left:14px;bottom:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:10px 14px;font-size:13.5px;max-width:250px}
-#legend h3{margin:0 0 6px;font:600 13px "Barlow Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-#legend label{display:flex;align-items:center;gap:8px;padding:2.5px 0;cursor:pointer}
-#legend input{width:auto}
+#legend{position:absolute;left:14px;bottom:14px;background:var(--panel);border:1px solid var(--line);
+        border-radius:11px;box-shadow:var(--shadow);font-size:13.5px;max-width:250px;overflow:hidden;z-index:5}
+#legendToggle{display:none;width:100%;align-items:center;gap:7px;padding:9px 13px;font-weight:600;font-size:13px;
+        letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+#legendBody{padding:10px 14px}
+#legendBody h3{margin:0 0 6px;font:600 13px "Barlow Condensed","Barlow",sans-serif;letter-spacing:.12em;
+        text-transform:uppercase;color:var(--muted)}
+#legend label{display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer}
+#legend input{width:auto;margin:0}
 .swatch{width:12px;height:12px;border-radius:50%;flex:none}
 .swatch.club{border-radius:2px;transform:rotate(45deg)}
 
 /* ── drawer ── */
-#drawer{flex:0 0 min(400px,38%);width:auto;background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;z-index:20}
-#drawer .head,#drawer .body{min-width:280px}
-#drawer.empty #closeDrawer{display:none}
-#drawer .head{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);padding:14px 18px 10px;z-index:2}
-#drawer .head h2{margin:0;font:600 24px/1.1 "Barlow Condensed",sans-serif}
+#drawer{flex:0 0 min(410px,38%);background:var(--panel);border-left:1px solid var(--line);
+        overflow-y:auto;overscroll-behavior:contain;z-index:20;-webkit-overflow-scrolling:touch}
+#drawer .head{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);
+        padding:14px 46px 11px 18px;z-index:2}
+#drawer .head h2{margin:0;font:600 24px/1.15 "Barlow Condensed","Barlow",sans-serif}
 #drawer .head .call{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--accent);font-weight:600}
 #drawer .head .kind{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-#closeDrawer{position:absolute;top:10px;right:10px;font-size:20px;line-height:1;padding:6px 10px;border-radius:8px}
+#closeDrawer{position:absolute;top:10px;right:10px;font-size:19px;line-height:1;padding:6px 10px;border-radius:8px}
 #closeDrawer:hover{background:var(--panel2)}
-#drawer .body{padding:14px 18px 30px;display:flex;flex-direction:column;gap:14px}
+#drawer.empty #closeDrawer{display:none}
+#drawer .body{padding:14px 18px 34px;display:flex;flex-direction:column;gap:14px}
 .field label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .field .val{white-space:pre-wrap}
-.field .val a{color:var(--clubs)}
 .field .val:empty::after{content:"—";color:var(--muted)}
-.rpt{border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--panel2)}
-.rpt .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* logo plate */
+.logo{background:var(--plate);border:1px solid var(--line);border-radius:11px;padding:14px;
+      display:flex;align-items:center;justify-content:center;min-height:96px}
+.logo img{max-height:150px;width:auto;object-fit:contain}
+
+/* repeater card */
+.rpt{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--panel2)}
+.rpt .top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .rpt .name{font-weight:600}
-.rpt .freqs{font-family:"IBM Plex Mono",monospace;font-size:13.5px;margin-top:3px}
-.sitehead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+.rpt .freqs{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:6px}
+.rpt .fq{display:flex;flex-direction:column;line-height:1.25}
+.rpt .fq b{font:600 15px "IBM Plex Mono",monospace;letter-spacing:-.01em}
+.rpt .fq span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.rpt .rnote{font-size:12.5px;color:var(--muted);margin-top:6px}
+.chip{font-size:11px;font-weight:600;letter-spacing:.05em;padding:2px 8px;border-radius:20px;background:var(--chip-bg);color:var(--muted)}
+.chip.vhf{color:var(--ok)} .chip.uhf{color:var(--clubs)} .chip.link{color:var(--accent)}
+.chip.dig{color:var(--nh)} .chip.six{color:var(--sdlink)}
+.chip.own{font-family:"IBM Plex Mono",monospace;letter-spacing:0}
+.sitehead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 -4px}
 .linklike{color:var(--clubs);font-weight:600;padding:0;text-align:left}
 .linklike:hover{text-decoration:underline}
-.chip{font-size:11px;font-weight:600;letter-spacing:.05em;padding:1.5px 8px;border-radius:20px;background:var(--chip-bg);color:var(--muted)}
-.chip.vhf{color:var(--ok)} .chip.uhf{color:var(--clubs)} .chip.link{color:var(--accent)} .chip.dig{color:var(--bh)}
-.photo{width:100%;border-radius:8px;display:block}
-.clublogo{display:block;max-width:100%;max-height:150px;object-fit:contain;background:#fff;padding:10px;border-radius:10px;border:1px solid var(--line)}
-.btn.small{padding:4px 10px;font-size:13px}
-.sysnote{font-size:13px;color:var(--muted)}
-.drawer-note{font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
+.photo{width:100%;border-radius:9px;display:block}
+.gallery{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.gallery a{display:block;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+.gallery a:hover{border-color:var(--muted)}
+.sysnote{font-size:13.5px;color:var(--muted)}
+.drawer-note{font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:11px}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 16px;
+      font-size:16.5px;font-weight:600;border-radius:12px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.06);border-color:var(--accent)}
+.btn.accent{border-color:var(--accent);color:var(--accent);background:transparent;font-weight:700}
+.btn.accent:hover{background:var(--accent);color:#fff}
+.welcome{font-size:15px;line-height:1.55;background:var(--panel2);border:1px solid var(--line);
+         border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px}
+.reslist{border-top:1px dashed var(--line);padding-top:14px}
+.reslist h4{margin:0 0 10px;font:600 12px "Barlow Condensed","Barlow",sans-serif;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted)}
+.resgroup{margin-bottom:12px}
+.resgroup h5{margin:0 0 5px;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);opacity:.85}
+a.res{display:block;padding:6px 0;text-decoration:none;color:inherit;border-bottom:1px solid var(--line)}
+.resgroup a.res:last-child{border-bottom:0}
+a.res b{display:block;font-weight:600;color:var(--clubs);font-size:14.5px}
+a.res-discord b{color:var(--discord);display:flex;align-items:center;gap:7px}
+a.res-discord b svg{flex:none}
+a.res span{display:block;font-size:12.5px;color:var(--muted);line-height:1.4}
+a.res:hover b{text-decoration:underline}
+
+/* club index */
+.clublist{display:flex;flex-direction:column;gap:9px}
+.clubrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:9px 11px;
+         border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+.clubrow:hover{border-color:var(--muted)}
+.clubrow .thumb{flex:none;width:52px;height:52px;border-radius:8px;background:var(--plate);
+         border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.clubrow .thumb img{max-width:44px;max-height:44px;object-fit:contain}
+.clubrow .thumb .ph{font:600 13px "IBM Plex Mono",monospace;color:var(--muted)}
+.clubrow .meta{min-width:0}
+.clubrow .meta b{display:block;font-weight:600;line-height:1.25}
+.clubrow .meta small{color:var(--muted);font-family:"IBM Plex Mono",monospace;font-size:12px}
 
 /* ── map marks ── */
-.site-dot{stroke:var(--panel);stroke-width:1.6}
-.club-dot{stroke:var(--panel);stroke-width:1.6}
+.site-dot,.club-dot{stroke:var(--panel);stroke-width:1.6}
 .mark{cursor:pointer}
-.mark text{font:600 12.5px Barlow,sans-serif;fill:var(--ink);paint-order:stroke;stroke:var(--bg);stroke-width:3px;stroke-linejoin:round}
-.mark text.cnum{font:700 12px Barlow,sans-serif;fill:#fff;stroke:none;paint-order:normal}
+.mark text{font-family:Barlow,sans-serif;font-weight:600;fill:var(--ink);paint-order:stroke;
+           stroke:var(--bg);stroke-width:.26em;stroke-linejoin:round}
+.mark text.cnum{font-family:Barlow,sans-serif;font-weight:700;fill:#fff;stroke:none;paint-order:normal}
 .linkline{fill:none;stroke-width:2.2;stroke-linecap:round;opacity:.85;cursor:pointer}
-.linkline.halo{stroke-width:9;opacity:0;}
-.mark.selected .site-dot,.mark.selected .club-dot{stroke:var(--ink);stroke-width:2.4}
-#map .citylabel{font:500 10.5px Barlow,sans-serif;font-size:calc(10.5px*var(--cityf,1));fill:var(--muted)}
-#map .statelabel{font:700 34px "Barlow Condensed",sans-serif;font-size:calc(34px*var(--statef,1));fill:var(--land-stroke);opacity:.5;letter-spacing:.35em}
+.linkline.halo{stroke-width:12;opacity:0}
+.mark.selected .site-dot,.mark.selected .club-dot{stroke:var(--ink);stroke-width:2.6}
+#map .citylabel{font-family:Barlow,sans-serif;font-weight:500;fill:var(--muted);paint-order:stroke;
+                stroke:var(--land);stroke-width:.22em;stroke-linejoin:round}
+#map .statelabel{font-family:"Barlow Condensed","Barlow",sans-serif;font-weight:700;
+                 fill:var(--land-stroke);opacity:.42;letter-spacing:.35em}
 
-@media (max-width:700px){
-  #drawer{position:absolute;left:0;right:0;bottom:0;top:auto;height:62%;width:100%;flex:none;border-left:0;border-top:1px solid var(--line);box-shadow:var(--shadow);transform:translateY(103%);transition:transform .22s ease;overflow-y:auto}
-  #drawer.open{transform:none;width:100%}
-  #drawer .head,#drawer .body{min-width:0}
-  #legend{max-width:170px;font-size:12.5px;bottom:10px;left:10px}
+@media (max-width:760px){
+  #nav{padding:7px 11px;gap:8px;flex-wrap:nowrap}
+  #brand h1{font-size:20px}
+  #clubsBtn{padding:8px 12px}
   #brand .sub{display:none}
+  #discordBtn{font-size:14px;padding:8px 13px}
+  #discordBtn .full{display:none}
+  #discordBtn .short{display:inline}
+  #drawer{position:absolute;left:0;right:0;bottom:0;top:auto;height:min(70%,560px);width:100%;flex:none;
+          border-left:0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;box-shadow:var(--shadow);
+          transform:translateY(calc(100% + 20px));transition:transform .22s ease}
+  #drawer.open{transform:none}
+  #drawer .head{border-radius:14px 14px 0 0}
+  #legend{left:10px;bottom:10px;max-width:none;font-size:13px}
+  #legend:not(.open) #legendBody{display:none}
+  #legendToggle{display:flex}
+  #zoomctl{right:10px;bottom:10px}
+  #zoomctl button{width:40px;height:40px}
 }
-@media (prefers-reduced-motion: reduce){#drawer{transition:none}}
+@media (prefers-reduced-motion:reduce){#drawer{transition:none}}
 </style>
-
-<script type="application/json" id="seed">{"discord":{"url":"","label":"SD Ham Discord"},"clubs":[{"id":"c1","name":"Black Hills Amateur Radio Club","callsign":"W0BLK","city":"Rapid City","lat":44.0805,"lon":-103.231,"meeting":"Monthly meeting 7:00 PM (see w0blk.com for date/location). Rag chew net Tue & Thu 7:00 PM on 444.450.","mailing":"groups.io/g/W0BLK","website":"http://www.w0blk.com","repeaters":"444.450 club UHF, 444.575 (Radar Hill)","notes":""},{"id":"c2","name":"Brookings Radio Research Club","callsign":"W0BXO","city":"Brookings","lat":44.3114,"lon":-96.7984,"meeting":"","mailing":"","website":"","repeaters":"146.940 (−0.6 MHz, 110.9 Hz CTCSS)","notes":""},{"id":"c3","name":"Hot Springs Amateur Radio Club","callsign":"K0HS","city":"Hot Springs","lat":43.4316,"lon":-103.4744,"meeting":"Second Tuesday, 6:30 PM — 709 Jensen Hwy, Hot Springs (former ambulance building)","mailing":"","website":"https://k0hs.net","repeaters":"146.700 Battle Mtn, 147.120 Mt Coolidge, 147.090 Custer, 147.150 Pay Dirt, 53.170 Bear Mtn (6m), 462.550 GMRS Edgemont","notes":""},{"id":"c4","name":"Hub City Amateur Radio Club","callsign":"W0ABR","city":"Aberdeen","lat":45.4647,"lon":-98.4865,"meeting":"First Monday, 7:00 PM — Elks Lodge, 705 Circle Drive, Aberdeen. All are welcome.","mailing":"Contact marvind@abe.midco.net","website":"https://hc-arc.net","repeaters":"W0ABR 146.910 (2m); WB0JZZ 443.400 C4FM","notes":""},{"id":"c5","name":"Huron Amateur Radio Club","callsign":"W0NOZ","city":"Huron","lat":44.3633,"lon":-98.2143,"meeting":"Third Thursday, 7:00 PM — Conference Room 14, Huron City Hall, 239 Wisconsin Ave SW, Huron (use south door)","mailing":"","website":"https://huronarc.info/home-page","repeaters":"","notes":""},{"id":"c6","name":"Lake Area Radio Klub","callsign":"W0WTN","city":"Watertown","lat":44.8994,"lon":-97.1153,"meeting":"First Thursday, 7:00 PM — Watertown Salvation Army, 621 4th Street SE, Watertown","mailing":"https://groups.io/g/LARK-General","website":"https://www.w0wtn.org","repeaters":"146.850 (−0.6 MHz, 67.0 Hz TX tone)","notes":""},{"id":"c7","name":"Northern Hills Amateur Radio Club","callsign":"KC0BXH","city":"Belle Fourche","lat":44.6714,"lon":-103.8522,"meeting":"","mailing":"","website":"","repeaters":"Linked VHF system: 146.940 Radar Hill, 146.760 Terry Peak, 146.850 Bear Mountain","notes":"The linked system covers northeastern Wyoming, western South Dakota, and northwestern Nebraska. All three repeaters use standard offsets."},{"id":"c8","name":"Pierre Amateur Radio Club","callsign":"W0PIR","city":"Pierre","lat":44.3683,"lon":-100.351,"meeting":"2nd Thursday, 7:00 PM — Fire Station #4, 802 N Pierce Ave, Pierre","mailing":"","website":"https://sdhams.org","repeaters":"145.350 (−0.6 MHz, 146.2 Hz CTCSS)","notes":""},{"id":"c9","name":"Prairie Dog Amateur Radio Club","discord":"","callsign":"W0OJY","city":"Yankton","lat":42.8711,"lon":-97.3973,"meeting":"2nd Tuesday, 7:00 PM — Christ the King Lutheran Church, 305 W 25th St, Yankton","mailing":"See pdarc.org for club mailing list","website":"https://pdarc.org","repeaters":"Linked analog system (Yankton, Vermillion, Springfield, Spencer NE) + Yankton Fusion (YSF88411 PDARC)","notes":""},{"id":"c10","name":"Sioux Empire Amateur Radio Club","callsign":"W0ZWY","city":"Sioux Falls","lat":43.5473,"lon":-96.7283,"meeting":"1st Tuesday, 7:30 PM — Minnehaha Co. Emergency Mgmt Bldg, 608 N Sigler Ave, Sioux Falls","mailing":"See w0zwy.org","website":"https://w0zwy.org","discord":"https://discord.w0zwy.org","repeaters":"Managed: 444.900 KD0ZP EchoLink, 223.860 W0FSD, 444.200 Fusion, 146.895 multi-site RX, 442.750 D-Star","notes":""}],"sites":[{"id":"s1","name":"Sioux Falls","system":"sdlink","lat":43.578,"lon":-96.703,"notes":"","photos":[],"repeaters":[{"label":"Sioux Falls UHF","type":"UHF Repeater","tx":"444.825","rx":"449.825","tone":"103.5"},{"label":"Sioux Falls UHF Link","type":"UHF Link","tx":"447.075","rx":"442.075","tone":"103.5"}]},{"id":"s2","name":"Turkey Ridge","system":"sdlink","lat":43.262,"lon":-97.142,"notes":"","photos":[],"repeaters":[{"label":"Turkey Ridge UHF","type":"UHF Repeater","tx":"444.975","rx":"449.975","tone":"146.2"},{"label":"Turkey Ridge UHF Link","type":"UHF Link","tx":"447.075","rx":"442.075","tone":"103.5"}]},{"id":"s3","name":"Colman","system":"sdlink","lat":43.985,"lon":-96.813,"notes":"","photos":[],"repeaters":[{"label":"Colman UHF Link","type":"UHF Link","tx":"443.225","rx":"448.225","tone":"146.2"}]},{"id":"s4","name":"Salem (W0SD)","system":"sdlink","lat":43.724,"lon":-97.389,"notes":"Hub of the SD-LINK east side.","photos":[],"repeaters":[{"label":"Salem W0SD VHF","type":"VHF Repeater","tx":"","rx":"","tone":""},{"label":"Salem W0SD UHF","type":"UHF Repeater","tx":"442.075","rx":"447.075","tone":"103.5"}]},{"id":"s5","name":"Toronto","system":"sdlink","lat":44.573,"lon":-96.641,"notes":"","photos":[],"repeaters":[{"label":"Toronto VHF","type":"VHF Repeater","tx":"146.775","rx":"146.175","tone":"146.2"},{"label":"Toronto UHF Link","type":"UHF Link","tx":"447.075","rx":"442.075","tone":"103.5"},{"label":"Toronto UHF Link","type":"UHF Link","tx":"447.000","rx":"442.000","tone":"146.2"}]},{"id":"s6","name":"Watertown","system":"sdlink","lat":44.921,"lon":-97.135,"notes":"","photos":[],"repeaters":[{"label":"Watertown UHF","type":"UHF Repeater","tx":"442.000","rx":"447.000","tone":"146.2"}]},{"id":"s7","name":"Wessington Springs","system":"sdlink","lat":44.081,"lon":-98.569,"notes":"","photos":[],"repeaters":[{"label":"Wessington Springs VHF","type":"VHF Repeater","tx":"147.345","rx":"147.945","tone":"146.2"},{"label":"Wessington Springs UHF","type":"UHF Repeater","tx":"444.650","rx":"449.650","tone":""},{"label":"Wessington Springs UHF Link E","type":"UHF Link","tx":"447.075","rx":"442.075","tone":"103.5"}]},{"id":"s8","name":"Crandall Hill","system":"sdlink","lat":45.32,"lon":-97.72,"notes":"","photos":[],"repeaters":[{"label":"Crandall Hill VHF","type":"VHF Repeater","tx":"146.790","rx":"146.190","tone":"146.2"},{"label":"Crandall Hill UHF Link","type":"UHF Link","tx":"449.650","rx":"444.650","tone":"151.4"}]},{"id":"s9","name":"Reliance","system":"sdlink","lat":43.879,"lon":-99.603,"notes":"","photos":[],"repeaters":[{"label":"Reliance VHF","type":"VHF Repeater","tx":"146.940","rx":"146.340","tone":"146.2"},{"label":"Reliance UHF Link E","type":"UHF Link","tx":"449.650","rx":"444.650","tone":"151.4"},{"label":"Reliance UHF Link W","type":"UHF Link","tx":"448.450","rx":"443.450","tone":"103.5"}]},{"id":"s10","name":"Murdo","system":"sdlink","lat":43.888,"lon":-100.713,"notes":"","photos":[],"repeaters":[{"label":"Murdo VHF","type":"VHF Repeater","tx":"147.300","rx":"147.900","tone":"146.2"},{"label":"Murdo UHF","type":"UHF Repeater","tx":"443.450","rx":"448.450","tone":"103.5"}]},{"id":"s11","name":"Pierre","system":"sdlink","lat":44.395,"lon":-100.37,"notes":"","photos":[],"repeaters":[{"label":"Pierre VHF","type":"VHF Repeater","tx":"146.730","rx":"146.130","tone":"146.2"},{"label":"Pierre UHF Link","type":"UHF Link","tx":"448.450","rx":"443.450","tone":"103.5"}]},{"id":"s12","name":"Philip","system":"sdlink","lat":44.039,"lon":-101.665,"notes":"","photos":[],"repeaters":[{"label":"Philip VHF","type":"VHF Repeater","tx":"147.375","rx":"147.975","tone":"146.2"},{"label":"Philip UHF Link E","type":"UHF Link","tx":"448.450","rx":"443.450","tone":"103.5"},{"label":"Philip UHF Link W","type":"UHF Link","tx":"448.650","rx":"443.650","tone":"131.8"}]},{"id":"s13","name":"Terry Peak","system":"sdlink","lat":44.319,"lon":-103.832,"notes":"","photos":[],"repeaters":[{"label":"Terry Peak VHF","type":"VHF Repeater","tx":"147.030","rx":"147.630","tone":"146.2"},{"label":"Terry Peak UHF","type":"UHF Repeater","tx":"443.650","rx":"448.650","tone":"131.8"}]},{"id":"s14","name":"Rapid City","system":"sdlink","lat":44.105,"lon":-103.26,"notes":"","photos":[],"repeaters":[{"label":"Rapid City UHF","type":"UHF Repeater","tx":"444.750","rx":"449.750","tone":"146.2"}]},{"id":"s15","name":"Yankton","system":"pdarc","lat":42.895,"lon":-97.43,"notes":"UNVERIFIED seed data — PDARC publishes its frequency table as an image; edit with real frequencies from pdarc.org/repeaters.","photos":[],"repeaters":[{"label":"Yankton VHF","type":"VHF Repeater","tx":"","rx":"","tone":""},{"label":"Yankton Fusion","type":"Digital","tx":"","rx":"","tone":"YSF88411 PDARC"}]},{"id":"s16","name":"Vermillion","system":"pdarc","lat":42.78,"lon":-96.929,"notes":"UNVERIFIED seed data — edit with real frequencies.","photos":[],"repeaters":[{"label":"Vermillion","type":"VHF Repeater","tx":"","rx":"","tone":""}]},{"id":"s17","name":"Springfield","system":"pdarc","lat":42.854,"lon":-97.897,"notes":"UNVERIFIED seed data — edit with real frequencies.","photos":[],"repeaters":[{"label":"Springfield","type":"VHF Repeater","tx":"","rx":"","tone":""}]},{"id":"s18","name":"Spencer, NE","system":"pdarc","lat":42.874,"lon":-98.703,"notes":"UNVERIFIED seed data — edit with real frequencies.","photos":[],"repeaters":[{"label":"Spencer NE","type":"VHF Repeater","tx":"","rx":"","tone":""}]},{"id":"s19","name":"Radar Hill (Rapid City)","system":"bh","lat":44.062,"lon":-103.16,"notes":"Also hosts W0BLK club UHF machines.","photos":[],"repeaters":[{"label":"NHARC Linked VHF","type":"VHF Repeater","tx":"146.940","rx":"146.340","tone":"146.2"},{"label":"W0BLK Club UHF","type":"UHF Repeater","tx":"444.450","rx":"449.450","tone":"146.2"},{"label":"W0BLK UHF","type":"UHF Repeater","tx":"444.575","rx":"449.575","tone":""}]},{"id":"s20","name":"Terry Peak (NHARC)","system":"bh","lat":44.345,"lon":-103.87,"notes":"Terry Peak, Lead.","photos":[],"repeaters":[{"label":"NHARC Linked VHF","type":"VHF Repeater","tx":"146.760","rx":"146.160","tone":"146.2"}]},{"id":"s21","name":"Sioux Falls (W0ZWY)","system":"none","lat":43.55,"lon":-96.728,"notes":"Repeaters managed by the Sioux Empire ARC.","photos":[],"repeaters":[{"label":"KD0ZP EchoLink","type":"UHF Repeater","tx":"444.900","rx":"449.900","tone":"146.2"},{"label":"W0FSD","type":"1.25m","tx":"223.860","rx":"222.260","tone":"146.2"},{"label":"W0ZWY Fusion (C4FM)","type":"Digital","tx":"444.200","rx":"449.200","tone":"82.5"},{"label":"W0ZWY VHF (multi-site receive)","type":"VHF Repeater","tx":"146.895","rx":"146.295","tone":"146.2"},{"label":"W0ZWY D-Star (Module B)","type":"Digital","tx":"442.750","rx":"447.750","tone":""}]},{"id":"s22","name":"Bear Mountain (NHARC)","system":"bh","lat":43.868,"lon":-103.748,"notes":"Bear Mountain, Custer.","photos":[],"repeaters":[{"label":"NHARC Linked VHF","type":"VHF Repeater","tx":"146.850","rx":"146.250","tone":"146.2"}]},{"id":"s23","name":"Brookings (W0BXO)","system":"none","lat":44.309,"lon":-96.79,"notes":"","photos":[],"repeaters":[{"label":"W0BXO VHF","type":"VHF Repeater","tx":"146.940","rx":"146.340","tone":"110.9"}]},{"id":"s24","name":"Watertown (W0WTN)","system":"none","lat":44.9,"lon":-97.11,"notes":"","photos":[],"repeaters":[{"label":"W0WTN VHF","type":"VHF Repeater","tx":"146.850","rx":"146.250","tone":"67.0 (TX)"}]},{"id":"s25","name":"Aberdeen (W0ABR)","system":"none","lat":45.462,"lon":-98.49,"notes":"","photos":[],"repeaters":[{"label":"W0ABR 2 Meter","type":"VHF Repeater","tx":"146.910","rx":"146.310","tone":""},{"label":"WB0JZZ C4FM","type":"Digital","tx":"443.400","rx":"448.400","tone":"146.2"}]},{"id":"s26","name":"Pierre (W0PIR)","system":"none","lat":44.368,"lon":-100.348,"notes":"","photos":[],"repeaters":[{"label":"W0PIR VHF","type":"VHF Repeater","tx":"145.350","rx":"144.750","tone":"146.2"}]},{"id":"s27","name":"Battle Mountain","system":"none","lat":43.44,"lon":-103.43,"notes":"K0HS — near Hot Springs.","photos":[],"repeaters":[{"label":"K0HS VHF","type":"VHF Repeater","tx":"146.700","rx":"146.100","tone":"146.2"}]},{"id":"s28","name":"Mount Coolidge","system":"none","lat":43.72,"lon":-103.475,"notes":"K0HS — Custer State Park.","photos":[],"repeaters":[{"label":"K0HS VHF","type":"VHF Repeater","tx":"147.120","rx":"147.720","tone":"146.2"}]},{"id":"s29","name":"Custer","system":"none","lat":43.767,"lon":-103.599,"notes":"K0HS — downtown Custer.","photos":[],"repeaters":[{"label":"K0HS VHF","type":"VHF Repeater","tx":"147.090","rx":"147.690","tone":"146.2"}]},{"id":"s30","name":"Pay Dirt","system":"none","lat":43.78,"lon":-103.7,"notes":"K0HS — west of Custer.","photos":[],"repeaters":[{"label":"K0HS VHF","type":"VHF Repeater","tx":"147.150","rx":"147.750","tone":"146.2"}]},{"id":"s31","name":"Bear Mountain (K0HS 6m)","system":"none","lat":43.872,"lon":-103.742,"notes":"K0HS — north of Custer.","photos":[],"repeaters":[{"label":"K0HS 6 Meter","type":"6m","tx":"53.170","rx":"52.170","tone":"146.2 (encode only)"}]},{"id":"s32","name":"Edgemont (GMRS)","system":"none","lat":43.3,"lon":-103.827,"notes":"K0HS-listed GMRS machine.","photos":[],"repeaters":[{"label":"Edgemont GMRS","type":"GMRS","tx":"462.550","rx":"467.550","tone":"141.3"}]}],"links":[{"a":"s4","b":"s1","system":"sdlink"},{"a":"s4","b":"s2","system":"sdlink"},{"a":"s4","b":"s3","system":"sdlink"},{"a":"s4","b":"s5","system":"sdlink"},{"a":"s4","b":"s7","system":"sdlink"},{"a":"s5","b":"s6","system":"sdlink"},{"a":"s7","b":"s8","system":"sdlink"},{"a":"s7","b":"s9","system":"sdlink"},{"a":"s9","b":"s10","system":"sdlink"},{"a":"s10","b":"s11","system":"sdlink"},{"a":"s10","b":"s12","system":"sdlink"},{"a":"s12","b":"s13","system":"sdlink"},{"a":"s13","b":"s14","system":"sdlink"},{"a":"s15","b":"s16","system":"pdarc"},{"a":"s15","b":"s17","system":"pdarc"},{"a":"s17","b":"s18","system":"pdarc"},{"a":"s19","b":"s20","system":"bh"},{"a":"s20","b":"s22","system":"bh"}]}</script>
+</head>
+<body>
 
 <nav id="nav">
   <div id="brand">
@@ -128,397 +225,587 @@ svg#map text{user-select:none}
     <span class="sub">South Dakota clubs &amp; linked repeaters</span>
   </div>
   <div class="spacer"></div>
+  <button id="clubsBtn" class="btn accent" type="button">Find a Club</button>
   <a id="discordBtn" class="btn discord" href="#" target="_blank" rel="noopener">
-    <svg width="18" height="14" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><path id="dicon" d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z"/></svg>
-    <span id="discordLabel">SD Ham Discord</span>
+    <svg width="19" height="15" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><path id="dicon" d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z"/></svg>
+    <span id="discordLabel"><span class="full">Join the SD Ham Discord</span><span class="short">Discord</span></span>
   </a>
 </nav>
 
 <div id="stage">
-  <div id="mapwrap"><svg id="map" viewBox="-24 -24 1048 700" role="application" aria-label="Map of South Dakota amateur radio clubs and repeaters"></svg>
+  <div id="mapwrap">
+    <svg id="map" role="application" aria-label="Map of South Dakota amateur radio clubs and repeater sites"></svg>
     <div id="zoomctl">
-      <button id="zin" aria-label="Zoom in">+</button>
-      <button id="zout" aria-label="Zoom out">−</button>
-      <button id="zreset" aria-label="Reset view" style="font-size:15px">⌂</button>
+      <button id="zin" type="button" aria-label="Zoom in">+</button>
+      <button id="zout" type="button" aria-label="Zoom out">−</button>
+      <button id="zreset" type="button" aria-label="Reset view" style="font-size:15px">⌂</button>
+    </div>
+    <div id="legend">
+      <button id="legendToggle" type="button" aria-expanded="false">Layers</button>
+      <div id="legendBody">
+        <h3>Layers</h3>
+        <label><input type="checkbox" data-layer="clubs" checked><span class="swatch club" style="background:var(--clubs)"></span>Clubs</label>
+        <label><input type="checkbox" data-layer="sdlink" checked><span class="swatch" style="background:var(--sdlink)"></span>SD-LINK</label>
+        <label><input type="checkbox" data-layer="pdarc" checked><span class="swatch" style="background:var(--pdarc)"></span>Prairie Dog ARC</label>
+        <label><input type="checkbox" data-layer="nh" checked><span class="swatch" style="background:var(--nh)"></span>Northern Hills</label>
+        <label><input type="checkbox" data-layer="none" checked><span class="swatch" style="background:var(--indep)"></span>Independent / club</label>
+      </div>
     </div>
   </div>
 
-  <div id="legend">
-    <h3>Layers</h3>
-    <label><input type="checkbox" data-layer="clubs" checked><span class="swatch club" style="background:var(--clubs)"></span>Clubs</label>
-    <label><input type="checkbox" data-layer="sdlink" checked><span class="swatch" style="background:var(--sdlink)"></span>SD-LINK system</label>
-    <label><input type="checkbox" data-layer="pdarc" checked><span class="swatch" style="background:var(--pdarc)"></span>Prairie Dog ARC system</label>
-    <label><input type="checkbox" data-layer="bh" checked><span class="swatch" style="background:var(--bh)"></span>Northern Hills system</label>
-    <label><input type="checkbox" data-layer="none" checked><span class="swatch" style="background:var(--indep)"></span>Independent sites</label>
-  </div>
-
-  <aside id="drawer" aria-live="polite">
+  <aside id="drawer" class="empty" aria-live="polite">
     <div class="head">
       <div class="kind" id="dKind"></div>
       <h2 id="dTitle"></h2>
       <div class="call" id="dCall"></div>
-      <button id="closeDrawer" aria-label="Close panel">✕</button>
+      <button id="closeDrawer" type="button" aria-label="Close panel">✕</button>
     </div>
     <div class="body" id="dBody"></div>
   </aside>
 </div>
 
+<script type="application/json" id="basemap">{"state":["q~rAhfjEw{BHEc@az@HRsrMdFf@pChC\\h@z@nCfBtDvAj@hDyDzB_ArAoALYB{B~@_Ed@aAtBgAjoB??bH\\W^Eb@d@`@QlAqB?YNCtCFVFLj@E`@j@`@JCvAu@DaDfEmAtBx@bA|AfDCpElATv@pBjBbAN|@Ql@oBj@aA|@s@rCmAlAFd@]Pm@P`As@lGO\\oDbDODi@GeA`@oApDw@zDGjB_AtDWhDm@hBaBdCMjId@nOOlDe@jB@`@Pz@rAZj@f@d@v@X|BAdAMj@cCxEaB~HaBpFYf@{@l@i@PCbzI"],"counties":["ybvAxwiE|@lL","kptAnqgEqBQ@fsA","i|sApdhEAr_A","yeuAdejE@}eB","yeuAv`iE?lc@","yhwAfdjE?maA","ybvAxwiE@yN","wbvAfbhEApt@","wbvA~giE?wd@","yeuAv`iEgF@@pFwTK","weuAf~fEAnaA","oitArxgEXxDhCbE","i|sApdhEaG?","kdtApdhE`G?","w_sApdhEq[?","i|sApdhE??","i|sApdhEp[?","wbvAfbhEgZM","yhwAxahE`e@L","_~vAxahEiv@]","_~vAxahEByz@","iuxAz`hEnk@\\","sitApxgEB@","oitArxgE?uf@","kptAnqgEvE`F","sitApxgE?NwEqF","oitA|pfECrf@","weuAf~fEkQcDL{G","ijtAtnfEXfA","uwuAfpfEgDeIbq@b@","_}uA~efEhDfI","yjtAdgfENnF","ijtAtnfE~L?lDw@","u_sAlkfE{Ej@iOB","{vsA|lfE@ev@","yjtAdgfE{PW","u|tAlffE?}y@","u|tAljdE?~z@","u|tAlffEi_@M","iuxA`ffErr@A","_ywA~efEi[@","_}uA~efEs@}E^{CqB_EToJqFuICyFoBcE","{}vA~efEz_@?","_}uA~efE{_@?","{}vA~efEyB?","{}vA~efE??","uawA~efEiV?","uawA~efExB?","_ywA~efE?c`@","aywAj~bE@rfB","_ywAzdeEAoeA","_ywAzdeEjD^nW\\?yUlN@","astAnkdEfBfI","yotAvudEqBgI","yvsAvudE_X?","{vsAnvbE@f~@","yvsAvudEdV?","oguAljdE?nF","oguA|qdE?oF","ukvA`pdEpBb@r_@V","emvAzucEW~EtB`Km@bF","cttAlidE`@`A","astAnkdEI?","kstAnkdEWaA","kstAnkdEiH?","u|tAnkdE?a@","oguAljdEAoi@","oguAljdE??","qguA|_cE@ni@","oguAljdExI?","cttAlidEnEuMx@K`@mBwBoH|A{E","uqvAdccEbDvF{BhGfBrA","emvAzucE~BoEtFr@hAcF","e_vAzicEA{t@","g_vAvtaE@bt@","eiuAbebE}A{AcC`K_BnPgDh@]vJwD_B","u`xArccErBxB","a}wAlgcEsBqB","aywAj~bE_C`H","iktAd~bEGjG","qktApfcEFkG","wgxAh|bEaIzCmBbD","u`xAzccEaFqF","u`xAzccE?G","u`xArccE?F","u`xArccE??","u`xArccEB{k@","wgxAh|bE`FhF","q`xAhwaEChk@","uqvAdccEmB[","c}vAnacElJt@","cuvAhbcE_GY","auvAptaEAvl@","cuvAhbcE@wl@","}jwAfybEfH`C`DyAO~E","eiuA|_cE?yY","eiuA|_cEr@?","mstAz_cEwT@","qguA|_cEbSA","mstAz_cEbGu@","aywAj~bEtDgC~BtAlCqB","iktAd~bE??","iktAd~bEDwE","cktAlwbEEvE","}jwAfybEB}i@","{jwAxvaEAla@","{vsAnvbEgS\\","cktAlwbEfSa@","w}sAnqaEcN?o@~@fAVy@f@nArAz@vEB|Gg@fAj@bEy@fF","{vsAjvbE?B","u_sAlubEeV`@","{vsAjvbEdV]","sjuA~saEzA~@fCgDs@~OaCjB","q`xAhwaEoS@","}txAfy_EnS@C~|@","{jwAxvaEuTA","wjwAby_ECt|@","q`xAvvaEBq|@","g_vAvtaEyTE","g_vA~saE?V","auvAptaE??","auvAhnaE?fE","auvAptaE?gE","g_vA~saErS?","_iuApnaEs@lD","w}sAnqaE?sD","w}sAb}`E?jS","_iuApnaEEy\\","eiuAf}`EDhP","{xtAv`aEyBCuE`LsDZ","auvAhnaEwT?","yjwAhnaE@mt@","auvAhnaE??","auvAhnaE?iO","auvA~}`E?hO","w}sAzkaE?wM","s_sAzkaEc]?","{xtAv`aE|CyA~CdElF`BAgD","qgtA|aaExHyC","w}sAb}`EyHxC","{xtAv`aEAga@","}xtA|e`E@xY","auvA~}`E??","auvA~}`E?sT","eiuAf}`E{j@V","auvAjh`E?rT","g{sAn}`EoAK","w}sAb}`EnAJ","}`sAxl_EkAhIiCdD_@~DiDv@sCvIsEfDaAlH","eiuAvp`E?nK","u}sAt}_EAl^","w}sAb}`E@m^","giuAze`E@zI","eiuAvp`EC{I","auvAjh`E?}N","wjwAzx_EtTC?rN","cytAv`_EDdd@","giuAze`EhO@","iiuAnz_E@jJ","iiuAze`E@?","iiuAze`E?kJ","}xtAn~_EEw\\","u}sAt}_EgZX","u}sAt}_E??","u}sAt}_E?qD","u}sAbx_E?pD","iiuAnz_E?iF","iiuAvw_E?vA","m`xAdy_EoS@","wjwAby_EuT@","m`xAdy_E?AtT?","ojwAxj~DGhm@","auvAlx_EuTL","wjwAzx_EFam@","sdvAbx_EmOH","auvAlx_E?KlOA","u}sAbx_E??","u}sAbx_E?aW","iiuAvw_EiZJ","sdvA~w_E?B","sdvAbx_E?C","yusApv_E{Fp@","u}sA``_E?`W","sdvA~w_E??","sdvA~w_EBkl@","sdvA~w_EhZG","odvArj~DCjl@","iiuAds_E?pC","yjsAxr~D_Jvb@","yusApv_E~Iub@","iiuAds_E?mQ","giuAv`_EAlQ","u_sA~k_Eg@X","}`sAxl_Ef@[","giuAv`_EA?","iiuAv`_E@?","iiuAv`_EB{\\","cytAv`_EcO?","giuAv`_E??","giuAv`_EbO?","eiuAzb~DAz\\","cytAv`_E??","cytAv`_E??","cytAv`_E??","ustAp`_E?BmD@","cytAv`_ElDE","ustAp`_E~TO","ustAh`_E?F","ustAh`_E???kU","u}sA``_E_UF","sstA|i~DAjU","u}sA``_E??","u}sA``_E??","u}sA``_E??","u}sA``_E?A","u}sA~__E?@","u}sAxi~D?dU","u}sA~__E@yK","{|rAxq~DvFnB","s}sAds~DCck@","s}sAds~DxQI","yjsAzr~D?A","yjsAzr~DVqA","ajsAhp~DWnA","_isAlp~DbKj@","{|rAxq~DcK_@","_isAxp~D?K","_isAlp~D?J","_isAxp~Da@O","_isAlp~DAcZ","_isAlp~D??","aisAlf}D@~h@","ajsAhp~D`@B","aewAzj~D{CA","odvArj~Dq_@F","aewAzj~D?A","aewAxj~D?@","wtxAtj~Dfi@B","ojwAxj~DP?","}iwAxj~DiUA","}iwAxj~DzC?","aewAxj~D??","_ewAr{|DAdn@","aewAxj~Dp_@E","aewAxj~D@m]","g`xAvj~DoSA","g`xAvj~D?}d@z@cH","odvArj~D??","odvArj~D??","odvArj~D??","odvArj~D@sF","mdvA~b~DArF","ustA|i~D@?","ustA|i~D@gF","sstA|i~D|TC","sstAtb~D?fF","w}sAls}D@jU","mdvA~b~DfZC","__vAxb~DmDD","giuAru|D@fl@","eiuAzb~DyTA","eiuAzb~DpTE","__vAxb~D@il@","__vAfl}D?pU","sstAtb~D??","sstAtb~D??","sstAtb~D??","qstA`x}DArI","sstAtb~DqTC?}\\","sstAtb~D@sI","qstA`x}D?oC","qstApd}D?nR","aisAhu}DAw\\","aisAhu}D~QC","qstAps}DxTC","qstAps}D@_]","w}sA`g}D?jK","_ewAjl}D~d@C","govAdl}DwTD","_ewAjl}DBce@","__vAfl}DgOA","__vAjf|D?zd@","govAhf|D?zd@","w}sA`g}D?O","w}sApf}D?N","w}sApf}D?_P","w}sApf}D??","aisAlf}DuSB","w}sApu|D?~O","cisApw|D@zM","eiuArd}DAa]","qstApd}DsT@","ostAvi|DAxY","utxAv{|DhUA","cnwAr{|Dqe@B","k~wAt{|DjXA","_ewAr{|DcH?","{dwAff|DCjT","cnwAr{|D@sL{@]?e^","cisApw|DdUB","}rrAtw|DwOC","ucsApw|DmD?","ucsApw|DAkT","wcsAvh|D@xM","iiuApl{D@`h@","giuAru|DuTC","w}sAxh|D?vK","w}sApu|D??","w}sApu|D?wK","ostApu|DvT?","ostApu|D?yJ","}~uAnu|DA_h@","ostAvi|DAeB","ostApf|D?dB","w}sAxh|D?cR","w}sAxh|D??","w}sAtu{D?bR","w}sAxh|D~XA","wcsAdb|D?pE","giuApf|DA_Y","giuApf|DtT?","qstApf|D?_Y","qstApf|D@?","qstApl{D@~X","__vAjf|DaZG","govAhf|DfO@","__vAnl{D?zX","{dwAff|DrT@","azvAbf|DyIB","azvAbf|D?sX","wcsAdb|D?Y","wcsAja|D?X","imrAla|DmUA","wcsAja|D??","ucsAzl{DAnS","wcsAja|D@oS"],"lakes":["qbxAfd|Dn@TgAAeAgAw@}AuBqFuBsAQYdA@~AzAvD|It@t@","i}vAnybEh@^R^q@hCNn@bA`@j@Dj@EnBu@v@j@l@hAr@d@zA`CZpA?n@Uh@y@bAWh@En@jBsBl@cA`AJlBn@j@GX]j@mAHk@eA_BMk@`@X^FZKLe@VLtBxCHICcCKaAWu@\\g@d@]p@JNPWz@Gx@DnBZpAw@nBmB|A?_Bg@qAK?IhBSp@a@TYt@g@UsBCe@NYU]E]`@Un@Ef@\\|@AR}@FQzDHp@h@pAQx@r@hAFl@a@zEr@dBTlAo@_@_@e@q@_BG_AXeCm@cCMKc@ZQKWcBB[b@YB_BgAp@_@BCOlAcBNqACe@e@U}ApACa@WSP]H_Br@aAMaAj@k@|Aw@Rs@Y]q@Km@A_BRGWNWf@[O]h@_AaAeAaAf@kCNiAh@q@G?UZiA[cA?gB_AXs@@}Bs@c@CUZgAcAsAL{@t@Cv@cAn@UZQbD@|@x@|CTlFs@aAc@{Bm@{GWu@AWn@uA^}A?i@m@o@aAf@{@hAkAv@Oh@IzAO^mBbBA\\k@@S`A_BfAU^DvAO?Se@EwBFQr@c@b@yAl@m@S{@kAm@cAYGK@eCGSSKUDm@f@{@RgBfAuAX[VKvBe@L[|@_Av@?mEx@_Ap@_@EeAe@yAJ_@|@jAh@`@h@Ld@KhBuAlAi@z@Bp@p@nAhD^Zp@HbAd@`@Yz@}BHqAPk@VK~@G`BqAd@GdBjARAxByAj@?j@V|@MxA`@v@v@x@RZMHc@OiAvA^","adsAvo_Ez@m@UvIaCfBe@|EgAbAI@c@i@i@JQ`@OzA[jAk@fAq@|@kD|Cm@`AaA|Ee@x@}@Jm@c@UEODcAtA_BPg@n@[xCu@z@u@iAO{A}@b@w@C]iAcBwBe@OWFe@h@Qn@]DoCUNi@VM`@ZjA?RGVc@fAi@TJv@|@b@Lr@jB^TZCn@m@fAlBRFFS@kBb@w@f@YrAY`@Wt@eA^Sj@?Z^f@KV_@j@oEj@aAhCeB`A_AzAcDFsA^iA^[lBc@Jc@@sAZeAEo@z@M\\Ud@aADcDN_A"],"rivers":["anvAjvcEKzFT`C~@dEKxDJdA^hAx@pA","kdtAtdhEi@qCiAe@Ii@@yAOk@wAgAkCiDcBWwAs@iBcGs@oAw@s@{CaAi@cBq@M}A\\MKw@H_Ao@eCQ}@YoC{AiAHO}ANwEKo@cC{Ea@qAMcBAiEW_B}@oBGm@JcISm@wAyBiBqEOk@KkDO_@","g{sAtfjErAmGjBgC|@o@Pg@AqAJi@n@a@N_A^WM}Dg@_@MrAa@g@Ey@F_@l@q@Du@o@qD_ARWEq@u@@mBw@ZI_@^u@kAyBw@{Eo@gBiAuAuBU}@iA","gvxA`w~D|AEXx@tDjB`CfBp@XX@ROp@Tp@?b@YVqAhAGpAeAt@pAx@[r@j@zClAjAtAnB\\z@^bAJv@\\vDl@|CxA`@GnA^n@DT]Y_BBUd@g@DiAPe@xBoAtA[pA?z@i@rBXj@IfCgBHc@fAkBpAq@t@Qb@DvAdB`Bj@jAc@`CcB`AAbAZh@Mh@}@~Ao@vA`@dAGz@i@|ByC^IjDv@n@Eb@QlAoAvAIzAiBTcAdA}Az@AzAs@fAVl@An@Wf@e@^kB~@cAZqBd@Gn@Ht@Q~AdAf@?ZWr@qAl@i@V{Cz@o@\\{@lAaBVgA\\SfF}@DoARW\\?","wvxAvhcEdCaEl@c@lCu@rCyAf@N~@bDnDnCn@Mf@i@vAcEzC{Bf@IpAr@^@rCiAnCZtDdAr@In@g@X|Dv@d@t@PvC]b@@tAjAPj@Bj@hBnA@`BqAjBa@`ACdAj@j@z@IfBuCf@WzDNp@W`@q@d@yBTOf@Xd@z@`@D`@s@CoEJaAj@w@","m|tAhaaEHIdC@fAgAh@StBjBb@xAZPb@Cr@]^f@Nt@b@\\VMXqCb@o@xBs@bAqAd@Kb@Xd@Bb@SV]|@mEb@gApCyB~AsBt@cBRiBVm@r@a@p@H^Od@uDVw@h@]`A{Az@qG","yxuApacEpCcAj@}@R{AXwHZaBfAcCX}DXU^Hv@p@h@H`A}@r@yA?aF^uCDeBISUGcAXQ`AgAnB]g@G_AV_Cb@o@l@MtBDr@Ud@s@f@mDjBaD","absAnn_E|@w@dBkCfBqEBm@`BeDvAsGf@]JUb@oCGaC_@u@kBw@Y_BTiCMoAZyAAo@e@yBXgEu@mKT{AbCeDh@yALiDXaBd@w@Hc@HsDd@}@h@a@","ojrAx~{DAsAPs@NIn@ZXAfAiB~Am@Pc@^kG"],"i90":["{~uAvfjE@iD`CmIDsCQm@Bw@h@yABw@t@qA^eBbDaDfAC|Am@|@y@tBiD|AiAFyFQW?eAH}IPi@IqUnAiD?eDjBaC\\uAHaBz@WnA_B~B}LZ{CH{RWcAI{D\\eFWuBuAsEWmBNqHZoAJeIq@_EC_Z^oAFsAG_Nz@wH@eEZsABuBxAgFMo@tBeFFiLR}BCaIz@uG?wIPsBHic@x@uCA}]f@aK~@yBNkDOcJNeDBaN"],"i29":["y~qArj{DQ|Ay@DsAnAoElH{ErFqHLsNq@{LXwHc@IQcHZgGWgBe@uCBH|@cU?}Oe@qD~BiCxBsA|AsCrE{SCkIPqC_CiAKgJJcC}BcDuBmDQuAa@"]}</script>
+<script type="application/json" id="cities">[["Sioux Falls",43.6017,-96.7051,1],["Rapid City",44.077,-103.2003,1],["Aberdeen",45.4661,-98.4856,1],["Watertown",44.9043,-97.124,1],["Brookings",44.3056,-96.7914,1],["Mitchell",43.7109,-98.027,1],["Pierre",44.3695,-100.3211,1],["Yankton",42.8821,-97.3986,1],["Huron",44.359,-98.2163,1],["Spearfish",44.4946,-103.865,2],["Vermillion",42.7951,-96.9258,2],["Sturgis",44.4131,-103.4772,2],["Belle Fourche",44.6723,-103.8396,2],["Mobridge",45.5407,-100.4315,2],["Chamberlain",43.7953,-99.3118,2],["Hot Springs",43.4223,-103.4766,2],["Custer",43.7409,-103.6185,2],["Madison",44.0054,-97.1149,2],["Winner",43.3555,-99.8619,2],["Milbank",45.2061,-96.6255,2],["Redfield",44.8719,-98.5112,2],["Lead",44.349,-103.7698,2],["Deadwood",44.3566,-103.6999,2],["Sisseton",45.6644,-97.0232,2],["Miller",44.4966,-98.9894,2],["Philip",44.055,-101.6876,3],["Murdo",43.8961,-100.7121,3],["Salem",43.7356,-97.3797,3],["Colman",43.9558,-96.8189,3],["Toronto",44.5786,-96.7077,3],["Wessington Springs",44.0699,-98.6116,3],["Springfield",42.8687,-97.9288,3],["Wagner",43.0819,-98.2819,3],["Edgemont",43.2874,-103.811,3],["Faith",44.9926,-102.0541,3],["Lemmon",45.9159,-102.1928,3],["Kadoka",43.8446,-101.5523,3],["Gregory",43.2269,-99.4302,3],["Britton",45.8023,-97.7418,3],["Webster",45.3226,-97.5153,3],["Clark",44.878,-97.7265,3],["Platte",43.4024,-98.8897,3],["Gettysburg",45.0259,-99.9766,3],["Eagle Butte",45.0239,-101.1042,3],["Martin",43.1785,-101.7408,3],["Wall",43.9812,-102.2245,3],["Hill City",43.9377,-103.5782,3],["Newell",44.741,-103.3914,3],["Flandreau",44.0658,-96.6222,3],["Canton",43.3038,-96.5938,3],["Parkston",43.3978,-97.9678,3],["Elk Point",42.7382,-96.687,3],["Beresford",43.0874,-96.7813,3],["De Smet",44.3852,-97.5634,3],["Highmore",44.5326,-99.4543,3],["Onida",44.7125,-100.0957,3],["Bison",45.5161,-102.4827,3],["Buffalo",45.574,-103.5826,3],["White River",43.5666,-100.7449,3],["Timber Lake",45.3927,-101.0351,3],["Mission",43.285,-100.5954,3],["Pine Ridge",43.1124,-102.5984,3],["Rosebud",43.23,-100.855,3],["Dupree",45.0079,-101.6337,3],["Selby",45.4786,-100.0541,3],["Ipswich",45.4489,-99.0148,3],["Groton",45.4503,-98.1058,3],["Arlington",44.3668,-97.0687,3],["Volga",44.3224,-96.9251,3],["Garretson",43.7162,-96.5196,3],["Dell Rapids",43.8228,-96.7223,3],["Tea",43.4711,-96.8177,3],["Harrisburg",43.446,-96.6864,3],["Brandon",43.5964,-96.5782,3],["Hartford",43.6155,-96.9501,3],["Box Elder",44.1199,-103.0682,3]]</script>
+<!-- data.json is the source of truth on 605hams.com; this seed is the offline/preview fallback.
+     Regenerate it after editing data.json:  python3 tools/sync_seed.py  -->
+<script type="application/json" id="seed">{"discord":{"url":"https://discord.605hams.com","label":"Join the SD Ham Discord"},"systems":{"sdlink":{"name":"SD-LINK","short":"SD-LINK"},"pdarc":{"name":"Prairie Dog ARC","short":"PDARC"},"nh":{"name":"Northern Hills linked system","short":"Northern Hills"},"none":{"name":"Independent / club","short":"Independent"}},"clubs":[{"id":"c1","name":"Black Hills Amateur Radio Club","callsign":"W0BLK","city":"Rapid City","lat":44.077,"lon":-103.2003,"logo":"logos/w0blk.webp","address":"South Dakota Mines, EEP Building (usually room EEP251A), 501 E St Joseph St, Rapid City, SD 57701","meeting":"3rd Friday, 7:00 PM — social hour from 6:00 PM, program after the meeting","mailing":"groups.io/g/W0BLK","website":"https://www.w0blk.com","discord":""},{"id":"c2","name":"Brookings Radio Research Club","callsign":"W0BXO","city":"Brookings","lat":44.3056,"lon":-96.7914,"logo":"logos/w0bxo.webp","address":"Brookings Public Safety Center, 307 3rd Ave, Brookings, SD 57006","meeting":"1st Monday, 7:00 PM","mailing":"Contact the club via w0bxo.org to be added","website":"https://w0bxo.org","discord":""},{"id":"c3","name":"Hot Springs Amateur Radio Club","callsign":"K0HS","city":"Hot Springs","lat":43.4223,"lon":-103.4766,"logo":"logos/k0hs.webp","address":"South Annex Building, 709 Jensen Hwy, Hot Springs, SD 57747","meeting":"2nd Tuesday, 6:30 PM","mailing":"Reach out to the club through its website","website":"https://k0hs.net","discord":""},{"id":"c4","name":"Hub City Amateur Radio Club","callsign":"W0ABR","city":"Aberdeen","lat":45.459,"lon":-98.47,"logo":"logos/w0abr.webp","address":"Elks Lodge, 705 Circle Drive, Aberdeen, SD 57401","meeting":"See hc-arc.net for the current meeting schedule. All are welcome.","mailing":"marvind@abe.midco.net","website":"https://hc-arc.net","discord":""},{"id":"c5","name":"Huron Amateur Radio Association","callsign":"W0NOZ","city":"Huron","lat":44.359,"lon":-98.2163,"logo":"logos/w0noz.webp","address":"Huron City Hall, 239 Wisconsin Ave SW, Huron, SD 57350","meeting":"3rd Thursday, 7:00 PM in Conference Room 14 (use the south door). Visitors and guests are always welcome.","mailing":"wb0ulx@arrl.net","website":"https://huronarc.info","discord":""},{"id":"c6","name":"Lake Area Radio Klub","callsign":"W0WTN","city":"Watertown","lat":44.896,"lon":-97.108,"logo":"logos/w0wtn.webp","address":"Watertown Salvation Army, 621 4th Street SE, Watertown, SD 57201","meeting":"1st Thursday, 7:00 PM","mailing":"groups.io/g/LARK-General","website":"https://www.w0wtn.org","discord":""},{"id":"c7","name":"Northern Hills Amateur Radio Club","callsign":"KC0BXH","city":"Belle Fourche","lat":44.6723,"lon":-103.8396,"logo":"","address":"","meeting":"","mailing":"","website":"","discord":""},{"id":"c8","name":"Pierre Amateur Radio Club","callsign":"W0PIR","city":"Pierre","lat":44.38,"lon":-100.343,"logo":"logos/w0pir.webp","address":"Fire Station 4, 802 N Pierce Ave, Pierre, SD 57501","meeting":"2nd Thursday, 7:00 PM","mailing":"Reach out to the club through its website","website":"https://www.sdhams.com","discord":""},{"id":"c9","name":"Prairie Dog Amateur Radio Club","callsign":"W0OJY","city":"Yankton","lat":42.8821,"lon":-97.3986,"logo":"logos/w0ojy.webp","address":"Christ the King Lutheran Church, 305 W 25th St, Yankton, SD 57078","meeting":"2nd Tuesday, 7:00 PM","mailing":"Contact the club via pdarc.org to be added","website":"https://pdarc.org","discord":""},{"id":"c10","name":"Sioux Empire Amateur Radio Club","callsign":"W0ZWY","city":"Sioux Falls","lat":43.5573,"lon":-96.736,"logo":"logos/w0zwy.webp","address":"Minnehaha County Emergency Management Building, 608 N Sigler Ave, Sioux Falls, SD 57104","meeting":"1st Tuesday, 7:30 PM","mailing":"w0zwy.org","website":"https://w0zwy.org","discord":"https://discord.w0zwy.org"}],"sites":[{"id":"s1","name":"Sioux Falls","system":"sdlink","lat":43.578,"lon":-96.703,"notes":"","photos":["photos/sioux-falls-rack.webp"],"repeaters":[{"label":"Sioux Falls UHF","type":"UHF Repeater","out":"444.825","in":"449.825","tone":"103.5","owner":"KD0ZP"}]},{"id":"s2","name":"Turkey Ridge","system":"sdlink","lat":43.262,"lon":-97.142,"notes":"","photos":[],"repeaters":[{"label":"Turkey Ridge UHF","type":"UHF Repeater","out":"444.975","in":"449.975","tone":"146.2","owner":"W0SD"}]},{"id":"s3","name":"Colman","system":"sdlink","lat":43.956,"lon":-96.819,"notes":"","photos":[],"repeaters":[{"label":"Colman UHF","type":"UHF Repeater","out":"443.225","in":"448.225","tone":"146.2","owner":"KB0WSV"}]},{"id":"s4","name":"Salem (W0SD)","system":"sdlink","lat":43.736,"lon":-97.38,"notes":"Hub of the SD-LINK east side.","photos":[],"repeaters":[{"label":"Salem W0SD UHF","type":"UHF Repeater","out":"442.075","in":"447.075","tone":"103.5","owner":"W0SD"}]},{"id":"s5","name":"Toronto","system":"sdlink","lat":44.579,"lon":-96.708,"notes":"","photos":[],"repeaters":[{"label":"Toronto VHF","type":"VHF Repeater","out":"146.775","in":"146.175","tone":"146.2","owner":"KC0OVC"}]},{"id":"s6","name":"Watertown","system":"sdlink","lat":44.921,"lon":-97.135,"notes":"","photos":[],"repeaters":[{"label":"Watertown UHF","type":"UHF Repeater","out":"442.000","in":"447.000","tone":"146.2","owner":"K0TY"}]},{"id":"s7","name":"Wessington Springs","system":"sdlink","lat":44.081,"lon":-98.569,"notes":"Trustee KB0UZJ. The site is also home to an internet controlled remote station: an Elecraft K3S with a KPA500 amplifier and KAT500 tuner for HF, a 2 m LDMOS amplifier, and a rotatable antenna. It can be operated over the internet by arrangement with the club.","photos":["photos/wessington-remote-hf.webp","photos/wessington-remote-amp.webp","photos/wessington-remote-rotator.webp"],"repeaters":[{"label":"Wessington Springs VHF","type":"VHF Repeater","out":"147.345","in":"147.945","tone":"146.2","owner":"AA0F"},{"label":"Wessington Springs UHF","type":"UHF Repeater","out":"444.650","in":"449.650","tone":""}]},{"id":"s8","name":"Crandall Hill","system":"sdlink","lat":45.32,"lon":-97.72,"notes":"Sweetwater Lake, Day County.","photos":[],"repeaters":[{"label":"Crandall Hill VHF","type":"VHF Repeater","out":"146.790","in":"146.190","tone":"146.2","owner":"N0AHL"}]},{"id":"s9","name":"Reliance","system":"sdlink","lat":43.879,"lon":-99.603,"notes":"","photos":[],"repeaters":[{"label":"Reliance VHF","type":"VHF Repeater","out":"146.940","in":"146.340","tone":"146.2","owner":"N0NPO"}]},{"id":"s10","name":"Murdo","system":"sdlink","lat":43.896,"lon":-100.712,"notes":"","photos":[],"repeaters":[{"label":"Murdo VHF","type":"VHF Repeater","out":"147.300","in":"147.900","tone":"146.2","owner":"AA0CT"},{"label":"Murdo UHF","type":"UHF Repeater","out":"443.450","in":"448.450","tone":"103.5","owner":"AA0CT"}]},{"id":"s11","name":"Pierre","system":"sdlink","lat":44.395,"lon":-100.37,"notes":"","photos":[],"repeaters":[{"label":"Pierre VHF","type":"VHF Repeater","out":"146.730","in":"146.130","tone":"146.2","owner":"KD0S","note":"sdhams.com also lists 146.730 as a Pierre ARC machine."}]},{"id":"s12","name":"Philip","system":"sdlink","lat":44.039,"lon":-101.665,"notes":"","photos":[],"repeaters":[{"label":"Philip VHF","type":"VHF Repeater","out":"147.375","in":"147.975","tone":"146.2","owner":"N0OMP"}]},{"id":"s13","name":"Terry Peak","system":"sdlink","lat":44.3269,"lon":-103.8422,"notes":"","photos":[],"repeaters":[{"label":"Terry Peak VHF","type":"VHF Repeater","out":"147.030","in":"147.630","tone":"146.2","owner":"WB0JEK"},{"label":"Terry Peak UHF","type":"UHF Repeater","out":"443.650","in":"448.650","tone":"131.8","owner":"WB0JEK"}]},{"id":"s14","name":"Rapid City","system":"sdlink","lat":44.105,"lon":-103.26,"notes":"","photos":[],"repeaters":[{"label":"Rapid City UHF","type":"UHF Repeater","out":"444.750","in":"449.750","tone":"146.2","owner":"KE0QIB"}]},{"id":"s15","name":"Yankton","system":"pdarc","lat":42.8785,"lon":-97.382,"notes":"Avera Sacred Heart Hospital, Yankton.","photos":[],"repeaters":[{"label":"Yankton VHF","type":"VHF Repeater","out":"146.850","in":"146.250","tone":"146.2","owner":"W0OJY"}]},{"id":"s16","name":"Vermillion","system":"pdarc","lat":42.79,"lon":-96.98,"notes":"Cement Plant site, Vermillion.","photos":[],"repeaters":[{"label":"Vermillion VHF","type":"VHF Repeater","out":"147.375","in":"147.975","tone":"146.2","owner":"W0OJY"}]},{"id":"s17","name":"Springfield","system":"pdarc","lat":42.9,"lon":-97.905,"notes":"Norwegian Hill, near Springfield.","photos":[],"repeaters":[{"label":"Springfield VHF","type":"VHF Repeater","out":"147.210","in":"147.810","tone":"146.2","owner":"W0OJY"}]},{"id":"s18","name":"Spencer, NE","system":"pdarc","lat":42.874,"lon":-98.703,"notes":"Boyd County, Nebraska.","photos":[],"repeaters":[{"label":"Spencer NE VHF","type":"VHF Repeater","out":"147.330","in":"147.930","tone":"131.8","owner":"N0TO","note":"131.8 encode and decode."}]},{"id":"s19","name":"Radar Hill","system":"nh","lat":44.0722,"lon":-103.1594,"notes":"Radar Hill, east of Rapid City.","photos":[],"repeaters":[{"label":"Radar Hill VHF","type":"VHF Repeater","out":"146.940","in":"146.340","tone":"146.2","owner":"W0BLK"}]},{"id":"s20","name":"Terry Peak VHF","system":"nh","lat":44.33,"lon":-103.83,"notes":"Terry Peak, near Lead.","photos":[],"repeaters":[{"label":"Terry Peak VHF","type":"VHF Repeater","out":"146.760","in":"146.160","tone":"146.2","owner":"KC0BXH"}]},{"id":"s21","name":"Bear Mountain","system":"nh","lat":43.886,"lon":-103.774,"notes":"Bear Mountain, north of Custer.","photos":[],"repeaters":[{"label":"Bear Mountain VHF","type":"VHF Repeater","out":"146.850","in":"146.250","tone":"146.2","owner":"KC0BXH"},{"label":"Bear Mountain 6 Meter","type":"6m Repeater","out":"53.170","in":"52.170","tone":"146.2","owner":"K0HS","note":"146.2 encode only."}]},{"id":"s22","name":"New Underwood","system":"sdlink","lat":44.1006,"lon":-102.8352,"notes":"","photos":[],"repeaters":[{"label":"New Underwood VHF","type":"VHF Repeater","out":"146.970","in":"146.370","tone":"","owner":"KA1OTT"}]},{"id":"s23","name":"Sioux Falls (W0ZWY)","system":"none","lat":43.55,"lon":-96.728,"notes":"Repeaters managed by the Sioux Empire ARC.","photos":[],"repeaters":[{"label":"Sioux Falls UHF","type":"UHF Repeater","out":"444.900","in":"449.900","tone":"146.2","owner":"KD0ZP","note":"EchoLink."},{"label":"Sioux Falls 220","type":"1.25m Repeater","out":"223.860","in":"222.260","tone":"146.2","owner":"W0FSD"},{"label":"Sioux Falls Fusion","type":"Digital","out":"444.200","in":"449.200","tone":"82.5","owner":"W0ZWY","note":"C4FM Fusion."},{"label":"Sioux Falls VHF","type":"VHF Repeater","out":"146.895","in":"146.295","tone":"146.2","owner":"W0ZWY","note":"Multi-site receive."},{"label":"Sioux Falls D-Star","type":"Digital","out":"442.750","in":"447.750","tone":"","owner":"W0ZWY","note":"D-Star, Module B."}]},{"id":"s24","name":"Brookings (W0BXO)","system":"none","lat":44.309,"lon":-96.79,"notes":"","photos":[],"repeaters":[{"label":"Brookings VHF","type":"VHF Repeater","out":"146.940","in":"146.340","tone":"110.9","owner":"W0BXO"}]},{"id":"s25","name":"Watertown (W0WTN)","system":"none","lat":44.9,"lon":-97.11,"notes":"","photos":[],"repeaters":[{"label":"Watertown VHF","type":"VHF Repeater","out":"146.850","in":"146.250","tone":"67.0","owner":"W0WTN","note":"67.0 Hz transmitted on the output."}]},{"id":"s26","name":"Aberdeen","system":"none","lat":45.462,"lon":-98.49,"notes":"","photos":[],"repeaters":[{"label":"W0ABR 2 Meter","type":"VHF Repeater","out":"146.910","in":"146.310","tone":"","owner":"W0ABR"},{"label":"WB0JZZ C4FM","type":"Digital","out":"443.400","in":"448.400","tone":"146.2","owner":"WB0JZZ","note":"70 cm C4FM."}]},{"id":"s27","name":"Pierre (W0PIR)","system":"none","lat":44.368,"lon":-100.348,"notes":"","photos":[],"repeaters":[{"label":"Pierre VHF","type":"VHF Repeater","out":"145.350","in":"144.750","tone":"146.2","owner":"W0PIR"}]},{"id":"s28","name":"Battle Mountain","system":"none","lat":43.44,"lon":-103.43,"notes":"Near Hot Springs.","photos":[],"repeaters":[{"label":"Battle Mountain VHF","type":"VHF Repeater","out":"146.700","in":"146.100","tone":"146.2","owner":"K0HS"}]},{"id":"s29","name":"Mount Coolidge","system":"none","lat":43.72,"lon":-103.475,"notes":"Custer State Park.","photos":[],"repeaters":[{"label":"Mount Coolidge VHF","type":"VHF Repeater","out":"147.120","in":"147.720","tone":"146.2","owner":"K0HS"}]},{"id":"s30","name":"Custer","system":"none","lat":43.741,"lon":-103.6185,"notes":"Downtown Custer.","photos":[],"repeaters":[{"label":"Custer VHF","type":"VHF Repeater","out":"147.090","in":"147.690","tone":"146.2","owner":"K0HS"}]},{"id":"s31","name":"Pay Dirt","system":"none","lat":43.78,"lon":-103.7,"notes":"West of Custer.","photos":[],"repeaters":[{"label":"Pay Dirt VHF","type":"VHF Repeater","out":"147.150","in":"147.750","tone":"146.2","owner":"K0HS"}]},{"id":"s32","name":"Edgemont","system":"none","lat":43.2874,"lon":-103.811,"notes":"","photos":[],"repeaters":[{"label":"Edgemont GMRS","type":"GMRS","out":"462.550","in":"467.550","tone":"141.3","owner":"K0HS","note":"GMRS — needs a GMRS licence, not a ham licence."}]}],"links":[{"a":"s4","b":"s1","system":"sdlink"},{"a":"s4","b":"s2","system":"sdlink"},{"a":"s4","b":"s3","system":"sdlink"},{"a":"s4","b":"s5","system":"sdlink"},{"a":"s4","b":"s7","system":"sdlink"},{"a":"s5","b":"s6","system":"sdlink"},{"a":"s7","b":"s8","system":"sdlink"},{"a":"s7","b":"s9","system":"sdlink"},{"a":"s9","b":"s10","system":"sdlink"},{"a":"s10","b":"s11","system":"sdlink"},{"a":"s10","b":"s12","system":"sdlink"},{"a":"s12","b":"s13","system":"sdlink"},{"a":"s13","b":"s14","system":"sdlink"},{"a":"s15","b":"s16","system":"pdarc"},{"a":"s15","b":"s17","system":"pdarc"},{"a":"s17","b":"s18","system":"pdarc"},{"a":"s19","b":"s20","system":"nh"},{"a":"s20","b":"s21","system":"nh"},{"a":"s19","b":"s21","system":"nh"}],"resources":[{"group":"South Dakota","items":[{"label":"SD-LINK","url":"https://sdlink.org/","note":"The linked repeater system's own site"}]},{"group":"SoDak Mesh (Meshtastic)","items":[{"label":"sodakmesh.org","url":"https://sodakmesh.org/","note":"The South Dakota Meshtastic community"},{"label":"SoDak Mesh Discord","url":"https://discord.gg/bkP5tVFcp","note":"Where the mesh crowd talks","discord":true},{"label":"Live mesh map","url":"https://potato.sodakmesh.org/","note":"Nodes and traffic on the 915 MHz mesh, live"},{"label":"Malla dashboard","url":"https://malla.sodakmesh.org/","note":"Node counts, gateways and routing stats"},{"label":"Coverage planner","url":"https://mesh.womod.org/#43.53569,-96.69025,30","note":"Terrain based coverage and node placement"}]},{"group":"Getting licensed","items":[{"label":"HamStudy","url":"https://hamstudy.org/","note":"Free practice exams and flashcards for all three licence classes"}]}]}</script>
+
 <script>
 "use strict";
-/* ───────────────────────── state ───────────────────────── */
-const seedEl = document.getElementById('seed');
-let state = JSON.parse(seedEl.textContent);
-// The site is read-only everywhere: on static hosting (605hams.com) it renders
-// data.json from the repo (edit that file to update the map); inside the Claude
-// artifact viewer it renders the embedded seed.
+/* ═══════════════════ data ═══════════════════ */
+let state = JSON.parse(document.getElementById('seed').textContent);
+const BASE   = JSON.parse(document.getElementById('basemap').textContent);
+const CITIES = JSON.parse(document.getElementById('cities').textContent);
+
+// On static hosting (605hams.com) data.json is the source of truth; the embedded
+// seed is the offline/preview fallback. Edit data.json to update the map.
 const IS_ARTIFACT = !!(window.claude && window.claude.use);
 const DATA_PATH = 'data.json';
-let selected = null;               // {type:'club'|'site'|'link'|'cluster', id/index/key}
-const layers = {clubs:true, sdlink:true, pdarc:true, bh:true, none:true};
+
 const SYS = {
-  sdlink:{name:'SD-LINK', color:'var(--sdlink)'},
-  pdarc:{name:'Prairie Dog ARC', color:'var(--pdarc)'},
-  bh:{name:'Northern Hills', color:'var(--bh)'},
-  none:{name:'Independent', color:'var(--indep)'}
+  sdlink:{name:'SD-LINK', short:'SD-LINK', color:'var(--sdlink)',
+          note:'SD-LINK net every Wednesday at 9:00 PM.'},
+  pdarc: {name:'Prairie Dog ARC', short:'PDARC', color:'var(--pdarc)'},
+  nh:    {name:'Northern Hills linked system', short:'Northern Hills', color:'var(--nh)',
+          note:'Three linked VHF repeaters across the Black Hills. Not tied into SD-LINK full time \u2014 '
+             + 'the system links in for the SD-LINK net on Wednesdays at 9:00 PM, then drops back off.'},
+  none:  {name:'Independent / club', short:'Independent', color:'var(--indep)'}
 };
-const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const sysOf = k => SYS[k] || SYS.none;
+const layers = {clubs:true, sdlink:true, pdarc:true, nh:true, none:true};
+let selected = null;
 
-/* ───────────────────────── projection ───────────────────────── */
-const LON0=-104.06, LON1=-96.40, LAT0=42.42, LAT1=45.97;
-const K = Math.cos(44.2*Math.PI/180);
-const S = 1000/((LON1-LON0)*K);
-const H = (LAT1-LAT0)*S;
-const px = (lat,lon)=>[(lon-LON0)*K*S, (LAT1-lat)*S];
-const inv = (x,y)=>[LAT1 - y/S, LON0 + x/(K*S)];
-const pts = a => a.map(p=>px(p[0],p[1]).map(n=>n.toFixed(1)).join(',')).join(' ');
+const esc = s => String(s==null?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-/* ───────────────────────── base map geometry ───────────────────────── */
-const BORDER = [[45.945,-104.05],[45.945,-102.0],[45.945,-99.5],[45.94,-97.5],[45.935,-96.563],
- [45.75,-96.69],[45.59,-96.83],[45.44,-96.62],[45.30,-96.47],[44.5,-96.453],[43.85,-96.453],[43.50,-96.453],
- [43.30,-96.53],[43.13,-96.45],[42.90,-96.55],[42.70,-96.62],[42.52,-96.50],[42.49,-96.44],
- [42.60,-96.72],[42.77,-96.95],[42.83,-97.22],[42.86,-97.40],[42.80,-97.65],[42.72,-97.90],[42.77,-98.10],
- [42.85,-98.30],[42.92,-98.42],[43.00,-98.50],[43.00,-100.5],[43.00,-102.5],[43.00,-104.05]];
-const MISSOURI = [[45.94,-100.32],[45.55,-100.42],[45.10,-100.30],[44.75,-100.50],[44.45,-100.40],[44.365,-100.37],
- [44.15,-100.20],[44.05,-99.85],[44.02,-99.45],[43.80,-99.32],[43.55,-99.20],[43.30,-99.05],[43.10,-98.70],[43.00,-98.50]];
-const I90 = [[43.54,-96.75],[43.65,-97.60],[43.71,-98.03],[43.81,-99.33],[43.89,-100.71],[43.83,-101.51],
- [43.99,-102.24],[44.08,-103.23],[44.41,-103.51],[44.49,-103.86],[44.55,-104.05]];
-const I29 = [[42.49,-96.48],[43.00,-96.58],[43.54,-96.73],[44.31,-96.77],[44.90,-97.10],[45.66,-96.99],[45.94,-96.92]];
-const CITIES = [["Aberdeen",45.465,-98.487],["Mitchell",43.71,-98.03],["Spearfish",44.49,-103.86],["Mobridge",45.54,-100.43],["Chamberlain",43.81,-99.33]];
-let cityObstacles = [];
+/* ═══════════════════ polyline decode ═══════════════════ */
+function decode(str){
+  const pts=[]; let i=0, lat=0, lon=0;
+  while(i<str.length){
+    let r=0, sh=0, b;
+    do{ b=str.charCodeAt(i++)-63; r|=(b&0x1f)<<sh; sh+=5; }while(b>=0x20);
+    lat += (r&1)?~(r>>1):(r>>1);
+    r=0; sh=0;
+    do{ b=str.charCodeAt(i++)-63; r|=(b&0x1f)<<sh; sh+=5; }while(b>=0x20);
+    lon += (r&1)?~(r>>1):(r>>1);
+    pts.push([lat/1000, lon/1000]);
+  }
+  return pts;
+}
+const GEO = {};
+for(const k in BASE) GEO[k] = BASE[k].map(decode);
 
+/* ═══════════════════ projection ═══════════════════ */
+// Equirectangular with a cos(lat) correction at the state's mid-latitude.
+const PAD = 0.10;                       // degrees of breathing room
+let LON0=0, LON1=0, LAT0=0, LAT1=0, K=1, S=1, W=1000, H=700;
+(function bounds(){
+  let n=-90,s=90,e=-180,w=180;
+  for(const p of GEO.state[0]){ if(p[0]>n)n=p[0]; if(p[0]<s)s=p[0]; if(p[1]>e)e=p[1]; if(p[1]<w)w=p[1]; }
+  LAT1=n+PAD; LAT0=s-PAD; LON0=w-PAD; LON1=e+PAD;
+  K = Math.cos((LAT0+LAT1)/2*Math.PI/180);
+  S = W/((LON1-LON0)*K);
+  H = (LAT1-LAT0)*S;
+})();
+const px  = (lat,lon)=>[(lon-LON0)*K*S, (LAT1-lat)*S];
+const path = a => { let d=''; for(let i=0;i<a.length;i++){ const p=px(a[i][0],a[i][1]);
+  d += (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1); } return d; };
+
+/* ═══════════════════ view / zoom / pan ═══════════════════ */
 const svg = document.getElementById('map');
+const mapwrap = document.getElementById('mapwrap');
+let baseView = {x:0,y:0,w:W,h:H};      // the "fit the whole state" viewBox for this container
+let view = {x:0,y:0,w:W,h:H}, zoom = 1;
 
-/* ── zoom / pan ── */
-const VB0={x:-24,y:-24,w:1048,h:700};
-let view={x:VB0.x,y:VB0.y,w:VB0.w,h:VB0.h}, zoom=1;
-// screenScale: how many CSS pixels one map unit currently paints as
+function computeBase(){
+  const r = mapwrap.getBoundingClientRect();
+  const ar = (r.width||1)/(r.height||1);
+  let w=W, h=H;
+  if(ar > W/H){ h=H; w=H*ar; } else { w=W; h=W/ar; }
+  const m = Math.min(w,h)*0.03;         // small inset so markers near the edge aren't clipped
+  w+=m*ar; h+=m;
+  // On a tall, narrow screen the state letterboxes badly; sit it high so the
+  // bottom sheet does not cover it.
+  const vAnchor = ar < 0.95 ? 0.34 : 0.5;
+  baseView = {x:(W-w)/2, y:(H-h)*vAnchor, w, h};
+}
 function screenScale(){ const m=svg.getScreenCTM(); return m?m.a:1; }
-function syncLabelVars(){
-  const k=screenScale(); if(!k) return;
-  // city labels: constant device px at zoom 1, gentle growth with zoom
-  svg.style.setProperty('--cityf',(Math.pow(zoom,0.35)/k).toFixed(4));
-  // state watermark: map-proportional but tamed as zoom rises
-  svg.style.setProperty('--statef',Math.pow(zoom,-0.65).toFixed(4));
+function clampView(x,y){
+  const sx = baseView.w - view.w, sy = baseView.h - view.h;   // slack at this zoom
+  return [Math.min(Math.max(x, baseView.x), baseView.x+sx),
+          Math.min(Math.max(y, baseView.y), baseView.y+sy)];
 }
-function applyView(){
-  svg.setAttribute('viewBox',view.x+' '+view.y+' '+view.w+' '+view.h);
-  syncLabelVars();
-}
-function setView(x,y){
-  view.x=Math.min(Math.max(x,VB0.x),VB0.x+VB0.w-view.w);
-  view.y=Math.min(Math.max(y,VB0.y),VB0.y+VB0.h-view.h);
-  applyView();
-}
-function setZoom(z,cx,cy){          // cx,cy: map point to hold fixed
-  z=Math.min(10,Math.max(1,z));
-  const w=VB0.w/z, h=VB0.h/z;
-  const x=cx-(cx-view.x)*(w/view.w), y=cy-(cy-view.y)*(h/view.h);
-  const changed=Math.abs(z-zoom)>1e-9;
+function applyView(){ svg.setAttribute('viewBox', view.x+' '+view.y+' '+view.w+' '+view.h); }
+function setView(x,y){ const c=clampView(x,y); view.x=c[0]; view.y=c[1]; applyView(); }
+function setZoom(z,cx,cy){
+  z = Math.min(14, Math.max(1, z));
+  const w = baseView.w/z, h = baseView.h/z;
+  const x = cx-(cx-view.x)*(w/view.w), y = cy-(cy-view.y)*(h/view.h);
+  const changed = Math.abs(z-zoom) > 1e-9;
   view.w=w; view.h=h; zoom=z; setView(x,y);
-  if(changed) render();             // labels re-place at the new scale
+  if(changed) drawBase(), render();
+}
+function resetView(){
+  computeUI(); computeBase(); zoom=1; view={x:baseView.x,y:baseView.y,w:baseView.w,h:baseView.h};
+  applyView(); drawBase(); render();
 }
 
-function baseMap(){
+/* ═══════════════════ basemap ═══════════════════ */
+let cityObstacles = [];
+const ramp = (z,a,b)=> Math.max(0, Math.min(1, (z-a)/(b-a)));
+
+// Marker and label sizes, in CSS pixels. Everything on the map scales off these.
+const R_SITE = 9, R_CLUSTER = 15, R_CLUB = 7, LBL = 15, CITY = 12.5, MERGE = 21;
+
+// Nudge the whole marker UI with the rendered width of the map, but never let it
+// get small enough to squint at.
+let UI = 1;
+function computeUI(){
+  const w = mapwrap.getBoundingClientRect().width || 1000;
+  UI = Math.max(0.88, Math.min(1.15, w/1250));
+}
+
+// Every club/site position in map units — city labels step aside for these.
+function markerPoints(){
+  const out=[];
+  for(const s of state.sites) out.push(px(s.lat,s.lon));
+  for(const c of state.clubs) out.push(px(c.lat,c.lon));
+  return out;
+}
+
+function drawBase(){
+  const sc = 1/(screenScale()||1);          // map units per CSS pixel
+  const cty = ramp(zoom,1.25,2.1);          // county lines fade in
   let g = '<g id="base">';
-  g += '<polygon points="'+pts(BORDER)+'" fill="var(--land)" stroke="var(--land-stroke)" stroke-width="2" stroke-linejoin="round"/>';
-  g += '<polyline points="'+pts(I90)+'" stroke="var(--road)" stroke-width="2" fill="none" stroke-dasharray="7 5"/>';
-  g += '<polyline points="'+pts(I29)+'" stroke="var(--road)" stroke-width="2" fill="none" stroke-dasharray="7 5"/>';
-  g += '<polyline points="'+pts(MISSOURI)+'" stroke="var(--water)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
-  const [slx,sly]=px(45.55,-102.6);
-  g += '<text class="statelabel" x="'+slx+'" y="'+sly+'">SOUTH DAKOTA</text>';
-  cityObstacles=[];
+
+  g += '<path d="'+path(GEO.state[0])+'Z" fill="var(--land)" stroke="var(--land-stroke)" '
+     + 'stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>';
+
+  if(cty > 0.01){
+    g += '<g opacity="'+cty.toFixed(2)+'" fill="none" stroke="var(--county)" stroke-width="1" '
+       + 'vector-effect="non-scaling-stroke">';
+    for(const l of GEO.counties) g += '<path d="'+path(l)+'"/>';
+    g += '</g>';
+  }
+  for(const l of GEO.lakes)
+    g += '<path d="'+path(l)+'Z" fill="var(--water)" stroke="var(--water-line)" stroke-width="1" '
+       + 'vector-effect="non-scaling-stroke"/>';
+  g += '<g fill="none" stroke="var(--water-line)" stroke-width="1.6" vector-effect="non-scaling-stroke" '
+     + 'stroke-linecap="round" stroke-linejoin="round">';
+  for(const l of GEO.rivers) g += '<path d="'+path(l)+'"/>';
+  g += '</g>';
+  g += '<g fill="none" stroke="var(--road)" stroke-width="1.8" stroke-dasharray="7 5" '
+     + 'vector-effect="non-scaling-stroke" stroke-linecap="round">';
+  for(const l of (GEO.i90||[])) g += '<path d="'+path(l)+'"/>';
+  for(const l of (GEO.i29||[])) g += '<path d="'+path(l)+'"/>';
+  g += '</g>';
+
+  // state watermark, tamed as you zoom in
+  if(zoom < 3){
+    const p = px(45.68,-100.25);
+    const wm = (mapwrap.getBoundingClientRect().width||1000)*0.035*sc;  // fixed CSS size
+    g += '<text class="statelabel" x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" '
+       + 'style="font-size:'+wm.toFixed(1)+'px;opacity:'+(0.42*(1-ramp(zoom,2,3))).toFixed(2)
+       + '" text-anchor="middle">SOUTH DAKOTA</text>';
+  }
+
+  // cities, tiered by zoom; they double as label obstacles for the markers
+  const maxTier = zoom>=2.8 ? 3 : zoom>=1.6 ? 2 : 1;
+  const cityPx = CITY*Math.pow(zoom,0.2)*UI;   // CSS pixels
+  const fs = cityPx*sc;                        // …expressed in map units
+  const marks = markerPoints();
+  const near = 17*sc*UI;                       // a marker this close owns the spot
+  cityObstacles = [];
   for(const c of CITIES){
-    const [x,y]=px(c[1],c[2]);
-    g += '<circle cx="'+x+'" cy="'+y+'" r="2.2" fill="var(--land-stroke)"/><text class="citylabel" x="'+(x+5)+'" y="'+(y+3)+'">'+c[0]+'</text>';
-    cityObstacles.push([x-3,y-3,6,6],[x+5,y-6,c[0].length*5.4+4,12]);
+    if(c[3] > maxTier) continue;
+    const p = px(c[1],c[2]), x=p[0], y=p[1];
+    g += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(2.4*sc*UI).toFixed(2)+'" fill="var(--land-stroke)"/>';
+    cityObstacles.push([x-3*sc, y-3*sc, 6*sc, 6*sc]);
+    let taken=false;
+    for(const m of marks){ if(Math.hypot(m[0]-x, m[1]-y) < near){ taken=true; break; } }
+    if(taken) continue;
+    g += '<text class="citylabel" style="font-size:'+fs.toFixed(2)+'px" x="'+(x+5.5*sc*UI).toFixed(1)
+       + '" y="'+(y+3.8*sc*UI).toFixed(1)+'">'+esc(c[0])+'</text>';
+    cityObstacles.push([x+5.5*sc*UI, y-6*sc*UI, (c[0].length*0.56+1)*cityPx*sc, 13*sc*UI]);
   }
   g += '</g><g id="glinks"></g><g id="gmarks"></g>';
   svg.innerHTML = g;
 }
 
-/* ───────────────────────── dynamic render ───────────────────────── */
-const site = id => state.sites.find(s=>s.id===id);
-const club = id => state.clubs.find(c=>c.id===id);
-
+/* ═══════════════════ label placement ═══════════════════ */
 function overlapArea(a,b){
   const w=Math.min(a[0]+a[2],b[0]+b[2])-Math.max(a[0],b[0]);
   const h=Math.min(a[1]+a[3],b[1]+b[3])-Math.max(a[1],b[1]);
   return (w>0&&h>0)?w*h:0;
 }
-// Try above/below/right/left of the marker; take the first spot free of
-// already-placed labels, city names, marker dots, and the map edge —
-// else least overlap. Returned dir drives the marker's stem line.
-const MAPBOX=[-22,-22,1044,696];
-// sc = 1/zoom: markers render inside a scale(sc) group so dots keep constant
-// screen size. g = zoom^0.35: labels grow gently as you zoom in, so text stays
-// readable against the expanding map. tx/ty are local coords, boxes global.
 function placeLabel(x,y,text,pref,obstacles,sc,g){
-  const w=(text.length*7.3+7)*g, h=16*g;
+  const w=(text.length*7.5+8)*g, h=17*g;
+  const inset=6*sc;
+  const FRAME=[view.x+inset, view.y+inset, view.w-2*inset, view.h-2*inset];
   const C=(dir,tx,ty,anchor)=>{
     const bx = anchor==='middle'?tx-w/2 : anchor==='start'?tx-1 : tx-w+1;
-    return {dir,tx,ty,anchor,box:[x+bx*sc,y+(ty-11*g)*sc,w*sc,h*sc]};
+    return {dir,tx,ty,anchor,box:[x+bx*sc, y+(ty-11*g)*sc, w*sc, h*sc]};
   };
-  const above=C('above',0,-17*g,'middle');
-  const below=C('below',0,22*g,'middle');
-  const right=C('right',13*g,4*g,'start');
-  const left=C('left',-13*g,4*g,'end');
-  const diag=[C('right',12*g,-11*g,'start'),C('right',12*g,18*g,'start'),
-              C('left',-12*g,-11*g,'end'),C('left',-12*g,18*g,'end')];
-  const cands = (pref==='above'?[above,below,right,left]:[below,above,right,left]).concat(diag);
+  const above=C('above',0,-20*g,'middle'), below=C('below',0,26*g,'middle');
+  const right=C('right',16*g,5*g,'start'), left=C('left',-16*g,5*g,'end');
+  const diag=[C('right',15*g,-13*g,'start'),C('right',15*g,21*g,'start'),
+              C('left',-15*g,-13*g,'end'),C('left',-15*g,21*g,'end')];
+  // a second, wider ring so crowded corners still find somewhere clean to sit
+  const far=[C('above',0,-36*g,'middle'),C('below',0,42*g,'middle'),
+             C('right',30*g,5*g,'start'),C('left',-30*g,5*g,'end'),
+             C('right',26*g,-24*g,'start'),C('right',26*g,32*g,'start'),
+             C('left',-26*g,-24*g,'end'),C('left',-26*g,32*g,'end')];
+  const cands=(pref==='above'?[above,below,right,left]:[below,above,right,left]).concat(diag,far);
   let best=cands[0], bestA=Infinity;
   for(const c of cands){
-    let a=obstacles.reduce((t,o)=>t+overlapArea(c.box,o),0);
-    a += (c.box[2]*c.box[3]-overlapArea(c.box,MAPBOX))*4;   // heavy penalty for going off-map
+    let a=0;
+    for(const o of obstacles) a+=overlapArea(c.box,o);
+    a += (c.box[2]*c.box[3]-overlapArea(c.box,FRAME))*4;   // heavy penalty for leaving the frame
     if(a===0){ best=c; bestA=0; break; }
     if(a<bestA){ best=c; bestA=a; }
   }
-  // no clean spot and the residual collision is visually significant (>60 device
-  // px²): hide this label — the marker stays, and the label returns on zoom-in
   best.hide = bestA/(sc*sc) > 60;
   if(!best.hide) obstacles.push(best.box);
   return best;
 }
-const STEMS={above:[0,-7,0,-13], below:[0,7,0,13], right:[7,0,13,0], left:[-7,0,-13,0]};
+const STEMS={above:[0,-9,0,-15], below:[0,9,0,15], right:[9,0,15,0], left:[-9,0,-15,0]};
 
+/* ═══════════════════ markers ═══════════════════ */
+const site = id => state.sites.find(s=>s.id===id);
+const club = id => state.clubs.find(c=>c.id===id);
 let lastClusters=[];
 const clusterKey = m => m.map(s=>s.id).sort().join('|');
-function render(){
-  // sc: marker group scale so 1 local unit = 1 CSS pixel, on any screen size
-  const sc = 1/(screenScale()||1), lg = Math.pow(zoom,0.35);
-  const fs = ' style="font-size:'+(12.5*lg).toFixed(2)+'px"';
-  syncLabelVars();
-  const visSites = state.sites.filter(s=>layers[s.system||'none']);
-  const visClubs = layers.clubs?state.clubs:[];
 
-  // group sites that sit on top of each other at this zoom into one node
-  const thresh = 26*sc;
-  const clusters=[];
+function render(){
+  const sc = (1/(screenScale()||1))*UI, lg = Math.pow(zoom,0.16)*UI;
+  const fs = ' style="font-size:'+(LBL*Math.pow(zoom,0.16)*UI).toFixed(2)+'px"';
+  const visSites = state.sites.filter(s=>layers[s.system||'none']);
+  const visClubs = layers.clubs ? state.clubs : [];
+
+  // group sites that sit on top of each other at this zoom
+  const thresh = MERGE*sc, clusters=[];
   for(const s of visSites){
-    const [x,y]=px(s.lat,s.lon);
-    const c=clusters.find(c=>Math.hypot(c.x-x,c.y-y)<thresh);
+    const p = px(s.lat,s.lon);
+    const c = clusters.find(c=>Math.hypot(c.x-p[0], c.y-p[1]) < thresh);
     if(c){
       c.members.push(s);
-      c.x=c.members.reduce((t,m)=>t+px(m.lat,m.lon)[0],0)/c.members.length;
-      c.y=c.members.reduce((t,m)=>t+px(m.lat,m.lon)[1],0)/c.members.length;
-    } else clusters.push({x,y,members:[s]});
+      c.x = c.members.reduce((t,m)=>t+px(m.lat,m.lon)[0],0)/c.members.length;
+      c.y = c.members.reduce((t,m)=>t+px(m.lat,m.lon)[1],0)/c.members.length;
+    } else clusters.push({x:p[0], y:p[1], members:[s]});
   }
-  lastClusters=clusters;
-  const pos={};                                  // siteId → rendered position
+  lastClusters = clusters;
+  const pos={};
   for(const c of clusters) for(const m of c.members) pos[m.id]=[c.x,c.y];
 
-  // links (endpoints snap to cluster nodes; hide links inside one cluster)
+  // links
   let lh='';
   state.links.forEach((L,i)=>{
-    const a=site(L.a), b=site(L.b);
-    if(!a||!b||!layers[L.system||'none']||!pos[L.a]||!pos[L.b]) return;
-    const [x1,y1]=pos[L.a], [x2,y2]=pos[L.b];
-    if(Math.hypot(x1-x2,y1-y2)<1) return;
-    const col=(SYS[L.system]||SYS.none).color;
-    lh += '<line class="linkline halo" data-link="'+i+'" vector-effect="non-scaling-stroke" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"/>';
-    lh += '<line class="linkline" data-link="'+i+'" vector-effect="non-scaling-stroke" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"'+(selected&&selected.type==='link'&&selected.id===i?' stroke-width="4" opacity="1"':'')+'/>';
+    if(!layers[L.system||'none'] || !pos[L.a] || !pos[L.b]) return;
+    const a=pos[L.a], b=pos[L.b];
+    if(Math.hypot(a[0]-b[0], a[1]-b[1]) < 1) return;
+    const col = sysOf(L.system).color;
+    const sel = selected && selected.type==='link' && selected.id===i;
+    const xy = 'x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"';
+    lh += '<line class="linkline halo" data-link="'+i+'" vector-effect="non-scaling-stroke" '+xy+' stroke="'+col+'"/>'
+        + '<line class="linkline" data-link="'+i+'" vector-effect="non-scaling-stroke" '+xy+' stroke="'+col+'"'
+        + (sel?' stroke-width="4.5" opacity="1"':'')+'/>';
   });
   document.getElementById('glinks').innerHTML = lh;
 
-  // markers — collect dot obstacles first, then place labels greedily
+  // obstacles: city labels first, then every dot, then labels greedily
   const obstacles = cityObstacles.slice();
   for(const c of clusters){
-    const r=c.members.length>1?13:8;
-    obstacles.push([c.x-r*sc,c.y-(r+6)*sc,2*r*sc,(2*r+6)*sc]);
+    const r = c.members.length>1 ? R_CLUSTER+2 : R_SITE+2;
+    obstacles.push([c.x-r*sc, c.y-(r+6)*sc, 2*r*sc, (2*r+6)*sc]);
   }
-  for(const c of visClubs){ const [x,y]=px(c.lat,c.lon); obstacles.push([x-8*sc,y-8*sc,16*sc,16*sc]); }
+  for(const c of visClubs){ const p=px(c.lat,c.lon); obstacles.push([p[0]-(R_CLUB+2)*sc, p[1]-(R_CLUB+2)*sc, (R_CLUB+2)*2*sc, (R_CLUB+2)*2*sc]); }
+
   let mh='';
   clusters.forEach((c,ci)=>{
+    const tr = ' transform="translate('+c.x+','+c.y+') scale('+sc+')"';
     if(c.members.length===1){
-      const s=c.members[0];
-      const col=(SYS[s.system]||SYS.none).color;
-      const sel = selected&&selected.type==='site'&&selected.id===s.id;
-      const L=placeLabel(c.x,c.y,s.name,'above',obstacles,sc,lg);
-      const st=STEMS[L.dir];
-      mh += '<g class="mark'+(sel?' selected':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'+esc(s.name)+' repeater site" transform="translate('+c.x+','+c.y+') scale('+sc+')">'
-          + '<circle class="site-dot" r="7" fill="'+col+'"/>'
-          + (L.hide?'':'<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
-          + '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text>')+'</g>';
+      const s=c.members[0], col=sysOf(s.system).color;
+      const sel = selected && selected.type==='site' && selected.id===s.id;
+      const L = placeLabel(c.x,c.y,s.name,'above',obstacles,sc,lg), st=STEMS[L.dir];
+      mh += '<g class="mark'+(sel?' selected':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'
+          + esc(s.name)+' repeater site"'+tr+'>'
+          + '<circle class="site-dot" r="'+R_SITE+'" fill="'+col+'"/>'
+          + (L.hide ? '' :
+              '<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
+            + '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text>')
+          + '</g>';
     } else {
       const systems=[...new Set(c.members.map(m=>m.system||'none'))];
-      const col=systems.length===1?(SYS[systems[0]]||SYS.none).color:'var(--indep)';
-      const label=c.members[0].name+' +'+(c.members.length-1);
-      const sel = selected&&selected.type==='cluster'&&selected.key===clusterKey(c.members);
-      const L=placeLabel(c.x,c.y,label,'above',obstacles,sc,lg);
-      mh += '<g class="mark'+(sel?' selected':'')+'" data-cluster="'+ci+'" tabindex="0" role="button" aria-label="'+esc(label)+', '+c.members.length+' repeater sites" transform="translate('+c.x+','+c.y+') scale('+sc+')">'
-          + '<circle class="site-dot" r="12" fill="'+col+'"/>'
-          + '<text class="cnum" y="4.5" text-anchor="middle">'+c.members.length+'</text>'
-          + (L.hide?'':'<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(label)+'</text>')+'</g>';
+      const col = systems.length===1 ? sysOf(systems[0]).color : 'var(--indep)';
+      const label = c.members[0].name+' +'+(c.members.length-1);
+      const sel = selected && selected.type==='cluster' && selected.key===clusterKey(c.members);
+      const L = placeLabel(c.x,c.y,label,'above',obstacles,sc,lg);
+      mh += '<g class="mark'+(sel?' selected':'')+'" data-cluster="'+ci+'" tabindex="0" role="button" aria-label="'
+          + esc(label)+', '+c.members.length+' repeater sites"'+tr+'>'
+          + '<circle class="site-dot" r="'+R_CLUSTER+'" fill="'+col+'"/>'
+          + '<text class="cnum" y="5.5" text-anchor="middle" style="font-size:15px">'+c.members.length+'</text>'
+          + (L.hide ? '' : '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(label)+'</text>')
+          + '</g>';
     }
   });
   for(const c of visClubs){
-    const [x,y]=px(c.lat,c.lon);
-    const sel = selected&&selected.type==='club'&&selected.id===c.id;
-    const L=placeLabel(x,y,c.callsign,'below',obstacles,sc,lg);
-    mh += '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'+esc(c.name)+'" transform="translate('+x+','+y+') scale('+sc+')">'
-        + '<rect class="club-dot" x="-5.5" y="-5.5" width="11" height="11" rx="2" transform="rotate(45)" fill="var(--clubs)"/>'
-        + (L.hide?'':'<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text>')+'</g>';
+    const p=px(c.lat,c.lon);
+    const sel = selected && selected.type==='club' && selected.id===c.id;
+    const L = placeLabel(p[0],p[1],c.callsign,'below',obstacles,sc,lg);
+    mh += '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'
+        + esc(c.name)+'" transform="translate('+p[0]+','+p[1]+') scale('+sc+')">'
+        + '<rect class="club-dot" x="'+(-R_CLUB)+'" y="'+(-R_CLUB)+'" width="'+(R_CLUB*2)+'" height="'+(R_CLUB*2)+'" rx="2.5" transform="rotate(45)" fill="var(--clubs)"/>'
+        + (L.hide ? '' : '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text>')
+        + '</g>';
   }
   document.getElementById('gmarks').innerHTML = mh;
 }
 
-/* ───────────────────────── drawer ───────────────────────── */
+/* ═══════════════════ drawer ═══════════════════ */
 const drawer=document.getElementById('drawer');
 const dKind=document.getElementById('dKind'), dTitle=document.getElementById('dTitle'),
       dCall=document.getElementById('dCall'), dBody=document.getElementById('dBody');
 
+function openDrawer(){ drawer.classList.add('open'); drawer.classList.remove('empty'); drawer.scrollTop=0; }
 function closeDrawer(){ selected=null; drawer.classList.remove('open'); renderEmptyDrawer(); render(); }
 document.getElementById('closeDrawer').onclick = closeDrawer;
+
+function discordUrl(){ return ((state.discord&&state.discord.url)||'').trim(); }
+function discordSvg(s){ return '<svg width="'+s+'" height="'+(s*0.756).toFixed(0)+'" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><use href="#dicon"/></svg>'; }
+function mapsSvg(){ return '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">'
+  + '<path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>'; }
+
 function renderEmptyDrawer(){
   drawer.classList.add('empty');
   dKind.textContent='South Dakota Amateur Radio';
   dTitle.textContent='Explore the map';
   dCall.textContent='';
-  dBody.innerHTML=
-    '<div class="sysnote">Click a <b>club</b> (blue diamond) or <b>repeater site</b> (colored dot) to see details — meeting times, frequencies, tones, and site photos.</div>'+
-    '<div class="sysnote">Colored lines connect repeaters that are RF-linked into a system, and numbered circles group several sites at one location — click them to see everything there. Use the legend to show or hide layers.</div>'+
-    '<div class="sysnote">Scroll or pinch to zoom, drag to pan, and use the buttons in the corner of the map.</div>';
+  const u=discordUrl();
+  dBody.innerHTML =
+    '<div class="welcome"><b>New to the hobby, new in town, or just curious?</b> South Dakota clubs welcome '
+  + 'visitors — you do not need a licence to walk into a meeting. Find the one near you and go say hello.</div>'
+  + '<button class="btn primary cta" type="button" id="allClubs">Browse South Dakota clubs</button>'
+  + (u ? '<a class="btn discord cta" href="'+esc(u)+'" target="_blank" rel="noopener">'+discordSvg(22)
+       + 'Join the statewide SD ham Discord</a>'
+       + '<div class="sysnote" style="text-align:center;margin-top:-6px">Hams across the state hang out here — '
+       + 'come ask questions, find a net, or get help getting on the air.</div>' : '')
+  + '<div class="sysnote">Click a <b>club</b> (blue diamond) or a <b>repeater site</b> (colored dot) for meeting times, '
+  + 'frequencies, tones and contacts. Colored lines connect repeaters that are RF-linked into one system.</div>'
+  + resourceList();
+  const b=document.getElementById('allClubs'); if(b) b.onclick=openClubIndex;
 }
 
-function field(lab, val, link){
-  let v = esc(val);
-  if(link && val){ const href=/^https?:/.test(val)?val:'https://'+val; v='<a href="'+esc(href)+'" target="_blank" rel="noopener">'+esc(val)+'</a>'; }
+// Other South Dakota radio projects worth knowing about, from data.json.
+function resourceList(){
+  const groups = state.resources || [];
+  if(!groups.length) return '';
+  return '<div class="reslist"><h4>Elsewhere in South Dakota radio</h4>'
+    + groups.map(g =>
+        '<div class="resgroup"><h5>'+esc(g.group)+'</h5>'
+      + (g.items||[]).map(i =>
+          '<a class="res'+(i.discord?' res-discord':'')+'" href="'+esc(i.url)+'" target="_blank" rel="noopener">'
+        + '<b>'+(i.discord?discordSvg(14):'')+esc(i.label)+'</b>'
+        + (i.note ? '<span>'+esc(i.note)+'</span>' : '')
+        + '</a>').join('')
+      + '</div>').join('')
+    + '</div>';
+}
+
+// Only linkify a value that actually is one. Prose like "reach out to the club
+// through its website" was rendering blue and pointing at a nonsense URL.
+const isUrlish = v => /^https?:\/\//i.test(v)
+  || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)
+  || /^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(v);
+function field(lab,val,link){
+  let v=esc(val);
+  const t=(val||'').trim();
+  if(link && t && isUrlish(t)){
+    const href = /^https?:/i.test(t) ? t
+               : (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t) ? 'mailto:'+t : 'https://'+t);
+    v='<a href="'+esc(href)+'" target="_blank" rel="noopener">'+esc(t)+'</a>';
+  }
   return '<div class="field"><label>'+lab+'</label><div class="val">'+v+'</div></div>';
 }
 function chipFor(t){
   t=(t||'').toLowerCase();
-  if(t.includes('digital')||t.includes('fusion')) return '<span class="chip dig">DIGITAL</span>';
+  if(t.includes('digital')||t.includes('fusion')||t.includes('star')) return '<span class="chip dig">DIGITAL</span>';
   if(t.includes('link')) return '<span class="chip link">LINK</span>';
+  if(t.includes('6 m')||t.includes('6m')) return '<span class="chip six">6 M</span>';
+  if(t.includes('220')||t.includes('1.25')) return '<span class="chip six">1.25 M</span>';
   if(t.includes('vhf')) return '<span class="chip vhf">VHF</span>';
   if(t.includes('uhf')) return '<span class="chip uhf">UHF</span>';
-  return '<span class="chip">'+esc(t.toUpperCase()||'RPT')+'</span>';
+  return '<span class="chip">'+esc((t||'rpt').toUpperCase())+'</span>';
 }
 function rptView(r){
-  const f=[];
-  if(r.tx) f.push('TX '+r.tx); if(r.rx) f.push('RX '+r.rx);
-  let s='<div class="rpt"><div class="top"><span class="name">'+esc(r.label)+'</span>'+chipFor(r.type)+'</div>';
-  s+='<div class="freqs">'+(f.length?esc(f.join('  /  ')):'<span style="color:var(--muted)">frequency not set</span>');
-  if(r.tone) s+='  ·  Tone '+esc(r.tone);
-  s+='</div></div>';
-  return s;
+  let s='<div class="rpt"><div class="top"><span class="name">'+esc(r.label)+'</span>'+chipFor(r.type)
+      + (r.owner?'<span class="chip own">'+esc(r.owner)+'</span>':'')+'</div>';
+  const cells=[];
+  if(r.out) cells.push('<div class="fq"><b>'+esc(r.out)+'</b><span>Output — listen</span></div>');
+  if(r['in']) cells.push('<div class="fq"><b>'+esc(r['in'])+'</b><span>Input — transmit</span></div>');
+  if(r.tone) cells.push('<div class="fq"><b>'+esc(r.tone)+'</b><span>Tone</span></div>');
+  s += cells.length ? '<div class="freqs">'+cells.join('')+'</div>'
+                    : '<div class="rnote">Frequency not published yet.</div>';
+  if(r.note) s+='<div class="rnote">'+esc(r.note)+'</div>';
+  return s+'</div>';
 }
+
+// Backbone link pairs are deliberately not published — nobody should key up on one.
+function rptList(reps){
+  reps = reps||[];
+  if(!reps.length) return '<div class="sysnote">No repeater here that you can work directly.</div>';
+  return reps.map(rptView).join('');
+}
+
 function openClub(id){
   const c=club(id); if(!c) return;
-  selected={type:'club',id}; drawer.classList.add('open'); drawer.classList.remove('empty');
-  dKind.textContent='Amateur Radio Club'; dTitle.textContent=c.name; dCall.textContent=c.callsign+' · '+c.city;
-  const dUrl=c.discord?(/^https?:/.test(c.discord)?c.discord:'https://'+c.discord):'';
+  selected={type:'club',id}; openDrawer();
+  dKind.textContent='Amateur Radio Club';
+  dTitle.textContent=c.name;
+  dCall.textContent=c.callsign+' · '+c.city;
+  const dUrl = c.discord ? (/^https?:/i.test(c.discord)?c.discord:'https://'+c.discord) : '';
   dBody.innerHTML =
-    (c.logo?'<img class="clublogo" src="'+esc(c.logo)+'" alt="'+esc(c.name)+' logo" onerror="this.remove()">':'') +
-    field('Meetings', c.meeting) +
-    field('Mailing list', c.mailing, true) +
-    field('Website', c.website, true) +
-    (dUrl?'<div class="field"><label>Discord</label><a class="btn discord small" style="display:inline-flex;margin-top:2px" href="'+esc(dUrl)+'" target="_blank" rel="noopener"><svg width="16" height="12" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><use href="#dicon"/></svg>Join the club Discord</a></div>':'') +
-    field('Repeaters maintained', c.repeaters) +
-    (c.notes?field('Notes',c.notes):'') +
-    '<div class="drawer-note">Coordinates: '+c.lat.toFixed(4)+', '+c.lon.toFixed(4)+'</div>';
+    (c.logo ? '<div class="logo"><img src="'+esc(c.logo)+'" alt="'+esc(c.name)+' logo" loading="lazy" onerror="this.parentNode.remove()"></div>' : '')
+  + field('Meetings', c.meeting)
+  + (c.address ? '<div class="field"><label>Where</label><div class="val">'+esc(c.address)+'</div>'
+      + '<a class="btn maps small" style="margin-top:8px" href="https://www.google.com/maps/search/?api=1&amp;query='
+      + encodeURIComponent(c.address)+'" target="_blank" rel="noopener">'+mapsSvg()+'Open in Google Maps</a></div>' : '')
+  + field('Mailing list', c.mailing, true)
+  + field('Website', c.website, true)
+  + (dUrl ? '<div class="field"><label>Club Discord</label><a class="btn discord small" style="display:inline-flex;margin-top:3px" href="'
+          + esc(dUrl)+'" target="_blank" rel="noopener">'+discordSvg(15)+'Join the club Discord</a></div>' : '')
+  + '<div class="drawer-note">Coordinates '+c.lat.toFixed(4)+', '+c.lon.toFixed(4)
+  + ' · <button class="linklike" type="button" id="backToClubs">All clubs</button></div>';
+  const b=document.getElementById('backToClubs'); if(b) b.onclick=openClubIndex;
   render();
 }
 
 function openSite(id){
   const s=site(id); if(!s) return;
-  selected={type:'site',id}; drawer.classList.add('open'); drawer.classList.remove('empty');
-  const sys=SYS[s.system]||SYS.none;
-  dKind.textContent='Repeater Site — '+sys.name; dTitle.textContent=s.name; dCall.textContent='';
-  const photos = (s.photos||[]).map(p=>'<div><img class="photo" src="'+p+'" alt="Site photo"></div>').join('');
+  selected={type:'site',id}; openDrawer();
+  const sys=sysOf(s.system);
+  dKind.textContent='Repeater Site — '+sys.name;
+  dTitle.textContent=s.name; dCall.textContent='';
   dBody.innerHTML =
-    (s.repeaters||[]).map(rptView).join('') +
-    (s.notes?field('Notes',s.notes):'') +
-    photos +
-    '<div class="drawer-note">Coordinates: '+s.lat.toFixed(4)+', '+s.lon.toFixed(4)+'</div>';
+    rptList(s.repeaters)
+  + (sys.note ? '<div class="sysnote">'+esc(sys.note)+'</div>' : '')
+  + (s.notes ? field('Notes', s.notes) : '')
+  + ((s.photos||[]).length
+      ? '<div class="field"><label>Site photos</label><div class="gallery">'
+        + s.photos.map(ph=>'<a href="'+esc(ph)+'" target="_blank" rel="noopener">'
+            + '<img class="photo" src="'+esc(ph)+'" alt="'+esc(s.name)+' site photo" loading="lazy" onerror="this.closest(\'a\').remove()"></a>').join('')
+        + '</div></div>'
+      : '')
+  + '<div class="drawer-note">Coordinates '+s.lat.toFixed(4)+', '+s.lon.toFixed(4)+'</div>';
   render();
 }
 
 function openCluster(ci){
   const c=lastClusters[ci]; if(!c) return;
-  selected={type:'cluster',key:clusterKey(c.members)}; drawer.classList.add('open'); drawer.classList.remove('empty');
+  selected={type:'cluster',key:clusterKey(c.members)}; openDrawer();
   dKind.textContent='Repeater location — '+c.members.length+' sites';
   dTitle.textContent=c.members[0].name+' area'; dCall.textContent='';
   dBody.innerHTML = c.members.map(m=>{
-    const sys=SYS[m.system]||SYS.none;
-    return '<div class="sitehead"><button class="linklike" data-open-site="'+m.id+'">'+esc(m.name)+'</button>'
-         + '<span class="chip" style="color:'+sys.color+'">'+esc(sys.name)+'</span></div>'
-         + (m.repeaters||[]).map(rptView).join('');
-  }).join('') +
-  '<div class="drawer-note">These sites sit close together at this zoom — zoom in on the map to separate them, or click a site name for its full details.</div>';
+    const sys=sysOf(m.system);
+    return '<div class="sitehead"><button class="linklike" type="button" data-open-site="'+m.id+'">'+esc(m.name)+'</button>'
+         + '<span class="chip" style="color:'+sys.color+'">'+esc(sys.short)+'</span></div>'
+         + rptList(m.repeaters);
+  }).join('')
+  + '<div class="drawer-note">These sites sit close together at this zoom — zoom in to separate them, or click a site name for its full details.</div>';
   dBody.querySelectorAll('[data-open-site]').forEach(b=>b.onclick=()=>openSite(b.getAttribute('data-open-site')));
   render();
 }
 
 function openLink(i){
   const L=state.links[i]; if(!L) return;
-  selected={type:'link',id:i}; drawer.classList.add('open'); drawer.classList.remove('empty');
-  const a=site(L.a),b=site(L.b);
-  dKind.textContent='Repeater link'; dTitle.textContent=(a?a.name:'?')+' ⌁ '+(b?b.name:'?'); dCall.textContent=(SYS[L.system]||SYS.none).name;
-  dBody.innerHTML='<div class="sysnote">This line marks an RF link between the two sites in the '+(SYS[L.system]||SYS.none).name+' system.</div>';
+  selected={type:'link',id:i}; openDrawer();
+  const a=site(L.a), b=site(L.b), sys=sysOf(L.system);
+  dKind.textContent='Repeater link';
+  dTitle.textContent=(a?a.name:'?')+' ⌁ '+(b?b.name:'?');
+  dCall.textContent=sys.name;
+  dBody.innerHTML='<div class="sysnote">These two sites are joined by an RF link in the '+esc(sys.name)
+    +'. The link pair itself is backbone only \u2014 work the repeater at either end.</div>'
+    + (sys.note?'<div class="sysnote">'+esc(sys.note)+'</div>':'')
+    + '<div class="sitehead"><button class="linklike" type="button" data-go="'+esc(L.a)+'">'+esc(a?a.name:'?')+'</button></div>'
+    + '<div class="sitehead"><button class="linklike" type="button" data-go="'+esc(L.b)+'">'+esc(b?b.name:'?')+'</button></div>';
+  dBody.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>openSite(b.getAttribute('data-go')));
   render();
 }
 
-/* ───────────────────────── map interaction ───────────────────────── */
+function openClubIndex(){
+  selected=null; openDrawer();
+  dKind.textContent='South Dakota';
+  dTitle.textContent='Amateur radio clubs'; dCall.textContent=state.clubs.length+' clubs — visitors welcome at all of them';
+  dBody.innerHTML = '<div class="clublist">' + state.clubs.map(c=>
+      '<button class="clubrow" type="button" data-club="'+esc(c.id)+'">'
+    + '<span class="thumb">'+(c.logo ? '<img src="'+esc(c.logo)+'" alt="" loading="lazy" onerror="this.outerHTML=\'<span class=&quot;ph&quot;>'+esc(c.callsign)+'</span>\'">'
+                                     : '<span class="ph">'+esc(c.callsign)+'</span>')+'</span>'
+    + '<span class="meta"><b>'+esc(c.name)+'</b><small>'+esc(c.callsign)+' · '+esc(c.city)+'</small></span></button>'
+  ).join('') + '</div>';
+  dBody.querySelectorAll('[data-club]').forEach(b=>b.onclick=()=>openClub(b.getAttribute('data-club')));
+  render();
+}
+document.getElementById('clubsBtn').onclick = openClubIndex;
+
+/* ═══════════════════ interaction ═══════════════════ */
 function svgPoint(ev){
   const pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
   const p=pt.matrixTransform(svg.getScreenCTM().inverse());
   return [p.x,p.y];
 }
-let justDragged=false, pan=null, pinch=null;
-const ptrs=new Map();
 function openMark(g){
   if(g.hasAttribute('data-site')) openSite(g.getAttribute('data-site'));
   else if(g.hasAttribute('data-club')) openClub(g.getAttribute('data-club'));
   else if(g.hasAttribute('data-cluster')) openCluster(+g.getAttribute('data-cluster'));
 }
+let justDragged=false, pan=null, pinch=null;
+const ptrs=new Map();
+
 svg.addEventListener('pointerdown',ev=>{
   ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
-  if(ptrs.size===2){                       // second finger → pinch zoom
+  if(ptrs.size===2){
     pan=null;
-    const [a,b]=[...ptrs.values()];
-    pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};
+    const v=[...ptrs.values()];
+    pinch={d:Math.hypot(v[0].x-v[1].x, v[0].y-v[1].y)};
     for(const id of ptrs.keys()){ try{ svg.setPointerCapture(id); }catch(e){} }
     return;
   }
-  // a press anywhere can become a pan; if it never moves, it's a click
   pan={sx:ev.clientX, sy:ev.clientY, vx:view.x, vy:view.y, scale:svg.getScreenCTM().a, moved:false,
        hit:ev.target.closest('.mark')};
 });
 svg.addEventListener('pointermove',ev=>{
   const p=ptrs.get(ev.pointerId); if(p){ p.x=ev.clientX; p.y=ev.clientY; }
   if(pinch && ptrs.size===2){
-    const [a,b]=[...ptrs.values()];
-    const d=Math.hypot(a.x-b.x,a.y-b.y);
+    const v=[...ptrs.values()], d=Math.hypot(v[0].x-v[1].x, v[0].y-v[1].y);
     if(d>0 && pinch.d>0){
-      const pt=svg.createSVGPoint(); pt.x=(a.x+b.x)/2; pt.y=(a.y+b.y)/2;
+      const pt=svg.createSVGPoint(); pt.x=(v[0].x+v[1].x)/2; pt.y=(v[0].y+v[1].y)/2;
       const m=pt.matrixTransform(svg.getScreenCTM().inverse());
       setZoom(zoom*d/pinch.d, m.x, m.y);
     }
-    pinch.d=d;
-    return;
+    pinch.d=d; return;
   }
   if(pan){
-    if(!pan.moved && Math.hypot(ev.clientX-pan.sx,ev.clientY-pan.sy)<5) return;
-    if(!pan.moved){ try{ svg.setPointerCapture(ev.pointerId); }catch(e){} }    // capture only once panning starts
+    if(!pan.moved && Math.hypot(ev.clientX-pan.sx, ev.clientY-pan.sy)<5) return;
+    if(!pan.moved){ try{ svg.setPointerCapture(ev.pointerId); }catch(e){} }
     pan.moved=true;
     setView(pan.vx-(ev.clientX-pan.sx)/pan.scale, pan.vy-(ev.clientY-pan.sy)/pan.scale);
   }
@@ -534,12 +821,9 @@ svg.addEventListener('pointerup',ev=>{
 svg.addEventListener('pointercancel',ev=>{ ptrs.delete(ev.pointerId); pinch=null; pan=null; });
 svg.addEventListener('wheel',ev=>{
   ev.preventDefault();
-  const [mx,my]=svgPoint(ev);
-  setZoom(zoom*(ev.deltaY<0?1.25:0.8), mx, my);
+  const m=svgPoint(ev);
+  setZoom(zoom*(ev.deltaY<0?1.25:0.8), m[0], m[1]);
 },{passive:false});
-document.getElementById('zin').onclick=()=>setZoom(zoom*1.5, view.x+view.w/2, view.y+view.h/2);
-document.getElementById('zout').onclick=()=>setZoom(zoom/1.5, view.x+view.w/2, view.y+view.h/2);
-document.getElementById('zreset').onclick=()=>{ view={x:VB0.x,y:VB0.y,w:VB0.w,h:VB0.h}; zoom=1; applyView(); render(); };
 svg.addEventListener('click',ev=>{
   if(justDragged){ justDragged=false; return; }
   const ln=ev.target.closest('.linkline');
@@ -548,41 +832,54 @@ svg.addEventListener('click',ev=>{
   closeDrawer();
 });
 svg.addEventListener('keydown',ev=>{
-  if(ev.key!=='Enter'&&ev.key!==' ') return;
-  const g=ev.target.closest&&ev.target.closest('.mark'); if(!g) return;
-  ev.preventDefault();
-  openMark(g);
+  if(ev.key!=='Enter' && ev.key!==' ') return;
+  const g=ev.target.closest && ev.target.closest('.mark'); if(!g) return;
+  ev.preventDefault(); openMark(g);
 });
+document.addEventListener('keydown',ev=>{ if(ev.key==='Escape') closeDrawer(); });
 
-/* ───────────────────────── nav ───────────────────────── */
-const discordBtn=document.getElementById('discordBtn');
-function syncDiscord(){
-  const u=(state.discord&&state.discord.url||'').trim();
-  discordBtn.href=u||'#';
-  discordBtn.style.display=u?'inline-flex':'none';   // hidden until an invite URL is set in the data
-  document.getElementById('discordLabel').textContent=(state.discord&&state.discord.label)||'SD Ham Discord';
-}
+const ctr=()=>[view.x+view.w/2, view.y+view.h/2];
+document.getElementById('zin').onclick  = ()=>{ const c=ctr(); setZoom(zoom*1.5, c[0], c[1]); };
+document.getElementById('zout').onclick = ()=>{ const c=ctr(); setZoom(zoom/1.5, c[0], c[1]); };
+document.getElementById('zreset').onclick = resetView;
 
 document.querySelectorAll('#legend [data-layer]').forEach(cb=>cb.addEventListener('change',()=>{
   layers[cb.getAttribute('data-layer')]=cb.checked; render();
 }));
+const lt=document.getElementById('legendToggle'), lg=document.getElementById('legend');
+lt.onclick=()=>{ const o=lg.classList.toggle('open'); lt.setAttribute('aria-expanded', o?'true':'false'); };
 
-function syncChrome(){
-  document.documentElement.style.setProperty('--chrome',document.getElementById('nav').offsetHeight+'px');
+/* ═══════════════════ nav ═══════════════════ */
+const discordBtn=document.getElementById('discordBtn');
+function syncDiscord(){
+  const u=discordUrl();
+  discordBtn.href=u||'#';
+  discordBtn.style.display=u?'inline-flex':'none';
+  const lab=(state.discord&&state.discord.label)||'Join the SD Ham Discord';
+  discordBtn.querySelector('.full').textContent=lab;
 }
-window.addEventListener('resize',()=>{ syncChrome(); render(); });
 
-/* ───────────────────────── boot ───────────────────────── */
+/* ═══════════════════ boot ═══════════════════ */
+let raf=0;
+new ResizeObserver(()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{
+  const z=zoom, cx=view.x+view.w/2, cy=view.y+view.h/2;
+  computeUI(); computeBase();
+  view.w=baseView.w/z; view.h=baseView.h/z;
+  setView(cx-view.w/2, cy-view.h/2);
+  drawBase(); render();
+}); }).observe(mapwrap);
+
 if(!IS_ARTIFACT){
-  // data.json is the source of truth on static hosting; the embedded seed is the fallback
-  fetch(DATA_PATH+'?t='+Date.now(),{cache:'no-store'})
+  fetch(DATA_PATH+'?v='+Date.now(),{cache:'no-store'})
     .then(r=>r.ok?r.json():null)
-    .then(d=>{ if(d&&d.clubs&&d.sites){ state=d; render(); syncDiscord(); } })
+    .then(d=>{ if(d && d.clubs && d.sites){ state=d; render(); syncDiscord(); } })
     .catch(()=>{});
 }
-baseMap();
+resetView();
 renderEmptyDrawer();
-render();
 syncDiscord();
-syncChrome();
+
 </script>
+
+</body>
+</html>
