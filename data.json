@@ -31,7 +31,7 @@
    "lon": -103.2003,
    "logo": "logos/w0blk.webp",
    "address": "South Dakota Mines, EEP Building (usually room EEP251A), 501 E St Joseph St, Rapid City, SD 57701",
-   "meeting": "3rd Friday, 7:00 PM — social hour from 6:00 PM, program after the meeting",
+   "meeting": "3rd Friday, 7:00 PM. Social hour starts at 6:00 PM, with a program after the meeting.",
    "mailing": "groups.io/g/W0BLK",
    "website": "https://www.w0blk.com",
    "discord": ""
@@ -855,7 +855,7 @@
      "in": "467.550",
      "tone": "141.3",
      "owner": "K0HS",
-     "note": "GMRS — needs a GMRS licence, not a ham licence."
+     "note": "Needs a GMRS licence rather than a ham licence."
     }
    ]
   }
