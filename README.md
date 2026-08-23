@@ -20,7 +20,8 @@ commit — the site picks up the change when GitHub Pages redeploys, about a
 minute later.
 
 Structure: `clubs` (name, callsign, city, lat/lon, meeting, mailing, website,
-discord, repeaters, notes), `sites` (name, system: `sdlink`/`pdarc`/`bh`/`none`,
+discord, repeaters, notes), `sites` (name, system: `sdlink`/`pdarc`/`bh`
+(= Northern Hills linked system, historical key)/`none`,
 lat/lon, notes, photos, repeaters[]), and `links` (pairs of site ids with a
 system). The top-level `discord.url` populates the nav-bar Discord button
 (hidden while empty).
