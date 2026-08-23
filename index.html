@@ -50,16 +50,6 @@ textarea{resize:vertical;min-height:60px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.discord{background:var(--discord);border-color:var(--discord);color:var(--discord-ink)}
 .btn.discord svg{flex:none}
-.btn.toggled{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-#saveBtn{display:none}
-#saveBtn.dirty{display:inline-flex;background:var(--ok);border-color:var(--ok);color:#fff}
-#saveMsg{font-size:13px;color:var(--muted)}
-
-/* ── edit toolbar ── */
-#tools{display:none;gap:8px;align-items:center;padding:7px 16px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap;font-size:14px}
-body.editing #tools{display:flex}
-#tools .btn{padding:5px 11px;font-size:13.5px}
-#tools .hint{color:var(--muted);font-size:13px}
 
 /* ── layout ── */
 #stage{position:relative;height:calc(100dvh - var(--chrome,54px));display:flex}
@@ -97,29 +87,25 @@ svg#map text{user-select:none}
 .rpt .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .rpt .name{font-weight:600}
 .rpt .freqs{font-family:"IBM Plex Mono",monospace;font-size:13.5px;margin-top:3px}
+.sitehead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+.linklike{color:var(--clubs);font-weight:600;padding:0;text-align:left}
+.linklike:hover{text-decoration:underline}
 .chip{font-size:11px;font-weight:600;letter-spacing:.05em;padding:1.5px 8px;border-radius:20px;background:var(--chip-bg);color:var(--muted)}
 .chip.vhf{color:var(--ok)} .chip.uhf{color:var(--clubs)} .chip.link{color:var(--accent)} .chip.dig{color:var(--bh)}
 .photo{width:100%;border-radius:8px;display:block}
-.rowbtns{display:flex;gap:8px;flex-wrap:wrap}
 .btn.small{padding:4px 10px;font-size:13px}
-.btn.danger{color:var(--danger);border-color:var(--danger)}
-.editgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.editgrid .wide{grid-column:1/-1}
 .sysnote{font-size:13px;color:var(--muted)}
-.warn{font-size:13px;color:var(--danger)}
 .drawer-note{font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
 
 /* ── map marks ── */
 .site-dot{stroke:var(--panel);stroke-width:1.6}
 .club-dot{stroke:var(--panel);stroke-width:1.6}
 .mark{cursor:pointer}
-body.editing .mark{cursor:grab}
-.mark.dragging{cursor:grabbing}
 .mark text{font:600 11.5px Barlow,sans-serif;fill:var(--ink);paint-order:stroke;stroke:var(--bg);stroke-width:3px;stroke-linejoin:round}
+.mark text.cnum{font:700 12px Barlow,sans-serif;fill:#fff;stroke:none;paint-order:normal}
 .linkline{fill:none;stroke-width:2.2;stroke-linecap:round;opacity:.85;cursor:pointer}
 .linkline.halo{stroke-width:9;opacity:0;}
 .mark.selected .site-dot,.mark.selected .club-dot{stroke:var(--ink);stroke-width:2.4}
-.mark.linksrc .site-dot{stroke:var(--accent);stroke-width:3}
 #map .citylabel{font:500 10.5px Barlow,sans-serif;fill:var(--muted)}
 #map .statelabel{font:700 34px "Barlow Condensed",sans-serif;fill:var(--land-stroke);opacity:.5;letter-spacing:.35em}
 
@@ -145,22 +131,7 @@ body.editing .mark{cursor:grab}
     <svg width="18" height="14" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><path id="dicon" d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z"/></svg>
     <span id="discordLabel">SD Ham Discord</span>
   </a>
-  <button id="editBtn" class="btn">✎ Edit</button>
-  <button id="saveBtn" class="btn">Save changes</button>
-  <span id="saveMsg"></span>
 </nav>
-
-<div id="tools">
-  <span class="hint">Edit mode:</span>
-  <button class="btn small" data-tool="addsite">+ Repeater site</button>
-  <button class="btn small" data-tool="addclub">+ Club</button>
-  <button class="btn small" data-tool="link">⌁ Link two sites</button>
-  <span class="hint" id="toolHint">Drag any marker to move it. Click a marker to edit its details. Click a link line to change or delete it.</span>
-  <span class="spacer" style="flex:1"></span>
-  <label style="display:flex;gap:6px;align-items:center;font-size:13px">Discord invite URL
-    <input id="discordUrl" type="url" placeholder="https://discord.gg/..." style="width:220px">
-  </label>
-</div>
 
 <div id="stage">
   <div id="mapwrap"><svg id="map" viewBox="-24 -24 1048 700" role="application" aria-label="Map of South Dakota amateur radio clubs and repeaters"></svg>
@@ -196,16 +167,12 @@ body.editing .mark{cursor:grab}
 /* ───────────────────────── state ───────────────────────── */
 const seedEl = document.getElementById('seed');
 let state = JSON.parse(seedEl.textContent);
-// Hosting mode: inside the Claude artifact viewer, editing is enabled and saves
-// publish a new artifact version. On static hosting (605hams.com) the site is
-// read-only: it renders data.json from the repo (localhost keeps the edit UI
-// for development, but saves only work in the artifact).
+// The site is read-only everywhere: on static hosting (605hams.com) it renders
+// data.json from the repo (edit that file to update the map); inside the Claude
+// artifact viewer it renders the embedded seed.
 const IS_ARTIFACT = !!(window.claude && window.claude.use);
-const CAN_EDIT = IS_ARTIFACT || location.hostname==='localhost';
 const DATA_PATH = 'data.json';
-let dirty = false, editing = false, tool = null, linkSrc = null;
-let selected = null;               // {type:'club'|'site'|'link', id or index}
-let readOnly = false;
+let selected = null;               // {type:'club'|'site'|'link'|'cluster', id/index/key}
 const layers = {clubs:true, sdlink:true, pdarc:true, bh:true, none:true};
 const SYS = {
   sdlink:{name:'SD-LINK', color:'var(--sdlink)'},
@@ -213,7 +180,6 @@ const SYS = {
   bh:{name:'Black Hills', color:'var(--bh)'},
   none:{name:'Independent', color:'var(--indep)'}
 };
-const uid = p => p + Math.random().toString(36).slice(2,8);
 const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 /* ───────────────────────── projection ───────────────────────── */
@@ -312,38 +278,73 @@ function placeLabel(x,y,text,pref,obstacles,sc){
 }
 const STEMS={above:[0,-7,0,-13], below:[0,7,0,13], right:[7,0,13,0], left:[-7,0,-13,0]};
 
+let lastClusters=[];
+const clusterKey = m => m.map(s=>s.id).sort().join('|');
 function render(){
-  // links
+  const sc = 1/zoom;
+  const visSites = state.sites.filter(s=>layers[s.system||'none']);
+  const visClubs = layers.clubs?state.clubs:[];
+
+  // group sites that sit on top of each other at this zoom into one node
+  const thresh = 26*sc;
+  const clusters=[];
+  for(const s of visSites){
+    const [x,y]=px(s.lat,s.lon);
+    const c=clusters.find(c=>Math.hypot(c.x-x,c.y-y)<thresh);
+    if(c){
+      c.members.push(s);
+      c.x=c.members.reduce((t,m)=>t+px(m.lat,m.lon)[0],0)/c.members.length;
+      c.y=c.members.reduce((t,m)=>t+px(m.lat,m.lon)[1],0)/c.members.length;
+    } else clusters.push({x,y,members:[s]});
+  }
+  lastClusters=clusters;
+  const pos={};                                  // siteId → rendered position
+  for(const c of clusters) for(const m of c.members) pos[m.id]=[c.x,c.y];
+
+  // links (endpoints snap to cluster nodes; hide links inside one cluster)
   let lh='';
   state.links.forEach((L,i)=>{
     const a=site(L.a), b=site(L.b);
-    if(!a||!b||!layers[L.system||'none']) return;
-    const [x1,y1]=px(a.lat,a.lon), [x2,y2]=px(b.lat,b.lon);
+    if(!a||!b||!layers[L.system||'none']||!pos[L.a]||!pos[L.b]) return;
+    const [x1,y1]=pos[L.a], [x2,y2]=pos[L.b];
+    if(Math.hypot(x1-x2,y1-y2)<1) return;
     const col=(SYS[L.system]||SYS.none).color;
     lh += '<line class="linkline halo" data-link="'+i+'" vector-effect="non-scaling-stroke" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"/>';
     lh += '<line class="linkline" data-link="'+i+'" vector-effect="non-scaling-stroke" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'"'+(selected&&selected.type==='link'&&selected.id===i?' stroke-width="4" opacity="1"':'')+'/>';
   });
   document.getElementById('glinks').innerHTML = lh;
 
-  // markers — two passes: collect dot obstacles, then place labels greedily
-  const sc = 1/zoom;
-  const visSites = state.sites.filter(s=>layers[s.system||'none']);
-  const visClubs = layers.clubs?state.clubs:[];
+  // markers — collect dot obstacles first, then place labels greedily
   const obstacles = cityObstacles.slice();
-  for(const s of visSites){ const [x,y]=px(s.lat,s.lon); obstacles.push([x-8*sc,y-14*sc,16*sc,22*sc]); }
+  for(const c of clusters){
+    const r=c.members.length>1?13:8;
+    obstacles.push([c.x-r*sc,c.y-(r+6)*sc,2*r*sc,(2*r+6)*sc]);
+  }
   for(const c of visClubs){ const [x,y]=px(c.lat,c.lon); obstacles.push([x-8*sc,y-8*sc,16*sc,16*sc]); }
   let mh='';
-  for(const s of visSites){
-    const [x,y]=px(s.lat,s.lon);
-    const col=(SYS[s.system]||SYS.none).color;
-    const sel = selected&&selected.type==='site'&&selected.id===s.id;
-    const L=placeLabel(x,y,s.name,'above',obstacles,sc);
-    const st=STEMS[L.dir];
-    mh += '<g class="mark'+(sel?' selected':'')+(linkSrc===s.id?' linksrc':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'+esc(s.name)+' repeater site" transform="translate('+x+','+y+') scale('+sc+')">'
-        + '<circle class="site-dot" r="7" fill="'+col+'"/>'
-        + '<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
-        + '<text x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text></g>';
-  }
+  clusters.forEach((c,ci)=>{
+    if(c.members.length===1){
+      const s=c.members[0];
+      const col=(SYS[s.system]||SYS.none).color;
+      const sel = selected&&selected.type==='site'&&selected.id===s.id;
+      const L=placeLabel(c.x,c.y,s.name,'above',obstacles,sc);
+      const st=STEMS[L.dir];
+      mh += '<g class="mark'+(sel?' selected':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'+esc(s.name)+' repeater site" transform="translate('+c.x+','+c.y+') scale('+sc+')">'
+          + '<circle class="site-dot" r="7" fill="'+col+'"/>'
+          + '<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
+          + '<text x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text></g>';
+    } else {
+      const systems=[...new Set(c.members.map(m=>m.system||'none'))];
+      const col=systems.length===1?(SYS[systems[0]]||SYS.none).color:'var(--indep)';
+      const label=c.members[0].name+' +'+(c.members.length-1);
+      const sel = selected&&selected.type==='cluster'&&selected.key===clusterKey(c.members);
+      const L=placeLabel(c.x,c.y,label,'above',obstacles,sc);
+      mh += '<g class="mark'+(sel?' selected':'')+'" data-cluster="'+ci+'" tabindex="0" role="button" aria-label="'+esc(label)+', '+c.members.length+' repeater sites" transform="translate('+c.x+','+c.y+') scale('+sc+')">'
+          + '<circle class="site-dot" r="12" fill="'+col+'"/>'
+          + '<text class="cnum" y="4.5" text-anchor="middle">'+c.members.length+'</text>'
+          + '<text x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(label)+'</text></g>';
+    }
+  });
   for(const c of visClubs){
     const [x,y]=px(c.lat,c.lon);
     const sel = selected&&selected.type==='club'&&selected.id===c.id;
@@ -369,7 +370,7 @@ function renderEmptyDrawer(){
   dCall.textContent='';
   dBody.innerHTML=
     '<div class="sysnote">Click a <b>club</b> (blue diamond) or <b>repeater site</b> (colored dot) to see details — meeting times, frequencies, tones, and site photos.</div>'+
-    '<div class="sysnote">Colored lines connect repeaters that are RF-linked into a system. Use the legend to show or hide layers.</div>'+
+    '<div class="sysnote">Colored lines connect repeaters that are RF-linked into a system, and numbered circles group several sites at one location — click them to see everything there. Use the legend to show or hide layers.</div>'+
     '<div class="sysnote">Scroll or pinch to zoom, drag to pan, and use the buttons in the corner of the map.</div>';
 }
 
@@ -395,39 +396,19 @@ function rptView(r){
   s+='</div></div>';
   return s;
 }
-function ed(label, id, val, ph){ return '<div class="field"><label>'+label+'</label><input data-ed="'+id+'" value="'+esc(val)+'" placeholder="'+esc(ph||'')+'"></div>'; }
-function edArea(label, id, val, ph){ return '<div class="field"><label>'+label+'</label><textarea data-ed="'+id+'" placeholder="'+esc(ph||'')+'">'+esc(val)+'</textarea></div>'; }
-
 function openClub(id){
   const c=club(id); if(!c) return;
   selected={type:'club',id}; drawer.classList.add('open'); drawer.classList.remove('empty');
   dKind.textContent='Amateur Radio Club'; dTitle.textContent=c.name; dCall.textContent=c.callsign+' · '+c.city;
-  if(!editing){
-    const dUrl=c.discord?(/^https?:/.test(c.discord)?c.discord:'https://'+c.discord):'';
-    dBody.innerHTML =
-      field('Meetings', c.meeting) +
-      field('Mailing list', c.mailing, true) +
-      field('Website', c.website, true) +
-      (dUrl?'<div class="field"><label>Discord</label><a class="btn discord small" style="display:inline-flex;margin-top:2px" href="'+esc(dUrl)+'" target="_blank" rel="noopener"><svg width="16" height="12" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><use href="#dicon"/></svg>Join the club Discord</a></div>':'') +
-      field('Repeaters maintained', c.repeaters) +
-      (c.notes?field('Notes',c.notes):'') +
-      '<div class="drawer-note">Coordinates: '+c.lat.toFixed(4)+', '+c.lon.toFixed(4)+'</div>';
-  } else {
-    dBody.innerHTML =
-      '<div class="editgrid">'+
-        '<div class="wide">'+ed('Club name','name',c.name)+'</div>'+
-        ed('Callsign','callsign',c.callsign)+ed('City','city',c.city)+
-        '<div class="wide">'+edArea('Meetings','meeting',c.meeting,'e.g. 2nd Tuesday, 7:00 PM — location')+'</div>'+
-        '<div class="wide">'+ed('Mailing list','mailing',c.mailing,'groups.io / email list URL')+'</div>'+
-        '<div class="wide">'+ed('Website','website',c.website,'https://…')+'</div>'+
-        '<div class="wide">'+ed('Discord invite','discord',c.discord||'','https://discord.gg/… or discord.yourclub.org')+'</div>'+
-        '<div class="wide">'+edArea('Repeaters maintained','repeaters',c.repeaters)+'</div>'+
-        '<div class="wide">'+edArea('Notes','notes',c.notes)+'</div>'+
-      '</div>'+
-      '<div class="rowbtns"><button class="btn small danger" id="delEntity">Delete club</button></div>'+
-      '<div class="drawer-note">Drag the marker on the map to move this club.</div>';
-    wireEdits(c);
-  }
+  const dUrl=c.discord?(/^https?:/.test(c.discord)?c.discord:'https://'+c.discord):'';
+  dBody.innerHTML =
+    field('Meetings', c.meeting) +
+    field('Mailing list', c.mailing, true) +
+    field('Website', c.website, true) +
+    (dUrl?'<div class="field"><label>Discord</label><a class="btn discord small" style="display:inline-flex;margin-top:2px" href="'+esc(dUrl)+'" target="_blank" rel="noopener"><svg width="16" height="12" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><use href="#dicon"/></svg>Join the club Discord</a></div>':'') +
+    field('Repeaters maintained', c.repeaters) +
+    (c.notes?field('Notes',c.notes):'') +
+    '<div class="drawer-note">Coordinates: '+c.lat.toFixed(4)+', '+c.lon.toFixed(4)+'</div>';
   render();
 }
 
@@ -436,41 +417,28 @@ function openSite(id){
   selected={type:'site',id}; drawer.classList.add('open'); drawer.classList.remove('empty');
   const sys=SYS[s.system]||SYS.none;
   dKind.textContent='Repeater Site — '+sys.name; dTitle.textContent=s.name; dCall.textContent='';
-  let photos = (s.photos||[]).map((p,i)=>'<div><img class="photo" src="'+p+'" alt="Site photo">'
-      +(editing?'<div class="rowbtns" style="margin-top:4px"><button class="btn small danger" data-delphoto="'+i+'">Remove photo</button></div>':'')+'</div>').join('');
-  if(!editing){
-    dBody.innerHTML =
-      (s.repeaters||[]).map(rptView).join('') +
-      (s.notes?field('Notes',s.notes):'') +
-      photos +
-      '<div class="drawer-note">Coordinates: '+s.lat.toFixed(4)+', '+s.lon.toFixed(4)+'</div>';
-  } else {
-    let rpts=(s.repeaters||[]).map((r,i)=>
-      '<div class="rpt"><div class="editgrid">'+
-      '<div class="wide">'+ed('Label','r'+i+'.label',r.label)+'</div>'+
-      '<div class="field"><label>Type</label><select data-ed="r'+i+'.type">'+
-        ['VHF Repeater','UHF Repeater','UHF Link','VHF Link','Digital','Other'].map(t=>'<option'+(r.type===t?' selected':'')+'>'+t+'</option>').join('')+
-      '</select></div>'+
-      ed('Tone (CTCSS)','r'+i+'.tone',r.tone)+
-      ed('TX','r'+i+'.tx',r.tx)+ed('RX','r'+i+'.rx',r.rx)+
-      '<div class="wide rowbtns"><button class="btn small danger" data-delrpt="'+i+'">Remove repeater</button></div>'+
-      '</div></div>').join('');
-    dBody.innerHTML =
-      '<div class="editgrid">'+
-      '<div class="wide">'+ed('Site name','name',s.name)+'</div>'+
-      '<div class="wide field"><label>System</label><select data-ed="system">'+
-        Object.keys(SYS).map(k=>'<option value="'+k+'"'+(s.system===k?' selected':'')+'>'+SYS[k].name+'</option>').join('')+
-      '</select></div>'+
-      '<div class="wide">'+edArea('Notes','notes',s.notes)+'</div>'+
-      '</div>'+
-      '<div class="field"><label>Repeaters at this site</label></div>'+rpts+
-      '<div class="rowbtns"><button class="btn small" id="addRpt">+ Add repeater</button></div>'+
-      '<div class="field"><label>Photos</label>'+ (photos||'<div class="sysnote">No photos yet.</div>') +
-      '<input type="file" id="photoIn" accept="image/*" style="margin-top:6px"></div>'+
-      '<div class="rowbtns"><button class="btn small danger" id="delEntity">Delete site</button></div>'+
-      '<div class="drawer-note">Drag the marker on the map to move this site. Links follow automatically.</div>';
-    wireEdits(s);
-  }
+  const photos = (s.photos||[]).map(p=>'<div><img class="photo" src="'+p+'" alt="Site photo"></div>').join('');
+  dBody.innerHTML =
+    (s.repeaters||[]).map(rptView).join('') +
+    (s.notes?field('Notes',s.notes):'') +
+    photos +
+    '<div class="drawer-note">Coordinates: '+s.lat.toFixed(4)+', '+s.lon.toFixed(4)+'</div>';
+  render();
+}
+
+function openCluster(ci){
+  const c=lastClusters[ci]; if(!c) return;
+  selected={type:'cluster',key:clusterKey(c.members)}; drawer.classList.add('open'); drawer.classList.remove('empty');
+  dKind.textContent='Repeater location — '+c.members.length+' sites';
+  dTitle.textContent=c.members[0].name+' area'; dCall.textContent='';
+  dBody.innerHTML = c.members.map(m=>{
+    const sys=SYS[m.system]||SYS.none;
+    return '<div class="sitehead"><button class="linklike" data-open-site="'+m.id+'">'+esc(m.name)+'</button>'
+         + '<span class="chip" style="color:'+sys.color+'">'+esc(sys.name)+'</span></div>'
+         + (m.repeaters||[]).map(rptView).join('');
+  }).join('') +
+  '<div class="drawer-note">These sites sit close together at this zoom — zoom in on the map to separate them, or click a site name for its full details.</div>';
+  dBody.querySelectorAll('[data-open-site]').forEach(b=>b.onclick=()=>openSite(b.getAttribute('data-open-site')));
   render();
 }
 
@@ -479,60 +447,8 @@ function openLink(i){
   selected={type:'link',id:i}; drawer.classList.add('open'); drawer.classList.remove('empty');
   const a=site(L.a),b=site(L.b);
   dKind.textContent='Repeater link'; dTitle.textContent=(a?a.name:'?')+' ⌁ '+(b?b.name:'?'); dCall.textContent=(SYS[L.system]||SYS.none).name;
-  if(!editing){
-    dBody.innerHTML='<div class="sysnote">This line marks an RF link between the two sites in the '+(SYS[L.system]||SYS.none).name+' system. Turn on Edit mode to change or remove it.</div>';
-  } else {
-    dBody.innerHTML =
-      '<div class="field"><label>System</label><select data-ed="system">'+
-      Object.keys(SYS).map(k=>'<option value="'+k+'"'+(L.system===k?' selected':'')+'>'+SYS[k].name+'</option>').join('')+
-      '</select></div>'+
-      '<div class="rowbtns"><button class="btn small danger" id="delEntity">Delete link</button></div>';
-    dBody.querySelector('[data-ed="system"]').addEventListener('change',e=>{L.system=e.target.value; markDirty(); render();});
-    dBody.querySelector('#delEntity').onclick=()=>{ state.links.splice(i,1); markDirty(); closeDrawer(); };
-  }
+  dBody.innerHTML='<div class="sysnote">This line marks an RF link between the two sites in the '+(SYS[L.system]||SYS.none).name+' system.</div>';
   render();
-}
-
-function wireEdits(obj){
-  dBody.querySelectorAll('[data-ed]').forEach(el=>{
-    el.addEventListener('input',()=>{
-      const k=el.getAttribute('data-ed');
-      const m=k.match(/^r(\d+)\.(\w+)$/);
-      if(m) obj.repeaters[+m[1]][m[2]]=el.value;
-      else obj[k]=el.value;
-      markDirty();
-      if(k==='name'||k==='callsign'||k==='system') render();
-      if(k==='name') dTitle.textContent=obj.name;
-    });
-  });
-  const del=dBody.querySelector('#delEntity');
-  if(del) del.onclick=()=>{
-    if(!confirm('Delete "'+(obj.name)+'"? This also removes its links.')) return;
-    if(selected.type==='club') state.clubs=state.clubs.filter(c=>c.id!==obj.id);
-    else { state.sites=state.sites.filter(s=>s.id!==obj.id); state.links=state.links.filter(L=>L.a!==obj.id&&L.b!==obj.id); }
-    markDirty(); closeDrawer();
-  };
-  const addR=dBody.querySelector('#addRpt');
-  if(addR) addR.onclick=()=>{ obj.repeaters.push({label:obj.name+' — new',type:'VHF Repeater',tx:'',rx:'',tone:''}); markDirty(); openSite(obj.id); };
-  dBody.querySelectorAll('[data-delrpt]').forEach(b=>b.onclick=()=>{ obj.repeaters.splice(+b.getAttribute('data-delrpt'),1); markDirty(); openSite(obj.id); });
-  dBody.querySelectorAll('[data-delphoto]').forEach(b=>b.onclick=()=>{ obj.photos.splice(+b.getAttribute('data-delphoto'),1); markDirty(); openSite(obj.id); });
-  const ph=dBody.querySelector('#photoIn');
-  if(ph) ph.addEventListener('change',()=>{
-    const f=ph.files[0]; if(!f) return;
-    const img=new Image();
-    img.onload=()=>{
-      const max=1000, sc=Math.min(1,max/Math.max(img.width,img.height));
-      const cv=document.createElement('canvas');
-      cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
-      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
-      const uri=cv.toDataURL('image/jpeg',0.8);
-      obj.photos=obj.photos||[]; obj.photos.push(uri);
-      URL.revokeObjectURL(img.src);
-      if(JSON.stringify(state).length>9e6) alert('Heads up: stored photos are getting large. The page has a 16 MB limit — consider removing older photos.');
-      markDirty(); openSite(obj.id);
-    };
-    img.src=URL.createObjectURL(f);
-  });
 }
 
 /* ───────────────────────── map interaction ───────────────────────── */
@@ -541,28 +457,25 @@ function svgPoint(ev){
   const p=pt.matrixTransform(svg.getScreenCTM().inverse());
   return [p.x,p.y];
 }
-let drag=null, justDragged=false, pan=null, pinch=null;
+let justDragged=false, pan=null, pinch=null;
 const ptrs=new Map();
+function openMark(g){
+  if(g.hasAttribute('data-site')) openSite(g.getAttribute('data-site'));
+  else if(g.hasAttribute('data-club')) openClub(g.getAttribute('data-club'));
+  else if(g.hasAttribute('data-cluster')) openCluster(+g.getAttribute('data-cluster'));
+}
 svg.addEventListener('pointerdown',ev=>{
   ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
   if(ptrs.size===2){                       // second finger → pinch zoom
-    drag=null; pan=null;
+    pan=null;
     const [a,b]=[...ptrs.values()];
     pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};
     for(const id of ptrs.keys()){ try{ svg.setPointerCapture(id); }catch(e){} }
     return;
   }
-  const g=ev.target.closest('.mark');
-  if(g){
-    const id=g.getAttribute('data-site')||g.getAttribute('data-club');
-    const obj=g.hasAttribute('data-site')?site(id):club(id);
-    if(!obj) return;
-    if(editing && tool==='link' && g.hasAttribute('data-site')){ handleLinkClick(id); ev.preventDefault(); return; }
-    drag={obj, isSite:g.hasAttribute('data-site'), moved:false, sx:ev.clientX, sy:ev.clientY};
-    if(editing) g.classList.add('dragging');
-    return;
-  }
-  pan={sx:ev.clientX, sy:ev.clientY, vx:view.x, vy:view.y, scale:svg.getScreenCTM().a, moved:false};
+  // a press anywhere can become a pan; if it never moves, it's a click
+  pan={sx:ev.clientX, sy:ev.clientY, vx:view.x, vy:view.y, scale:svg.getScreenCTM().a, moved:false,
+       hit:ev.target.closest('.mark')};
 });
 svg.addEventListener('pointermove',ev=>{
   const p=ptrs.get(ev.pointerId); if(p){ p.x=ev.clientX; p.y=ev.clientY; }
@@ -577,16 +490,6 @@ svg.addEventListener('pointermove',ev=>{
     pinch.d=d;
     return;
   }
-  if(drag && editing){
-    if(!drag.moved && Math.hypot(ev.clientX-drag.sx,ev.clientY-drag.sy)<5) return;
-    if(!drag.moved){ try{ svg.setPointerCapture(ev.pointerId); }catch(e){} }   // capture only once a real drag starts
-    drag.moved=true;
-    const [x,y]=svgPoint(ev);
-    const [lat,lon]=inv(x,y);
-    drag.obj.lat=+lat.toFixed(4); drag.obj.lon=+lon.toFixed(4);
-    render();
-    return;
-  }
   if(pan){
     if(!pan.moved && Math.hypot(ev.clientX-pan.sx,ev.clientY-pan.sy)<5) return;
     if(!pan.moved){ try{ svg.setPointerCapture(ev.pointerId); }catch(e){} }    // capture only once panning starts
@@ -597,14 +500,12 @@ svg.addEventListener('pointermove',ev=>{
 svg.addEventListener('pointerup',ev=>{
   ptrs.delete(ev.pointerId);
   if(pinch){ if(ptrs.size<2){ pinch=null; justDragged=true; } return; }
-  if(pan){ if(pan.moved) justDragged=true; pan=null; return; }
-  if(!drag) return;
-  const d=drag; drag=null;
-  document.querySelectorAll('.mark.dragging').forEach(m=>m.classList.remove('dragging'));
-  if(d.moved){ justDragged=true; markDirty(); return; }
-  d.isSite?openSite(d.obj.id):openClub(d.obj.id);
+  if(!pan) return;
+  const p=pan; pan=null;
+  if(p.moved){ justDragged=true; return; }
+  if(p.hit) openMark(p.hit);
 });
-svg.addEventListener('pointercancel',ev=>{ ptrs.delete(ev.pointerId); pinch=null; pan=null; drag=null; });
+svg.addEventListener('pointercancel',ev=>{ ptrs.delete(ev.pointerId); pinch=null; pan=null; });
 svg.addEventListener('wheel',ev=>{
   ev.preventDefault();
   const [mx,my]=svgPoint(ev);
@@ -618,130 +519,34 @@ svg.addEventListener('click',ev=>{
   const ln=ev.target.closest('.linkline');
   if(ln){ openLink(+ln.getAttribute('data-link')); return; }
   if(ev.target.closest('.mark')) return;
-  if(editing && (tool==='addsite'||tool==='addclub')){
-    const [x,y]=svgPoint(ev); const [lat,lon]=inv(x,y);
-    if(tool==='addsite'){
-      const s={id:uid('s'),name:'New site',system:'none',lat:+lat.toFixed(4),lon:+lon.toFixed(4),notes:'',photos:[],repeaters:[]};
-      state.sites.push(s); setTool(null); markDirty(); openSite(s.id);
-    } else {
-      const c={id:uid('c'),name:'New club',callsign:'CALL',city:'',lat:+lat.toFixed(4),lon:+lon.toFixed(4),meeting:'',mailing:'',website:'',repeaters:'',notes:''};
-      state.clubs.push(c); setTool(null); markDirty(); openClub(c.id);
-    }
-    return;
-  }
   closeDrawer();
 });
 svg.addEventListener('keydown',ev=>{
   if(ev.key!=='Enter'&&ev.key!==' ') return;
   const g=ev.target.closest&&ev.target.closest('.mark'); if(!g) return;
   ev.preventDefault();
-  g.hasAttribute('data-site')?openSite(g.getAttribute('data-site')):openClub(g.getAttribute('data-club'));
+  openMark(g);
 });
 
-function handleLinkClick(id){
-  if(!linkSrc){ linkSrc=id; setHint('Now click the second site to complete the link.'); render(); return; }
-  if(linkSrc===id){ linkSrc=null; setHint(''); render(); return; }
-  const a=site(linkSrc), sys=(a&&a.system)||'none';
-  state.links.push({a:linkSrc,b:id,system:sys});
-  const i=state.links.length-1;
-  linkSrc=null; setTool(null); markDirty(); openLink(i);
-}
-
-/* ───────────────────────── toolbar / nav ───────────────────────── */
-const toolHint=document.getElementById('toolHint');
-const defaultHint='Drag any marker to move it. Click a marker to edit its details. Click a link line to change or delete it.';
-function setHint(t){ toolHint.textContent=t||defaultHint; }
-function setTool(t){
-  tool=(tool===t)?null:t; linkSrc=null;
-  document.querySelectorAll('#tools [data-tool]').forEach(b=>b.classList.toggle('toggled',b.getAttribute('data-tool')===tool));
-  setHint(tool==='addsite'?'Click the map where the new repeater site goes.':
-          tool==='addclub'?'Click the map where the new club goes.':
-          tool==='link'?'Click the first site of the link.':'');
-  render();
-}
-document.querySelectorAll('#tools [data-tool]').forEach(b=>b.onclick=()=>setTool(b.getAttribute('data-tool')));
-
-const editBtn=document.getElementById('editBtn');
-editBtn.onclick=()=>{
-  editing=!editing;
-  document.body.classList.toggle('editing',editing);
-  editBtn.classList.toggle('toggled',editing);
-  editBtn.textContent=editing?'✓ Done editing':'✎ Edit';
-  setTool(null);
-  if(selected){ // re-open panel in the new mode
-    if(selected.type==='club') openClub(selected.id);
-    else if(selected.type==='site') openSite(selected.id);
-    else openLink(selected.id);
-  }
-  syncChrome();
-};
-
+/* ───────────────────────── nav ───────────────────────── */
 const discordBtn=document.getElementById('discordBtn');
-const discordUrlIn=document.getElementById('discordUrl');
 function syncDiscord(){
   const u=(state.discord&&state.discord.url||'').trim();
   discordBtn.href=u||'#';
+  discordBtn.style.display=u?'inline-flex':'none';   // hidden until an invite URL is set in the data
   document.getElementById('discordLabel').textContent=(state.discord&&state.discord.label)||'SD Ham Discord';
-  discordUrlIn.value=u;
 }
-discordBtn.addEventListener('click',e=>{
-  if(!(state.discord&&state.discord.url)){
-    e.preventDefault();
-    alert(editing?'Paste the Discord invite URL in the toolbar field, then hit Save.':'No Discord invite set yet — an editor can add one in Edit mode.');
-  }
-});
-discordUrlIn.addEventListener('input',()=>{ state.discord.url=discordUrlIn.value.trim(); markDirty(); syncDiscord(); });
 
 document.querySelectorAll('#legend [data-layer]').forEach(cb=>cb.addEventListener('change',()=>{
   layers[cb.getAttribute('data-layer')]=cb.checked; render();
 }));
 
 function syncChrome(){
-  const nav=document.getElementById('nav').offsetHeight+(editing?document.getElementById('tools').offsetHeight:0);
-  document.documentElement.style.setProperty('--chrome',nav+'px');
+  document.documentElement.style.setProperty('--chrome',document.getElementById('nav').offsetHeight+'px');
 }
 window.addEventListener('resize',syncChrome);
 
-/* ───────────────────────── saving ───────────────────────── */
-const saveBtn=document.getElementById('saveBtn'), saveMsg=document.getElementById('saveMsg');
-function markDirty(){ if(readOnly) return; dirty=true; saveBtn.classList.add('dirty'); saveMsg.textContent='Unsaved changes'; }
-window.addEventListener('beforeunload',e=>{ if(dirty){ e.preventDefault(); e.returnValue=''; } });
-
-async function saveArtifact(){
-  const artifact=await window.claude.use('artifact');
-  if(!artifact) throw {code:'not_granted'};
-  const res=await fetch(location.pathname,{cache:'no-store'});
-  if(!res.ok) throw {code:'upstream_error',message:'could not read page source'};
-  let src=await res.text();
-  const json=JSON.stringify(state).replace(/</g,'\\u003c');
-  const re=/(<script type="application\/json" id="seed">)[\s\S]*?(<\/script>)/;
-  if(!re.test(src)) throw {code:'upstream_error',message:'seed block not found'};
-  src=src.replace(re,'$1'+json.replace(/\$/g,'$$$$')+'$2');
-  await artifact.publish(src);
-  saveMsg.textContent='Saved — reloading…';
-}
-
-saveBtn.onclick=async()=>{
-  if(!dirty) return;
-  if(!IS_ARTIFACT){ saveMsg.textContent='Preview only — the live site is read-only; update data.json in the repo instead.'; return; }
-  saveBtn.disabled=true; saveMsg.textContent='Saving…';
-  try{
-    await saveArtifact();
-    dirty=false;
-  }catch(err){
-    const code=err&&err.code||'upstream_error';
-    if(code==='conflict'){ saveMsg.textContent='Someone else saved first — reloading their version…'; dirty=false; }
-    else if(code==='not_writer'||code==='not_granted'||code==='consent_required'){
-      readOnly=true; dirty=false; saveBtn.classList.remove('dirty');
-      saveMsg.textContent='This view is read-only — changes won’t be saved.';
-    }
-    else if(code==='too_large'){ saveMsg.textContent='Too large to save — remove some photos and try again.'; }
-    else{ saveMsg.textContent='Save failed — try again in a moment.'; }
-  }finally{ saveBtn.disabled=false; if(!dirty&&!readOnly) saveBtn.classList.remove('dirty'); }
-};
-
 /* ───────────────────────── boot ───────────────────────── */
-if(!CAN_EDIT) editBtn.style.display='none';
 if(!IS_ARTIFACT){
   // data.json is the source of truth on static hosting; the embedded seed is the fallback
   fetch(DATA_PATH+'?t='+Date.now(),{cache:'no-store'})
