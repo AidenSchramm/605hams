@@ -679,6 +679,8 @@ function renderEmptyDrawer(){
   dTitle.textContent='Explore the map';
   dCall.textContent='';
   const u=discordUrl();
+  const ticker=document.getElementById("ticker");
+  if(ticker) ticker.href=u;
   dBody.innerHTML =
     '<div class="welcome"><b>New to the hobby, new in town, or just curious?</b> South Dakota clubs welcome '
   + 'visitors — you do not need a licence to walk into a meeting. Find the one near you and go say hello.</div>'
@@ -935,6 +937,8 @@ lt.onclick=()=>{ const o=lg.classList.toggle('open'); lt.setAttribute('aria-expa
 const ticker=document.getElementById('ticker'), tickerTrack=document.getElementById('tickerTrack');
 function syncDiscord(){
   const u=discordUrl();
+  const ticker=document.getElementById("ticker");
+  if(ticker) ticker.href=u;
   ticker.href=u||'#';
   ticker.style.display=u?'flex':'none';
   if(!u) return;
