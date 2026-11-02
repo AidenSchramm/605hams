@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#c85a1f">
-<title>605 Ham Map | South Dakota amateur radio clubs &amp; repeaters</title>
-<meta name="description" content="Interactive map of South Dakota amateur radio clubs and linked repeater systems: SD-LINK, Prairie Dog ARC, and the Northern Hills linked system. Frequencies, tones, meeting times, and club contacts.">
+<title>605 Ham Map — South Dakota amateur radio clubs &amp; repeaters</title>
+<meta name="description" content="Interactive map of South Dakota amateur radio clubs and linked repeater systems — SD-LINK, Prairie Dog ARC, and the Northern Hills linked system. Frequencies, tones, meeting times, and club contacts.">
 <link rel="canonical" href="https://605hams.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="605 Ham Map">
-<meta property="og:title" content="605 Ham Map: South Dakota amateur radio">
+<meta property="og:title" content="605 Ham Map — South Dakota amateur radio">
 <meta property="og:description" content="Every South Dakota ham club and linked repeater system on one map. Frequencies, tones, meeting times, and contacts.">
 <meta property="og:url" content="https://605hams.com/">
 <meta name="twitter:card" content="summary_large_image">
@@ -23,6 +23,7 @@
   --bg:#eef0ea; --panel:#f8f9f5; --panel2:#eef1e9; --ink:#242b2b; --muted:#5f6a67; --line:#d2d8cc;
   --land:#e4e9dd; --land-stroke:#8d9684; --water:#9dc0d2; --water-line:#8fb6ca; --road:#c2bda8; --county:#c5ccba;
   --clubs:#2668a2; --sdlink:#c85a1f; --pdarc:#2e8757; --nh:#7a5fae; --indep:#7c8680;
+  --club-mark:#edab15; --club-edge:#6b4a02;
   --accent:#c85a1f; --ok:#2e8757; --danger:#b3452f; --warn-bg:#f6e9e3;
   --chip-bg:#e7eae1; --shadow:0 6px 24px rgba(30,40,35,.14);
   --discord:#5865F2; --discord-hi:#4752c4; --discord-ink:#ffffff; --map-pin:#d0552f;
@@ -33,6 +34,7 @@
     --bg:#12161a; --panel:#1a2027; --panel2:#151b21; --ink:#e2e8e4; --muted:#94a19c; --line:#2b333b;
     --land:#1d242c; --land-stroke:#4d5c68; --water:#1c3a4a; --water-line:#2b5a70; --road:#3d4550; --county:#2c353e;
     --clubs:#5ea3d8; --sdlink:#eb8a4a; --pdarc:#54b384; --nh:#a78ce0; --indep:#8b9791;
+    --club-mark:#ffc63f; --club-edge:#5a3d00;
     --accent:#eb8a4a; --ok:#54b384; --danger:#e07a5f; --warn-bg:#33231e;
     --chip-bg:#242c34; --shadow:0 6px 24px rgba(0,0,0,.45);
     --discord:#5865F2; --discord-hi:#6b76f5; --map-pin:#eb8a4a;
@@ -43,6 +45,7 @@
   --bg:#12161a; --panel:#1a2027; --panel2:#151b21; --ink:#e2e8e4; --muted:#94a19c; --line:#2b333b;
   --land:#1d242c; --land-stroke:#4d5c68; --water:#1c3a4a; --water-line:#2b5a70; --road:#3d4550; --county:#2c353e;
   --clubs:#5ea3d8; --sdlink:#eb8a4a; --pdarc:#54b384; --nh:#a78ce0; --indep:#8b9791;
+  --club-mark:#ffc63f; --club-edge:#5a3d00;
   --accent:#eb8a4a; --ok:#54b384; --danger:#e07a5f; --warn-bg:#33231e;
   --chip-bg:#242c34; --shadow:0 6px 24px rgba(0,0,0,.45);
   --discord:#5865F2; --discord-hi:#6b76f5; --map-pin:#eb8a4a;
@@ -77,9 +80,24 @@ img{max-width:100%}
 .btn.maps{display:inline-flex;background:var(--panel2);color:var(--ink)}
 .btn.maps svg{flex:none;color:var(--map-pin)}
 .btn.maps:hover{border-color:var(--muted)}
-#discordBtn{font-size:15px;padding:9px 18px}
-#discordBtn .full{display:inline}
-#discordBtn .short{display:none}
+
+/* ── scrolling Discord banner ── */
+#ticker{flex:none;display:flex;align-items:center;height:38px;overflow:hidden;position:relative;
+  background:var(--discord);color:#fff;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.18)}
+#ticker:hover{background:var(--discord-hi)}
+#ticker .track{display:flex;white-space:nowrap;animation:tick 34s linear infinite;will-change:transform}
+#ticker:hover .track,#ticker:focus-visible .track{animation-play-state:paused}
+#ticker .bit{display:inline-flex;align-items:center;gap:10px;padding:0 30px;
+  font-weight:600;font-size:14.5px;letter-spacing:.015em}
+#ticker .bit svg{flex:none;opacity:.95}
+#ticker .bit::after{content:"";width:5px;height:5px;border-radius:50%;
+  background:rgba(255,255,255,.5);margin-left:30px}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){
+  #ticker .track{animation:none;width:100%;justify-content:center}
+  #ticker .bit:not(:first-child){display:none}
+  #ticker .bit::after{display:none}
+}
 
 /* ── layout ── */
 #stage{flex:1;min-height:0;position:relative;display:flex}
@@ -102,7 +120,7 @@ svg#map text{user-select:none}
 #legend label{display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer}
 #legend input{width:auto;margin:0}
 .swatch{width:12px;height:12px;border-radius:50%;flex:none}
-.swatch.club{border-radius:2px;transform:rotate(45deg)}
+.swatch.club{width:11px;height:19px;background:none;border-radius:0;overflow:visible}
 
 /* ── drawer ── */
 #drawer{flex:0 0 min(410px,38%);background:var(--panel);border-left:1px solid var(--line);
@@ -118,7 +136,7 @@ svg#map text{user-select:none}
 #drawer .body{padding:14px 18px 34px;display:flex;flex-direction:column;gap:14px}
 .field label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .field .val{white-space:pre-wrap}
-.field .val:empty::after{content:"Not listed yet";color:var(--muted)}
+.field .val:empty::after{content:"—";color:var(--muted)}
 
 /* logo plate */
 .logo{background:var(--plate);border:1px solid var(--line);border-radius:11px;padding:14px;
@@ -182,14 +200,18 @@ a.res:hover b{text-decoration:underline}
 .clubrow .meta small{color:var(--muted);font-family:"IBM Plex Mono",monospace;font-size:12px}
 
 /* ── map marks ── */
-.site-dot,.club-dot{stroke:var(--panel);stroke-width:1.6}
+.site-dot{stroke:var(--panel);stroke-width:1.6}
+.club-dot{filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
 .mark{cursor:pointer}
 .mark text{font-family:Barlow,sans-serif;font-weight:600;fill:var(--ink);paint-order:stroke;
            stroke:var(--bg);stroke-width:.26em;stroke-linejoin:round}
 .mark text.cnum{font-family:Barlow,sans-serif;font-weight:700;fill:#fff;stroke:none;paint-order:normal}
 .linkline{fill:none;stroke-width:2.2;stroke-linecap:round;opacity:.85;cursor:pointer}
 .linkline.halo{stroke-width:12;opacity:0}
-.mark.selected .site-dot,.mark.selected .club-dot{stroke:var(--ink);stroke-width:2.6}
+.mark.selected .site-dot{stroke:var(--ink);stroke-width:2.6}
+.mark.selected .club-dot{filter:drop-shadow(0 0 0 2px var(--ink)) drop-shadow(0 1px 2px rgba(0,0,0,.5));
+  outline:none}
+.mark.selected .club-dot path:first-child{stroke:var(--ink);stroke-width:2.6;paint-order:stroke}
 #map .citylabel{font-family:Barlow,sans-serif;font-weight:500;fill:var(--muted);paint-order:stroke;
                 stroke:var(--land);stroke-width:.22em;stroke-linejoin:round}
 #map .statelabel{font-family:"Barlow Condensed","Barlow",sans-serif;font-weight:700;
@@ -200,13 +222,11 @@ a.res:hover b{text-decoration:underline}
   #brand h1{font-size:20px}
   #clubsBtn{padding:8px 12px}
   #brand .sub{display:none}
-  #discordBtn{font-size:14px;padding:8px 13px}
-  #discordBtn .full{display:none}
-  #discordBtn .short{display:inline}
-  #drawer{position:absolute;left:0;right:0;bottom:0;top:auto;height:min(70%,560px);width:100%;flex:none;
+        #drawer{position:absolute;left:0;right:0;bottom:0;top:auto;height:min(62%,560px);width:100%;flex:none;
           border-left:0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;box-shadow:var(--shadow);
           transform:translateY(calc(100% + 20px));transition:transform .22s ease}
   #drawer.open{transform:none}
+  #drawer.empty #closeDrawer{display:block}   /* phones need a way back to the map */
   #drawer .head{border-radius:14px 14px 0 0}
   #legend{left:10px;bottom:10px;max-width:none;font-size:13px}
   #legend:not(.open) #legendBody{display:none}
@@ -226,11 +246,12 @@ a.res:hover b{text-decoration:underline}
   </div>
   <div class="spacer"></div>
   <button id="clubsBtn" class="btn accent" type="button">Find a Club</button>
-  <a id="discordBtn" class="btn discord" href="#" target="_blank" rel="noopener">
-    <svg width="19" height="15" viewBox="0 0 127 96" fill="currentColor" aria-hidden="true"><path id="dicon" d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z"/></svg>
-    <span id="discordLabel"><span class="full">Join the SD Ham Discord</span><span class="short">Discord</span></span>
-  </a>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><path id="dicon" d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z"/></svg>
 </nav>
+
+<a id="ticker" href="#" target="_blank" rel="noopener" aria-label="Join the South Dakota Ham Radio Discord">
+  <div class="track" id="tickerTrack"></div>
+</a>
 
 <div id="stage">
   <div id="mapwrap">
@@ -244,11 +265,10 @@ a.res:hover b{text-decoration:underline}
       <button id="legendToggle" type="button" aria-expanded="false">Layers</button>
       <div id="legendBody">
         <h3>Layers</h3>
-        <label><input type="checkbox" data-layer="clubs" checked><span class="swatch club" style="background:var(--clubs)"></span>Clubs</label>
+        <label><input type="checkbox" data-layer="clubs" checked><svg class="swatch club" viewBox="-7 -13 14 26" aria-hidden="true"><path d="M0 -13 L6.8 0 L0 13 L-6.8 0 Z" fill="#111" stroke="#111" stroke-width="2.2" stroke-linejoin="round"/><path d="M0 -7.8 L4.1 0 L0 7.8 L-4.1 0 Z" fill="#FFE500" stroke="#FFE500" stroke-width="1.4" stroke-linejoin="round"/></svg>Clubs</label>
         <label><input type="checkbox" data-layer="sdlink" checked><span class="swatch" style="background:var(--sdlink)"></span>SD-LINK</label>
         <label><input type="checkbox" data-layer="pdarc" checked><span class="swatch" style="background:var(--pdarc)"></span>Prairie Dog ARC</label>
         <label><input type="checkbox" data-layer="nh" checked><span class="swatch" style="background:var(--nh)"></span>Northern Hills</label>
-        <label><input type="checkbox" data-layer="none" checked><span class="swatch" style="background:var(--indep)"></span>Independent / club</label>
       </div>
     </div>
   </div>
@@ -268,7 +288,7 @@ a.res:hover b{text-decoration:underline}
 <script type="application/json" id="cities">[["Sioux Falls",43.6017,-96.7051,1],["Rapid City",44.077,-103.2003,1],["Aberdeen",45.4661,-98.4856,1],["Watertown",44.9043,-97.124,1],["Brookings",44.3056,-96.7914,1],["Mitchell",43.7109,-98.027,1],["Pierre",44.3695,-100.3211,1],["Yankton",42.8821,-97.3986,1],["Huron",44.359,-98.2163,1],["Spearfish",44.4946,-103.865,2],["Vermillion",42.7951,-96.9258,2],["Sturgis",44.4131,-103.4772,2],["Belle Fourche",44.6723,-103.8396,2],["Mobridge",45.5407,-100.4315,2],["Chamberlain",43.7953,-99.3118,2],["Hot Springs",43.4223,-103.4766,2],["Custer",43.7409,-103.6185,2],["Madison",44.0054,-97.1149,2],["Winner",43.3555,-99.8619,2],["Milbank",45.2061,-96.6255,2],["Redfield",44.8719,-98.5112,2],["Lead",44.349,-103.7698,2],["Deadwood",44.3566,-103.6999,2],["Sisseton",45.6644,-97.0232,2],["Miller",44.4966,-98.9894,2],["Philip",44.055,-101.6876,3],["Murdo",43.8961,-100.7121,3],["Salem",43.7356,-97.3797,3],["Colman",43.9558,-96.8189,3],["Toronto",44.5786,-96.7077,3],["Wessington Springs",44.0699,-98.6116,3],["Springfield",42.8687,-97.9288,3],["Wagner",43.0819,-98.2819,3],["Edgemont",43.2874,-103.811,3],["Faith",44.9926,-102.0541,3],["Lemmon",45.9159,-102.1928,3],["Kadoka",43.8446,-101.5523,3],["Gregory",43.2269,-99.4302,3],["Britton",45.8023,-97.7418,3],["Webster",45.3226,-97.5153,3],["Clark",44.878,-97.7265,3],["Platte",43.4024,-98.8897,3],["Gettysburg",45.0259,-99.9766,3],["Eagle Butte",45.0239,-101.1042,3],["Martin",43.1785,-101.7408,3],["Wall",43.9812,-102.2245,3],["Hill City",43.9377,-103.5782,3],["Newell",44.741,-103.3914,3],["Flandreau",44.0658,-96.6222,3],["Canton",43.3038,-96.5938,3],["Parkston",43.3978,-97.9678,3],["Elk Point",42.7382,-96.687,3],["Beresford",43.0874,-96.7813,3],["De Smet",44.3852,-97.5634,3],["Highmore",44.5326,-99.4543,3],["Onida",44.7125,-100.0957,3],["Bison",45.5161,-102.4827,3],["Buffalo",45.574,-103.5826,3],["White River",43.5666,-100.7449,3],["Timber Lake",45.3927,-101.0351,3],["Mission",43.285,-100.5954,3],["Pine Ridge",43.1124,-102.5984,3],["Rosebud",43.23,-100.855,3],["Dupree",45.0079,-101.6337,3],["Selby",45.4786,-100.0541,3],["Ipswich",45.4489,-99.0148,3],["Groton",45.4503,-98.1058,3],["Arlington",44.3668,-97.0687,3],["Volga",44.3224,-96.9251,3],["Garretson",43.7162,-96.5196,3],["Dell Rapids",43.8228,-96.7223,3],["Tea",43.4711,-96.8177,3],["Harrisburg",43.446,-96.6864,3],["Brandon",43.5964,-96.5782,3],["Hartford",43.6155,-96.9501,3],["Box Elder",44.1199,-103.0682,3]]</script>
 <!-- data.json is the source of truth on 605hams.com; this seed is the offline/preview fallback.
      Regenerate it after editing data.json:  python3 tools/sync_seed.py  -->
-<script type="application/json" id="seed">{"discord":{"url":"https://605hams.com/discord","label":"Join the 605 Hams Discord"},"systems":{"sdlink":{"name":"SD-LINK","short":"SD-LINK"},"pdarc":{"name":"Prairie Dog ARC","short":"PDARC"},"nh":{"name":"Northern Hills linked system","short":"Northern Hills"},"none":{"name":"Independent / club","short":"Independent"}},"clubs":[{"id":"c1","name":"Black Hills Amateur Radio Club","callsign":"W0BLK","city":"Rapid City","lat":44.077,"lon":-103.2003,"logo":"logos/w0blk.webp","address":"South Dakota Mines, EEP Building (usually room EEP251A), 501 E St Joseph St, Rapid City, SD 57701","meeting":"3rd Friday, 7:00 PM. Social hour starts at 6:00 PM, with a program after the meeting.","mailing":"groups.io/g/W0BLK","website":"https://www.w0blk.com","discord":""},{"id":"c2","name":"Brookings Radio Research Club","callsign":"W0BXO","city":"Brookings","lat":44.3056,"lon":-96.7914,"logo":"logos/w0bxo.webp","address":"Brookings Public Safety Center, 307 3rd Ave, Brookings, SD 57006","meeting":"1st Monday, 7:00 PM","mailing":"Contact the club via w0bxo.org to be added","website":"https://w0bxo.org","discord":""},{"id":"c3","name":"Hot Springs Amateur Radio Club","callsign":"K0HS","city":"Hot Springs","lat":43.4223,"lon":-103.4766,"logo":"logos/k0hs.webp","address":"South Annex Building, 709 Jensen Hwy, Hot Springs, SD 57747","meeting":"2nd Tuesday, 6:30 PM","mailing":"Reach out to the club through its website","website":"https://k0hs.net","discord":""},{"id":"c4","name":"Hub City Amateur Radio Club","callsign":"W0ABR","city":"Aberdeen","lat":45.459,"lon":-98.47,"logo":"logos/w0abr.webp","address":"Elks Lodge, 705 Circle Drive, Aberdeen, SD 57401","meeting":"See hc-arc.net for the current meeting schedule. All are welcome.","mailing":"marvind@abe.midco.net","website":"https://hc-arc.net","discord":""},{"id":"c5","name":"Huron Amateur Radio Association","callsign":"W0NOZ","city":"Huron","lat":44.359,"lon":-98.2163,"logo":"logos/w0noz.webp","address":"Huron City Hall, 239 Wisconsin Ave SW, Huron, SD 57350","meeting":"3rd Thursday, 7:00 PM in Conference Room 14 (use the south door). Visitors and guests are always welcome.","mailing":"wb0ulx@arrl.net","website":"https://huronarc.info","discord":""},{"id":"c6","name":"Lake Area Radio Klub","callsign":"W0WTN","city":"Watertown","lat":44.896,"lon":-97.108,"logo":"logos/w0wtn.webp","address":"Watertown Salvation Army, 621 4th Street SE, Watertown, SD 57201","meeting":"1st Thursday, 7:00 PM","mailing":"groups.io/g/LARK-General","website":"https://www.w0wtn.org","discord":""},{"id":"c7","name":"Northern Hills Amateur Radio Club","callsign":"KC0BXH","city":"Belle Fourche","lat":44.6723,"lon":-103.8396,"logo":"","address":"","meeting":"","mailing":"","website":"","discord":""},{"id":"c8","name":"Pierre Amateur Radio Club","callsign":"W0PIR","city":"Pierre","lat":44.38,"lon":-100.343,"logo":"logos/w0pir.webp","address":"Fire Station 4, 802 N Pierce Ave, Pierre, SD 57501","meeting":"2nd Thursday, 7:00 PM","mailing":"Reach out to the club through its website","website":"https://sdhams.net","discord":""},{"id":"c9","name":"Prairie Dog Amateur Radio Club","callsign":"W0OJY","city":"Yankton","lat":42.8821,"lon":-97.3986,"logo":"logos/w0ojy.webp","address":"Christ the King Lutheran Church, 305 W 25th St, Yankton, SD 57078","meeting":"2nd Tuesday, 7:00 PM","mailing":"Contact the club via pdarc.org to be added","website":"https://pdarc.org","discord":""},{"id":"c10","name":"Sioux Empire Amateur Radio Club","callsign":"W0ZWY","city":"Sioux Falls","lat":43.5573,"lon":-96.736,"logo":"logos/w0zwy.webp","address":"Minnehaha County Emergency Management Building, 608 N Sigler Ave, Sioux Falls, SD 57104","meeting":"1st Tuesday, 7:30 PM","mailing":"w0zwy.org","website":"https://w0zwy.org","discord":"https://discord.w0zwy.org"}],"sites":[{"id":"s1","name":"Sioux Falls","system":"sdlink","lat":43.578,"lon":-96.703,"notes":"","photos":["photos/sioux-falls-rack.webp"],"repeaters":[{"label":"Sioux Falls UHF","type":"UHF Repeater","out":"444.825","in":"449.825","tone":"103.5","owner":"KD0ZP"}]},{"id":"s2","name":"Turkey Ridge","system":"sdlink","lat":43.262,"lon":-97.142,"notes":"","photos":[],"repeaters":[{"label":"Turkey Ridge UHF","type":"UHF Repeater","out":"444.975","in":"449.975","tone":"146.2","owner":"W0SD"}]},{"id":"s3","name":"Colman","system":"sdlink","lat":43.956,"lon":-96.819,"notes":"","photos":[],"repeaters":[{"label":"Colman UHF","type":"UHF Repeater","out":"443.225","in":"448.225","tone":"146.2","owner":"KB0WSV"}]},{"id":"s4","name":"Salem (W0SD)","system":"sdlink","lat":43.736,"lon":-97.38,"notes":"Hub of the SD-LINK east side.","photos":[],"repeaters":[{"label":"Salem W0SD UHF","type":"UHF Repeater","out":"442.075","in":"447.075","tone":"103.5","owner":"W0SD"}]},{"id":"s5","name":"Toronto","system":"sdlink","lat":44.579,"lon":-96.708,"notes":"","photos":[],"repeaters":[{"label":"Toronto VHF","type":"VHF Repeater","out":"146.775","in":"146.175","tone":"146.2","owner":"KC0OVC"}]},{"id":"s6","name":"Watertown","system":"sdlink","lat":44.921,"lon":-97.135,"notes":"","photos":[],"repeaters":[{"label":"Watertown UHF","type":"UHF Repeater","out":"442.000","in":"447.000","tone":"146.2","owner":"K0TY"}]},{"id":"s7","name":"Wessington Springs","system":"sdlink","lat":44.081,"lon":-98.569,"notes":"Trustee KB0UZJ. The site is also home to an internet controlled remote station: an Elecraft K3S with a KPA500 amplifier and KAT500 tuner for HF, a 2 m LDMOS amplifier, and a rotatable antenna. It can be operated over the internet by arrangement with the club.","photos":["photos/wessington-remote-hf.webp","photos/wessington-remote-amp.webp","photos/wessington-remote-rotator.webp"],"repeaters":[{"label":"Wessington Springs VHF","type":"VHF Repeater","out":"147.345","in":"147.945","tone":"146.2","owner":"AA0F"},{"label":"Wessington Springs UHF","type":"UHF Repeater","out":"444.650","in":"449.650","tone":""}]},{"id":"s8","name":"Crandall Hill","system":"sdlink","lat":45.32,"lon":-97.72,"notes":"Sweetwater Lake, Day County.","photos":[],"repeaters":[{"label":"Crandall Hill VHF","type":"VHF Repeater","out":"146.790","in":"146.190","tone":"146.2","owner":"N0AHL"}]},{"id":"s9","name":"Reliance","system":"sdlink","lat":43.879,"lon":-99.603,"notes":"","photos":[],"repeaters":[{"label":"Reliance VHF","type":"VHF Repeater","out":"146.940","in":"146.340","tone":"146.2","owner":"N0NPO"}]},{"id":"s10","name":"Murdo","system":"sdlink","lat":43.896,"lon":-100.712,"notes":"","photos":[],"repeaters":[{"label":"Murdo VHF","type":"VHF Repeater","out":"147.300","in":"147.900","tone":"146.2","owner":"AA0CT"},{"label":"Murdo UHF","type":"UHF Repeater","out":"443.450","in":"448.450","tone":"103.5","owner":"AA0CT"}]},{"id":"s11","name":"Pierre","system":"sdlink","lat":44.395,"lon":-100.37,"notes":"","photos":[],"repeaters":[{"label":"Pierre VHF","type":"VHF Repeater","out":"146.730","in":"146.130","tone":"146.2","owner":"KD0S","note":"sdhams.com also lists 146.730 as a Pierre ARC machine."}]},{"id":"s12","name":"Philip","system":"sdlink","lat":44.039,"lon":-101.665,"notes":"","photos":[],"repeaters":[{"label":"Philip VHF","type":"VHF Repeater","out":"147.375","in":"147.975","tone":"146.2","owner":"N0OMP"}]},{"id":"s13","name":"Terry Peak","system":"sdlink","lat":44.3269,"lon":-103.8422,"notes":"","photos":[],"repeaters":[{"label":"Terry Peak VHF","type":"VHF Repeater","out":"147.030","in":"147.630","tone":"146.2","owner":"WB0JEK"},{"label":"Terry Peak UHF","type":"UHF Repeater","out":"443.650","in":"448.650","tone":"131.8","owner":"WB0JEK"}]},{"id":"s14","name":"Rapid City","system":"sdlink","lat":44.105,"lon":-103.26,"notes":"","photos":[],"repeaters":[{"label":"Rapid City UHF","type":"UHF Repeater","out":"444.750","in":"449.750","tone":"146.2","owner":"KE0QIB"}]},{"id":"s15","name":"Yankton","system":"pdarc","lat":42.8785,"lon":-97.382,"notes":"Avera Sacred Heart Hospital, Yankton.","photos":[],"repeaters":[{"label":"Yankton VHF","type":"VHF Repeater","out":"146.850","in":"146.250","tone":"146.2","owner":"W0OJY"}]},{"id":"s16","name":"Vermillion","system":"pdarc","lat":42.79,"lon":-96.98,"notes":"Cement Plant site, Vermillion.","photos":[],"repeaters":[{"label":"Vermillion VHF","type":"VHF Repeater","out":"147.375","in":"147.975","tone":"146.2","owner":"W0OJY"}]},{"id":"s17","name":"Springfield","system":"pdarc","lat":42.9,"lon":-97.905,"notes":"Norwegian Hill, near Springfield.","photos":[],"repeaters":[{"label":"Springfield VHF","type":"VHF Repeater","out":"147.210","in":"147.810","tone":"146.2","owner":"W0OJY"}]},{"id":"s18","name":"Spencer, NE","system":"pdarc","lat":42.874,"lon":-98.703,"notes":"Boyd County, Nebraska.","photos":[],"repeaters":[{"label":"Spencer NE VHF","type":"VHF Repeater","out":"147.330","in":"147.930","tone":"131.8","owner":"N0TO","note":"131.8 encode and decode."}]},{"id":"s19","name":"Radar Hill","system":"nh","lat":44.0722,"lon":-103.1594,"notes":"Radar Hill, east of Rapid City.","photos":[],"repeaters":[{"label":"Radar Hill VHF","type":"VHF Repeater","out":"146.940","in":"146.340","tone":"146.2","owner":"W0BLK"}]},{"id":"s20","name":"Terry Peak VHF","system":"nh","lat":44.33,"lon":-103.83,"notes":"Terry Peak, near Lead.","photos":[],"repeaters":[{"label":"Terry Peak VHF","type":"VHF Repeater","out":"146.760","in":"146.160","tone":"146.2","owner":"KC0BXH"}]},{"id":"s21","name":"Bear Mountain","system":"nh","lat":43.886,"lon":-103.774,"notes":"Bear Mountain, north of Custer.","photos":[],"repeaters":[{"label":"Bear Mountain VHF","type":"VHF Repeater","out":"146.850","in":"146.250","tone":"146.2","owner":"KC0BXH"},{"label":"Bear Mountain 6 Meter","type":"6m Repeater","out":"53.170","in":"52.170","tone":"146.2","owner":"K0HS","note":"146.2 encode only."}]},{"id":"s22","name":"New Underwood","system":"sdlink","lat":44.1006,"lon":-102.8352,"notes":"","photos":[],"repeaters":[{"label":"New Underwood VHF","type":"VHF Repeater","out":"146.970","in":"146.370","tone":"","owner":"KA1OTT"}]},{"id":"s23","name":"Sioux Falls (W0ZWY)","system":"none","lat":43.55,"lon":-96.728,"notes":"Repeaters managed by the Sioux Empire ARC.","photos":[],"repeaters":[{"label":"Sioux Falls UHF","type":"UHF Repeater","out":"444.900","in":"449.900","tone":"146.2","owner":"KD0ZP","note":"EchoLink."},{"label":"Sioux Falls 220","type":"1.25m Repeater","out":"223.860","in":"222.260","tone":"146.2","owner":"W0FSD"},{"label":"Sioux Falls Fusion","type":"Digital","out":"444.200","in":"449.200","tone":"82.5","owner":"W0ZWY","note":"C4FM Fusion."},{"label":"Sioux Falls VHF","type":"VHF Repeater","out":"146.895","in":"146.295","tone":"146.2","owner":"W0ZWY","note":"Multi-site receive."},{"label":"Sioux Falls D-Star","type":"Digital","out":"442.750","in":"447.750","tone":"","owner":"W0ZWY","note":"D-Star, Module B."}]},{"id":"s24","name":"Brookings (W0BXO)","system":"none","lat":44.309,"lon":-96.79,"notes":"","photos":[],"repeaters":[{"label":"Brookings VHF","type":"VHF Repeater","out":"146.940","in":"146.340","tone":"110.9","owner":"W0BXO"}]},{"id":"s25","name":"Watertown (W0WTN)","system":"none","lat":44.9,"lon":-97.11,"notes":"","photos":[],"repeaters":[{"label":"Watertown VHF","type":"VHF Repeater","out":"146.850","in":"146.250","tone":"67.0","owner":"W0WTN","note":"67.0 Hz transmitted on the output."}]},{"id":"s26","name":"Aberdeen","system":"none","lat":45.462,"lon":-98.49,"notes":"","photos":[],"repeaters":[{"label":"W0ABR 2 Meter","type":"VHF Repeater","out":"146.910","in":"146.310","tone":"","owner":"W0ABR"},{"label":"WB0JZZ C4FM","type":"Digital","out":"443.400","in":"448.400","tone":"146.2","owner":"WB0JZZ","note":"70 cm C4FM."}]},{"id":"s27","name":"Pierre (W0PIR)","system":"none","lat":44.368,"lon":-100.348,"notes":"","photos":[],"repeaters":[{"label":"Pierre VHF","type":"VHF Repeater","out":"145.350","in":"144.750","tone":"146.2","owner":"W0PIR"}]},{"id":"s28","name":"Battle Mountain","system":"none","lat":43.44,"lon":-103.43,"notes":"Near Hot Springs.","photos":[],"repeaters":[{"label":"Battle Mountain VHF","type":"VHF Repeater","out":"146.700","in":"146.100","tone":"146.2","owner":"K0HS"}]},{"id":"s29","name":"Mount Coolidge","system":"none","lat":43.72,"lon":-103.475,"notes":"Custer State Park.","photos":[],"repeaters":[{"label":"Mount Coolidge VHF","type":"VHF Repeater","out":"147.120","in":"147.720","tone":"146.2","owner":"K0HS"}]},{"id":"s30","name":"Custer","system":"none","lat":43.741,"lon":-103.6185,"notes":"Downtown Custer.","photos":[],"repeaters":[{"label":"Custer VHF","type":"VHF Repeater","out":"147.090","in":"147.690","tone":"146.2","owner":"K0HS"}]},{"id":"s31","name":"Pay Dirt","system":"none","lat":43.78,"lon":-103.7,"notes":"West of Custer.","photos":[],"repeaters":[{"label":"Pay Dirt VHF","type":"VHF Repeater","out":"147.150","in":"147.750","tone":"146.2","owner":"K0HS"}]},{"id":"s32","name":"Edgemont","system":"none","lat":43.2874,"lon":-103.811,"notes":"","photos":[],"repeaters":[{"label":"Edgemont GMRS","type":"GMRS","out":"462.550","in":"467.550","tone":"141.3","owner":"K0HS","note":"Needs a GMRS licence rather than a ham licence."}]}],"links":[{"a":"s4","b":"s1","system":"sdlink"},{"a":"s4","b":"s2","system":"sdlink"},{"a":"s4","b":"s3","system":"sdlink"},{"a":"s4","b":"s5","system":"sdlink"},{"a":"s4","b":"s7","system":"sdlink"},{"a":"s5","b":"s6","system":"sdlink"},{"a":"s7","b":"s8","system":"sdlink"},{"a":"s7","b":"s9","system":"sdlink"},{"a":"s9","b":"s10","system":"sdlink"},{"a":"s10","b":"s11","system":"sdlink"},{"a":"s10","b":"s12","system":"sdlink"},{"a":"s12","b":"s13","system":"sdlink"},{"a":"s13","b":"s14","system":"sdlink"},{"a":"s15","b":"s16","system":"pdarc"},{"a":"s15","b":"s17","system":"pdarc"},{"a":"s17","b":"s18","system":"pdarc"},{"a":"s19","b":"s20","system":"nh"},{"a":"s20","b":"s21","system":"nh"},{"a":"s19","b":"s21","system":"nh"}],"resources":[{"group":"South Dakota","items":[{"label":"SD-LINK","url":"https://sdlink.org/","note":"The linked repeater system's own site"}]},{"group":"SoDak Mesh (Meshtastic)","items":[{"label":"sodakmesh.org","url":"https://sodakmesh.org/","note":"The South Dakota Meshtastic community"},{"label":"SoDak Mesh Discord","url":"https://discord.gg/bkP5tVFcp","note":"Where the mesh crowd talks","discord":true},{"label":"Live mesh map","url":"https://potato.sodakmesh.org/","note":"Nodes and traffic on the 915 MHz mesh, live"},{"label":"Malla dashboard","url":"https://malla.sodakmesh.org/","note":"Node counts, gateways and routing stats"},{"label":"Coverage planner","url":"https://mesh.womod.org/#43.53569,-96.69025,30","note":"Terrain based coverage and node placement"}]},{"group":"Getting licensed","items":[{"label":"HamStudy","url":"https://hamstudy.org/","note":"Free practice exams and flashcards for all three licence classes"}]}]}</script>
+<script type="application/json" id="seed">{"discord":{"url":"https://discord.605hams.com","label":"Join the SD Ham Discord"},"systems":{"sdlink":{"name":"SD-LINK","short":"SD-LINK"},"pdarc":{"name":"Prairie Dog ARC","short":"PDARC"},"nh":{"name":"Northern Hills linked system","short":"Northern Hills"},"none":{"name":"Independent / club","short":"Independent"}},"clubs":[{"id":"c1","name":"Black Hills Amateur Radio Club","callsign":"W0BLK","city":"Rapid City","lat":44.077,"lon":-103.2003,"logo":"logos/w0blk.webp","address":"South Dakota Mines, EEP Building (usually room EEP251A), 501 E St Joseph St, Rapid City, SD 57701","meeting":"3rd Friday, 7:00 PM — social hour from 6:00 PM, program after the meeting","mailing":"groups.io/g/W0BLK","website":"https://www.w0blk.com","discord":""},{"id":"c2","name":"Brookings Radio Research Club","callsign":"W0BXO","city":"Brookings","lat":44.3056,"lon":-96.7914,"logo":"logos/w0bxo.webp","address":"Brookings Public Safety Center, 307 3rd Ave, Brookings, SD 57006","meeting":"1st Monday, 7:00 PM","mailing":"Contact the club via w0bxo.org to be added","website":"https://w0bxo.org","discord":""},{"id":"c3","name":"Hot Springs Amateur Radio Club","callsign":"K0HS","city":"Hot Springs","lat":43.4223,"lon":-103.4766,"logo":"logos/k0hs.webp","address":"South Annex Building, 709 Jensen Hwy, Hot Springs, SD 57747","meeting":"2nd Tuesday, 6:30 PM","mailing":"Reach out to the club through its website","website":"https://k0hs.net","discord":""},{"id":"c4","name":"Hub City Amateur Radio Club","callsign":"W0ABR","city":"Aberdeen","lat":45.459,"lon":-98.47,"logo":"logos/w0abr.webp","address":"Elks Lodge, 705 Circle Drive, Aberdeen, SD 57401","meeting":"See hc-arc.net for the current meeting schedule. All are welcome.","mailing":"marvind@abe.midco.net","website":"https://hc-arc.net","discord":""},{"id":"c5","name":"Huron Amateur Radio Association","callsign":"W0NOZ","city":"Huron","lat":44.359,"lon":-98.2163,"logo":"logos/w0noz.webp","address":"Huron City Hall, 239 Wisconsin Ave SW, Huron, SD 57350","meeting":"3rd Thursday, 7:00 PM in Conference Room 14 (use the south door). Visitors and guests are always welcome.","mailing":"wb0ulx@arrl.net","website":"https://huronarc.info","discord":""},{"id":"c6","name":"Lake Area Radio Klub","callsign":"W0WTN","city":"Watertown","lat":44.896,"lon":-97.108,"logo":"logos/w0wtn.webp","address":"Watertown Salvation Army, 621 4th Street SE, Watertown, SD 57201","meeting":"1st Thursday, 7:00 PM","mailing":"groups.io/g/LARK-General","website":"https://www.w0wtn.org","discord":""},{"id":"c8","name":"Pierre Amateur Radio Club","callsign":"W0PIR","city":"Pierre","lat":44.38,"lon":-100.343,"logo":"logos/w0pir.webp","address":"Fire Station 4, 802 N Pierce Ave, Pierre, SD 57501","meeting":"2nd Thursday, 7:00 PM","mailing":"Reach out to the club through its website","website":"https://www.sdhams.com","discord":""},{"id":"c9","name":"Prairie Dog Amateur Radio Club","callsign":"W0OJY","city":"Yankton","lat":42.8821,"lon":-97.3986,"logo":"logos/w0ojy.webp","address":"Christ the King Lutheran Church, 305 W 25th St, Yankton, SD 57078","meeting":"2nd Tuesday, 7:00 PM","mailing":"Contact the club via pdarc.org to be added","website":"https://pdarc.org","discord":""},{"id":"c10","name":"Sioux Empire Amateur Radio Club","callsign":"W0ZWY","city":"Sioux Falls","lat":43.5573,"lon":-96.736,"logo":"logos/w0zwy.webp","address":"Minnehaha County Emergency Management Building, 608 N Sigler Ave, Sioux Falls, SD 57104","meeting":"1st Tuesday, 7:30 PM","mailing":"w0zwy.org","website":"https://w0zwy.org","discord":"https://discord.w0zwy.org"}],"sites":[{"id":"s1","name":"Sioux Falls","system":"sdlink","lat":43.578,"lon":-96.703,"notes":"","photos":["photos/sioux-falls-rack.webp"],"repeaters":[{"label":"Sioux Falls UHF","type":"UHF Repeater","out":"444.825","in":"449.825","tone":"103.5","owner":"KD0ZP","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s2","name":"Turkey Ridge","system":"sdlink","lat":43.262,"lon":-97.142,"notes":"","photos":[],"repeaters":[{"label":"Turkey Ridge UHF","type":"UHF Repeater","out":"444.975","in":"449.975","tone":"146.2","owner":"W0SD","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s3","name":"Colman","system":"sdlink","lat":43.956,"lon":-96.819,"notes":"","photos":[],"repeaters":[{"label":"Colman UHF","type":"UHF Repeater","out":"443.225","in":"448.225","tone":"146.2","owner":"KB0WSV","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s4","name":"Salem (W0SD)","system":"sdlink","lat":43.736,"lon":-97.38,"notes":"Hub of the SD-LINK east side.","photos":[],"repeaters":[{"label":"Salem UHF","type":"UHF Repeater","out":"442.075","in":"447.075","tone":"103.5","owner":"W0SD","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s5","name":"Toronto","system":"sdlink","lat":44.579,"lon":-96.708,"notes":"","photos":[],"repeaters":[{"label":"Toronto VHF","type":"VHF Repeater","out":"146.775","in":"146.175","tone":"146.2","owner":"KC0OVC","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s6","name":"Watertown","system":"sdlink","lat":44.921,"lon":-97.135,"notes":"","photos":[],"repeaters":[{"label":"Watertown UHF","type":"UHF Repeater","out":"442.000","in":"447.000","tone":"146.2","owner":"K0TY","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s7","name":"Wessington Springs","system":"sdlink","lat":44.081,"lon":-98.569,"notes":"Trustee KB0UZJ. The site is also home to an internet controlled remote station: an Elecraft K3S with a KPA500 amplifier and KAT500 tuner for HF, a 2 m LDMOS amplifier, and a rotatable antenna. It can be operated over the internet by arrangement with the club.","photos":["photos/wessington-remote-hf.webp","photos/wessington-remote-amp.webp","photos/wessington-remote-rotator.webp"],"repeaters":[{"label":"Wessington Springs VHF","type":"VHF Repeater","out":"147.345","in":"147.945","tone":"146.2","owner":"KB0UZJ","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s8","name":"Crandall Hill","system":"sdlink","lat":45.32,"lon":-97.72,"notes":"Sweetwater Lake, Day County.","photos":[],"repeaters":[{"label":"Crandall Hill VHF","type":"VHF Repeater","out":"146.790","in":"146.190","tone":"146.2","owner":"N0AHL","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s9","name":"Reliance","system":"sdlink","lat":43.879,"lon":-99.603,"notes":"","photos":[],"repeaters":[{"label":"Reliance VHF","type":"VHF Repeater","out":"146.940","in":"146.340","tone":"146.2","owner":"N0NPO","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s10","name":"Murdo","system":"sdlink","lat":43.896,"lon":-100.712,"notes":"","photos":[],"repeaters":[{"label":"Murdo VHF","type":"VHF Repeater","out":"147.300","in":"147.900","tone":"146.2","owner":"AA0CT","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s11","name":"Pierre","system":"sdlink","lat":44.395,"lon":-100.37,"notes":"","photos":[],"repeaters":[{"label":"Pierre VHF","type":"VHF Repeater","out":"146.730","in":"146.130","tone":"146.2","owner":"KD0S","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s12","name":"Philip","system":"sdlink","lat":44.039,"lon":-101.665,"notes":"","photos":[],"repeaters":[{"label":"Philip VHF","type":"VHF Repeater","out":"147.375","in":"147.975","tone":"146.2","owner":"N0OMP","sys":"sdlink"}],"systems":["sdlink"]},{"id":"s13","name":"Terry Peak","system":"sdlink","lat":44.3275,"lon":-103.835,"notes":"Terry Peak, near Lead. The Northern Hills machine auto-connects to SD-LINK for the Wednesday net.","photos":[],"repeaters":[{"label":"Terry Peak VHF","type":"VHF Repeater","out":"147.030","in":"147.630","tone":"146.2","owner":"WB0JEK","sys":"sdlink"},{"label":"Terry Peak VHF","type":"VHF Repeater","out":"146.760","in":"146.160","tone":"146.2","owner":"KC0BXH","sys":"nh"}],"systems":["sdlink","nh"]},{"id":"s15","name":"Yankton","system":"pdarc","lat":42.8785,"lon":-97.382,"notes":"Avera Sacred Heart Hospital, Yankton.","photos":[],"repeaters":[{"label":"Yankton VHF","type":"VHF Repeater","out":"146.850","in":"146.250","tone":"146.2","owner":"W0OJY","sys":"pdarc"}],"systems":["pdarc"]},{"id":"s16","name":"Vermillion","system":"pdarc","lat":42.79,"lon":-96.98,"notes":"Cement Plant site, Vermillion.","photos":[],"repeaters":[{"label":"Vermillion VHF","type":"VHF Repeater","out":"147.375","in":"147.975","tone":"146.2","owner":"W0OJY","sys":"pdarc"}],"systems":["pdarc"]},{"id":"s17","name":"Springfield","system":"pdarc","lat":42.9,"lon":-97.905,"notes":"Norwegian Hill, near Springfield.","photos":[],"repeaters":[{"label":"Springfield VHF","type":"VHF Repeater","out":"147.210","in":"147.810","tone":"146.2","owner":"W0OJY","sys":"pdarc"}],"systems":["pdarc"]},{"id":"s18","name":"Spencer, NE","system":"pdarc","lat":42.874,"lon":-98.703,"notes":"Boyd County, Nebraska.","photos":[],"repeaters":[{"label":"Spencer NE VHF","type":"VHF Repeater","out":"147.330","in":"147.930","tone":"131.8","owner":"N0TO","sys":"pdarc"}],"systems":["pdarc"]},{"id":"s19","name":"Radar Hill","system":"nh","lat":44.0878,"lon":-103.0869,"notes":"Radar Hill, east of Rapid City. The Northern Hills machine auto-connects to SD-LINK for the Wednesday net.","photos":[],"repeaters":[{"label":"Radar Hill VHF","type":"VHF Repeater","out":"146.940","in":"146.340","tone":"146.2","owner":"W0BLK","sys":"nh"},{"label":"Radar Hill UHF","type":"UHF Repeater","out":"444.750","in":"449.750","tone":"146.2","owner":"KE0QIB","sys":"sdlink"}],"systems":["nh","sdlink"]},{"id":"s21","name":"Bear Mountain","system":"nh","lat":43.87,"lon":-103.744,"notes":"Bear Mountain, north of Custer. Physically in Pennington County despite the Custer label. Auto-connects to SD-LINK for the Wednesday net.","photos":[],"repeaters":[{"label":"Bear Mountain VHF","type":"VHF Repeater","out":"146.850","in":"146.250","tone":"146.2","owner":"KC0BXH","sys":"nh"}],"systems":["nh"]}],"links":[{"a":"s4","b":"s1","system":"sdlink"},{"a":"s4","b":"s2","system":"sdlink"},{"a":"s4","b":"s3","system":"sdlink"},{"a":"s4","b":"s5","system":"sdlink"},{"a":"s4","b":"s7","system":"sdlink"},{"a":"s5","b":"s6","system":"sdlink"},{"a":"s7","b":"s8","system":"sdlink"},{"a":"s7","b":"s9","system":"sdlink"},{"a":"s9","b":"s10","system":"sdlink"},{"a":"s10","b":"s11","system":"sdlink"},{"a":"s10","b":"s12","system":"sdlink"},{"a":"s12","b":"s13","system":"sdlink"},{"a":"s13","b":"s19","system":"sdlink"},{"a":"s15","b":"s16","system":"pdarc"},{"a":"s15","b":"s17","system":"pdarc"},{"a":"s17","b":"s18","system":"pdarc"},{"a":"s19","b":"s13","system":"nh"},{"a":"s13","b":"s21","system":"nh"},{"a":"s19","b":"s21","system":"nh"}],"resources":[{"group":"South Dakota","items":[{"label":"SD-LINK","url":"https://sdlink.org/","note":"The linked repeater system's own site"}]},{"group":"Getting licensed","items":[{"label":"HamStudy","url":"https://hamstudy.org/","note":"Free practice exams and flashcards for all three licence classes"}]},{"group":"SoDak Mesh (Meshtastic)","items":[{"label":"sodakmesh.org","url":"https://sodakmesh.org/","note":"The South Dakota Meshtastic community"},{"label":"SoDak Mesh Discord","url":"https://discord.gg/bkP5tVFcp","note":"Where the mesh crowd talks","discord":true},{"label":"Live mesh map","url":"https://potato.sodakmesh.org/","note":"Nodes and traffic on the 915 MHz mesh, live"},{"label":"Malla dashboard","url":"https://malla.sodakmesh.org/","note":"Node counts, gateways and routing stats"},{"label":"Coverage planner","url":"https://mesh.womod.org/#43.53569,-96.69025,30","note":"Terrain based coverage and node placement"}]}]}</script>
 
 <script>
 "use strict";
@@ -287,12 +307,13 @@ const SYS = {
           note:'SD-LINK net every Wednesday at 9:00 PM.'},
   pdarc: {name:'Prairie Dog ARC', short:'PDARC', color:'var(--pdarc)'},
   nh:    {name:'Northern Hills linked system', short:'Northern Hills', color:'var(--nh)',
-          note:'Three linked VHF repeaters across the Black Hills. They are not tied into SD-LINK full time; '
-             + 'the system links in for the SD-LINK net on Wednesdays at 9:00 PM, then drops back off.'},
+          note:'Three linked VHF repeaters north and west of Rapid City. Not tied into SD-LINK '
+             + 'full time: the system links in for the SD-LINK net on Wednesdays at 9:00 PM, '
+             + 'then drops back off.'},
   none:  {name:'Independent / club', short:'Independent', color:'var(--indep)'}
 };
 const sysOf = k => SYS[k] || SYS.none;
-const layers = {clubs:true, sdlink:true, pdarc:true, nh:true, none:true};
+const layers = {clubs:true, sdlink:true, pdarc:true, nh:true};
 let selected = null;
 
 const esc = s => String(s==null?'':s)
@@ -346,7 +367,7 @@ function computeBase(){
   w+=m*ar; h+=m;
   // On a tall, narrow screen the state letterboxes badly; sit it high so the
   // bottom sheet does not cover it.
-  const vAnchor = ar < 0.95 ? 0.34 : 0.5;
+  const vAnchor = ar < 0.95 ? 0.20 : 0.5;   // sheet covers the bottom on phones
   baseView = {x:(W-w)/2, y:(H-h)*vAnchor, w, h};
 }
 function screenScale(){ const m=svg.getScreenCTM(); return m?m.a:1; }
@@ -375,17 +396,40 @@ let cityObstacles = [];
 const ramp = (z,a,b)=> Math.max(0, Math.min(1, (z-a)/(b-a)));
 
 // Marker and label sizes, in CSS pixels. Everything on the map scales off these.
-const R_SITE = 9, R_CLUSTER = 15, R_CLUB = 7, LBL = 15, CITY = 12.5, MERGE = 21;
+const R_SITE = 9, R_CLUSTER = 15, R_CLUB = 22, LBL = 15, CITY = 12.5, MERGE = 21;
+// five-point star on a unit circle; scaled by R_CLUB at draw time
+// The international amateur radio symbol: a tall yellow diamond with a black
+// border and an antenna inside. The antenna is dropped below ~15px tall, where
+// its strokes would collapse into mush, and the diamond alone still reads.
+function hamDiamond(R){
+  const H=R, W=R*0.58, n=v=>v.toFixed(2);
+  const dia=(k)=>'M0 '+n(-H*k)+' L'+n(W*k)+' 0 L0 '+n(H*k)+' L'+n(-W*k)+' 0 Z';
+  const edge=H*0.13;
+  let g = '<path d="'+dia(1)+'" fill="#111" stroke="#111" stroke-width="'+n(edge)+'" stroke-linejoin="round"/>'
+        + '<path d="'+dia(0.68)+'" fill="#FFE500" stroke="#FFE500" stroke-width="'+n(edge*0.70)
+        + '" stroke-linejoin="round"/>';
+  if(H >= 7.5){
+    const sw=n(H*0.065), tw=W*0.32, ty=-H*0.43, tb=-H*0.28;
+    g += '<g fill="none" stroke="#111" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round">'
+       + '<path d="M'+n(-tw)+' '+n(ty)+' L'+n(tw)+' '+n(ty)+' L0 '+n(tb)+' Z"/>'   // antenna cone
+       + '<path d="M0 '+n(tb)+' L0 '+n(H*0.26)+'"/>'                                 // mast
+       + '<path d="M'+n(-W*0.36)+' '+n(H*0.27)+' L'+n(W*0.36)+' '+n(H*0.27)+'"/>'    // ground, 3 bars
+       + '<path d="M'+n(-W*0.24)+' '+n(H*0.37)+' L'+n(W*0.24)+' '+n(H*0.37)+'"/>'
+       + '<path d="M'+n(-W*0.11)+' '+n(H*0.46)+' L'+n(W*0.11)+' '+n(H*0.46)+'"/>'
+       + '</g>';
+  }
+  return g;
+}
 
 // Nudge the whole marker UI with the rendered width of the map, but never let it
 // get small enough to squint at.
 let UI = 1;
 function computeUI(){
   const w = mapwrap.getBoundingClientRect().width || 1000;
-  UI = Math.max(0.88, Math.min(1.15, w/1250));
+  UI = Math.max(0.60, Math.min(1.15, w/1250));
 }
 
-// Every club/site position in map units; city labels step aside for these.
+// Every club/site position in map units — city labels step aside for these.
 function markerPoints(){
   const out=[];
   for(const s of state.sites) out.push(px(s.lat,s.lon));
@@ -498,11 +542,11 @@ const clusterKey = m => m.map(s=>s.id).sort().join('|');
 
 function render(){
   const sc = (1/(screenScale()||1))*UI, lg = Math.pow(zoom,0.16)*UI;
+  // Clubs keep a gentler floor: the phone-wide shrink swallows an outlined
+  // diamond far faster than it does a solid dot.
+  const scClub = (1/(screenScale()||1))*Math.max(UI, 0.92);
   const fs = ' style="font-size:'+(LBL*Math.pow(zoom,0.16)*UI).toFixed(2)+'px"';
-  // dots grow gently with zoom, same curve as the labels
-  const dg = Math.pow(zoom,0.16);
-  const RS = R_SITE*dg, RC = R_CLUSTER*dg, RB = R_CLUB*dg;
-  const visSites = state.sites.filter(s=>layers[s.system||'none']);
+  const visSites = state.sites.filter(s=>(s.systems||[s.system||'none']).some(k=>layers[k]));
   const visClubs = layers.clubs ? state.clubs : [];
 
   // group sites that sit on top of each other at this zoom
@@ -538,21 +582,27 @@ function render(){
   // obstacles: city labels first, then every dot, then labels greedily
   const obstacles = cityObstacles.slice();
   for(const c of clusters){
-    const r = c.members.length>1 ? RC+2 : RS+2;
+    const r = c.members.length>1 ? R_CLUSTER+2 : R_SITE+2;
     obstacles.push([c.x-r*sc, c.y-(r+6)*sc, 2*r*sc, (2*r+6)*sc]);
   }
-  for(const c of visClubs){ const p=px(c.lat,c.lon); obstacles.push([p[0]-(RB+2)*sc, p[1]-(RB+2)*sc, (RB+2)*2*sc, (RB+2)*2*sc]); }
+  for(const c of visClubs){ const p=px(c.lat,c.lon);
+    const w=(R_CLUB*0.58+2)*scClub, h=(R_CLUB+2)*scClub;
+    obstacles.push([p[0]-w, p[1]-h, w*2, h*2]); }
 
   let mh='';
   clusters.forEach((c,ci)=>{
     const tr = ' transform="translate('+c.x+','+c.y+') scale('+sc+')"';
     if(c.members.length===1){
-      const s=c.members[0], col=sysOf(s.system).color;
+      const s=c.members[0], sys2=(s.systems&&s.systems.length>1)?s.systems:null;
+      const col=sysOf(s.system).color;
       const sel = selected && selected.type==='site' && selected.id===s.id;
-      const L = placeLabel(c.x,c.y,s.name,'above',obstacles,sc,lg), st=STEMS[L.dir].map(v=>(v*dg).toFixed(1));
+      const L = placeLabel(c.x,c.y,s.name,'above',obstacles,sc,lg), st=STEMS[L.dir];
       mh += '<g class="mark'+(sel?' selected':'')+'" data-site="'+s.id+'" tabindex="0" role="button" aria-label="'
           + esc(s.name)+' repeater site"'+tr+'>'
-          + '<circle class="site-dot" r="'+RS.toFixed(1)+'" fill="'+col+'"/>'
+          + (sys2    // one hilltop, two systems: split the dot rather than stack two markers
+              ? '<path class="site-dot" d="M0 '+(-R_SITE)+' A'+R_SITE+' '+R_SITE+' 0 0 0 0 '+R_SITE+' Z" fill="'+sysOf(sys2[0]).color+'"/>'
+              + '<path class="site-dot" d="M0 '+(-R_SITE)+' A'+R_SITE+' '+R_SITE+' 0 0 1 0 '+R_SITE+' Z" fill="'+sysOf(sys2[1]).color+'"/>'
+              : '<circle class="site-dot" r="'+R_SITE+'" fill="'+col+'"/>')
           + (L.hide ? '' :
               '<line x1="'+st[0]+'" y1="'+st[1]+'" x2="'+st[2]+'" y2="'+st[3]+'" stroke="'+col+'" stroke-width="2"/>'
             + '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(s.name)+'</text>')
@@ -565,19 +615,44 @@ function render(){
       const L = placeLabel(c.x,c.y,label,'above',obstacles,sc,lg);
       mh += '<g class="mark'+(sel?' selected':'')+'" data-cluster="'+ci+'" tabindex="0" role="button" aria-label="'
           + esc(label)+', '+c.members.length+' repeater sites"'+tr+'>'
-          + '<circle class="site-dot" r="'+RC.toFixed(1)+'" fill="'+col+'"/>'
-          + '<text class="cnum" y="'+(5.5*dg).toFixed(1)+'" text-anchor="middle" style="font-size:'+(15*dg).toFixed(1)+'px">'+c.members.length+'</text>'
+          + '<circle class="site-dot" r="'+R_CLUSTER+'" fill="'+col+'"/>'
+          + '<text class="cnum" y="5.5" text-anchor="middle" style="font-size:15px">'+c.members.length+'</text>'
           + (L.hide ? '' : '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(label)+'</text>')
           + '</g>';
     }
   });
+  const placedClubs=[];
   for(const c of visClubs){
-    const p=px(c.lat,c.lon);
+    let p=px(c.lat,c.lon);
+    // A club pinned at its meeting hall often lands on the town's repeater dot.
+    // Nudge it clear so both stay clickable; the leader line keeps it honest.
+    let lead='';
+    const NUDGE=32*sc, CLEAR=28*sc;
+    let hit=null, hd=Infinity;
+    for(const cl of clusters){
+      const d=Math.hypot(cl.x-p[0], cl.y-p[1]);
+      if(d<CLEAR && d<hd){ hd=d; hit=cl; }
+    }
+    for(const q of placedClubs){                      // clubs also repel each other
+      const d=Math.hypot(q[0]-p[0], q[1]-p[1]);
+      if(d<CLEAR && d<hd){ hd=d; hit={x:q[0], y:q[1]}; }
+    }
+    if(hit){
+      let dx=p[0]-hit.x, dy=p[1]-hit.y;
+      const m=Math.hypot(dx,dy);
+      if(m<0.5){ dx=-0.72; dy=-0.69; } else { dx/=m; dy/=m; }   // coincident: up and left
+      const q=[hit.x+dx*NUDGE, hit.y+dy*NUDGE];
+      lead='<line x1="'+p[0].toFixed(1)+'" y1="'+p[1].toFixed(1)+'" x2="'+q[0].toFixed(1)+'" y2="'+q[1].toFixed(1)
+         + '" stroke="var(--ink)" stroke-width="'+(1.2*sc).toFixed(2)+'" opacity=".35"/>';
+      p=q;
+    }
+    placedClubs.push(p);
     const sel = selected && selected.type==='club' && selected.id===c.id;
     const L = placeLabel(p[0],p[1],c.callsign,'below',obstacles,sc,lg);
-    mh += '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'
-        + esc(c.name)+'" transform="translate('+p[0]+','+p[1]+') scale('+sc+')">'
-        + '<rect class="club-dot" x="'+(-RB).toFixed(1)+'" y="'+(-RB).toFixed(1)+'" width="'+(RB*2).toFixed(1)+'" height="'+(RB*2).toFixed(1)+'" rx="'+(2.5*dg).toFixed(1)+'" transform="rotate(45)" fill="var(--clubs)"/>'
+    mh += lead
+        + '<g class="mark'+(sel?' selected':'')+'" data-club="'+c.id+'" tabindex="0" role="button" aria-label="'
+        + esc(c.name)+'" transform="translate('+p[0]+','+p[1]+') scale('+scClub+')">'
+        + '<g class="club-dot">'+hamDiamond(R_CLUB)+'</g>'
         + (L.hide ? '' : '<text'+fs+' x="'+L.tx.toFixed(1)+'" y="'+L.ty.toFixed(1)+'" text-anchor="'+L.anchor+'">'+esc(c.callsign)+'</text>')
         + '</g>';
   }
@@ -606,14 +681,14 @@ function renderEmptyDrawer(){
   const u=discordUrl();
   dBody.innerHTML =
     '<div class="welcome"><b>New to the hobby, new in town, or just curious?</b> South Dakota clubs welcome '
-  + 'visitors. You do not need a licence to walk into a meeting. Find the one near you and go say hello.</div>'
+  + 'visitors — you do not need a licence to walk into a meeting. Find the one near you and go say hello.</div>'
   + '<button class="btn primary cta" type="button" id="allClubs">Browse South Dakota clubs</button>'
   + (u ? '<a class="btn discord cta" href="'+esc(u)+'" target="_blank" rel="noopener">'+discordSvg(22)
-       + esc((state.discord&&state.discord.label)||'Join the 605 Hams Discord')+'</a>'
-       + '<div class="sysnote" style="text-align:center;margin-top:-6px">Hams across the state hang out here. '
-       + 'Come ask questions, find a net, or get help getting on the air.</div>' : '')
-  + '<div class="sysnote">Click a <b>club</b> (blue diamond) or a <b>repeater site</b> (colored dot) for meeting times, '
-  + 'frequencies, tones and contacts. Colored lines connect repeaters that are RF-linked into one system.</div>'
+       + 'Join the statewide SD ham Discord</a>'
+       + '<div class="sysnote" style="text-align:center;margin-top:-6px">Hams across the state hang out here — '
+       + 'come ask questions, find a net, or get help getting on the air.</div>' : '')
+  + '<div class="sysnote">Click a <b>club</b> (yellow diamond) or a <b>repeater site</b> (colored dot) for meeting times, '
+  + 'frequencies, tones and contacts. Colored lines connect the repeaters that are RF-linked into one system.</div>'
   + resourceList();
   const b=document.getElementById('allClubs'); if(b) b.onclick=openClubIndex;
 }
@@ -661,10 +736,12 @@ function chipFor(t){
 }
 function rptView(r){
   let s='<div class="rpt"><div class="top"><span class="name">'+esc(r.label)+'</span>'+chipFor(r.type)
-      + (r.owner?'<span class="chip own">'+esc(r.owner)+'</span>':'')+'</div>';
+      + (r.owner?'<span class="chip own">'+esc(r.owner)+'</span>':'')
+      + (r.sys?'<span class="chip" style="color:'+sysOf(r.sys).color+'">'+esc(sysOf(r.sys).short)+'</span>':'')
+      + '</div>';
   const cells=[];
-  if(r.out) cells.push('<div class="fq"><b>'+esc(r.out)+'</b><span>Listen on</span></div>');
-  if(r['in']) cells.push('<div class="fq"><b>'+esc(r['in'])+'</b><span>Transmit on</span></div>');
+  if(r.out) cells.push('<div class="fq"><b>'+esc(r.out)+'</b><span>Output — listen</span></div>');
+  if(r['in']) cells.push('<div class="fq"><b>'+esc(r['in'])+'</b><span>Input — transmit</span></div>');
   if(r.tone) cells.push('<div class="fq"><b>'+esc(r.tone)+'</b><span>Tone</span></div>');
   s += cells.length ? '<div class="freqs">'+cells.join('')+'</div>'
                     : '<div class="rnote">Frequency not published yet.</div>';
@@ -672,7 +749,7 @@ function rptView(r){
   return s+'</div>';
 }
 
-// Backbone link pairs are deliberately not published; nobody should key up on one.
+// Backbone link pairs are deliberately not published — nobody should key up on one.
 function rptList(reps){
   reps = reps||[];
   if(!reps.length) return '<div class="sysnote">No repeater here that you can work directly.</div>';
@@ -687,7 +764,7 @@ function openClub(id){
   dCall.textContent=c.callsign+' · '+c.city;
   const dUrl = c.discord ? (/^https?:/i.test(c.discord)?c.discord:'https://'+c.discord) : '';
   dBody.innerHTML =
-    (c.logo ? '<div class="logo"><img src="'+esc(c.logo)+'" alt="'+esc(c.name)+' logo" loading="lazy" onerror="this.parentNode.remove()"></div>' : '')
+    (c.logo ? '<div class="logo"><img src="'+esc(c.logo)+'" alt="'+esc(c.name)+' logo" loading="lazy"></div>' : '')
   + field('Meetings', c.meeting)
   + (c.address ? '<div class="field"><label>Where</label><div class="val">'+esc(c.address)+'</div>'
       + '<a class="btn maps small" style="margin-top:8px" href="https://www.google.com/maps/search/?api=1&amp;query='
@@ -696,8 +773,7 @@ function openClub(id){
   + field('Website', c.website, true)
   + (dUrl ? '<div class="field"><label>Club Discord</label><a class="btn discord small" style="display:inline-flex;margin-top:3px" href="'
           + esc(dUrl)+'" target="_blank" rel="noopener">'+discordSvg(15)+'Join the club Discord</a></div>' : '')
-  + '<div class="drawer-note">Coordinates '+c.lat.toFixed(4)+', '+c.lon.toFixed(4)
-  + ' · <button class="linklike" type="button" id="backToClubs">All clubs</button></div>';
+  + '<div class="drawer-note"><button class="linklike" type="button" id="backToClubs">All clubs</button></div>';
   const b=document.getElementById('backToClubs'); if(b) b.onclick=openClubIndex;
   render();
 }
@@ -706,26 +782,29 @@ function openSite(id){
   const s=site(id); if(!s) return;
   selected={type:'site',id}; openDrawer();
   const sys=sysOf(s.system);
-  dKind.textContent=(s.system && s.system!=='none') ? sys.short+' repeater site' : 'Repeater site';
+  dKind.textContent = (s.systems&&s.systems.length>1)
+    ? 'Repeater Site — '+s.systems.map(k=>sysOf(k).short).join(' + ')
+    : 'Repeater Site — '+sys.name;
   dTitle.textContent=s.name; dCall.textContent='';
   dBody.innerHTML =
     rptList(s.repeaters)
-  + (sys.note ? '<div class="sysnote">'+esc(sys.note)+'</div>' : '')
+  + ((s.systems||[s.system]).map(k=>sysOf(k).note).filter(Boolean)
+       .map(t=>'<div class="sysnote">'+esc(t)+'</div>').join(''))
   + (s.notes ? field('Notes', s.notes) : '')
   + ((s.photos||[]).length
       ? '<div class="field"><label>Site photos</label><div class="gallery">'
         + s.photos.map(ph=>'<a href="'+esc(ph)+'" target="_blank" rel="noopener">'
-            + '<img class="photo" src="'+esc(ph)+'" alt="'+esc(s.name)+' site photo" loading="lazy" onerror="this.closest(\'a\').remove()"></a>').join('')
+            + '<img class="photo" src="'+esc(ph)+'" alt="'+esc(s.name)+' site photo" loading="lazy"></a>').join('')
         + '</div></div>'
       : '')
-  + '<div class="drawer-note">Coordinates '+s.lat.toFixed(4)+', '+s.lon.toFixed(4)+'</div>';
+;
   render();
 }
 
 function openCluster(ci){
   const c=lastClusters[ci]; if(!c) return;
   selected={type:'cluster',key:clusterKey(c.members)}; openDrawer();
-  dKind.textContent=c.members.length+' repeater sites';
+  dKind.textContent='Repeater location — '+c.members.length+' sites';
   dTitle.textContent=c.members[0].name+' area'; dCall.textContent='';
   dBody.innerHTML = c.members.map(m=>{
     const sys=sysOf(m.system);
@@ -733,7 +812,7 @@ function openCluster(ci){
          + '<span class="chip" style="color:'+sys.color+'">'+esc(sys.short)+'</span></div>'
          + rptList(m.repeaters);
   }).join('')
-  + '<div class="drawer-note">These sites sit close together on the map. Zoom in to separate them, or click a site name for its details.</div>';
+  + '<div class="drawer-note">These sites sit close together at this zoom — zoom in to separate them, or click a site name for its full details.</div>';
   dBody.querySelectorAll('[data-open-site]').forEach(b=>b.onclick=()=>openSite(b.getAttribute('data-open-site')));
   render();
 }
@@ -746,7 +825,7 @@ function openLink(i){
   dTitle.textContent=(a?a.name:'?')+' ⌁ '+(b?b.name:'?');
   dCall.textContent=sys.name;
   dBody.innerHTML='<div class="sysnote">These two sites are joined by an RF link in the '+esc(sys.name)
-    +'. Use the repeater at either end to get into the system.</div>'
+    +'. The link pair itself is backbone only \u2014 work the repeater at either end.</div>'
     + (sys.note?'<div class="sysnote">'+esc(sys.note)+'</div>':'')
     + '<div class="sitehead"><button class="linklike" type="button" data-go="'+esc(L.a)+'">'+esc(a?a.name:'?')+'</button></div>'
     + '<div class="sitehead"><button class="linklike" type="button" data-go="'+esc(L.b)+'">'+esc(b?b.name:'?')+'</button></div>';
@@ -757,10 +836,10 @@ function openLink(i){
 function openClubIndex(){
   selected=null; openDrawer();
   dKind.textContent='South Dakota';
-  dTitle.textContent='Amateur radio clubs'; dCall.textContent=state.clubs.length+' clubs';
+  dTitle.textContent='Amateur radio clubs'; dCall.textContent=state.clubs.length+' clubs — visitors welcome at all of them';
   dBody.innerHTML = '<div class="clublist">' + state.clubs.map(c=>
       '<button class="clubrow" type="button" data-club="'+esc(c.id)+'">'
-    + '<span class="thumb">'+(c.logo ? '<img src="'+esc(c.logo)+'" alt="" loading="lazy" onerror="this.outerHTML=\'<span class=&quot;ph&quot;>'+esc(c.callsign)+'</span>\'">'
+    + '<span class="thumb">'+(c.logo ? '<img src="'+esc(c.logo)+'" alt="" loading="lazy">'
                                      : '<span class="ph">'+esc(c.callsign)+'</span>')+'</span>'
     + '<span class="meta"><b>'+esc(c.name)+'</b><small>'+esc(c.callsign)+' · '+esc(c.city)+'</small></span></button>'
   ).join('') + '</div>';
@@ -853,13 +932,15 @@ const lt=document.getElementById('legendToggle'), lg=document.getElementById('le
 lt.onclick=()=>{ const o=lg.classList.toggle('open'); lt.setAttribute('aria-expanded', o?'true':'false'); };
 
 /* ═══════════════════ nav ═══════════════════ */
-const discordBtn=document.getElementById('discordBtn');
+const ticker=document.getElementById('ticker'), tickerTrack=document.getElementById('tickerTrack');
 function syncDiscord(){
   const u=discordUrl();
-  discordBtn.href=u||'#';
-  discordBtn.style.display=u?'inline-flex':'none';
-  const lab=(state.discord&&state.discord.label)||'Join the SD Ham Discord';
-  discordBtn.querySelector('.full').textContent=lab;
+  ticker.href=u||'#';
+  ticker.style.display=u?'flex':'none';
+  if(!u) return;
+  // two identical halves so the -50% loop is seamless
+  const bit='<span class="bit">'+discordSvg(17)+'Join the South Dakota Ham Radio Discord</span>';
+  tickerTrack.innerHTML=bit.repeat(4)+bit.repeat(4);
 }
 
 /* ═══════════════════ boot ═══════════════════ */
@@ -880,6 +961,7 @@ if(!IS_ARTIFACT){
 }
 resetView();
 renderEmptyDrawer();
+if(window.matchMedia('(max-width:760px)').matches) drawer.classList.add('open');
 syncDiscord();
 
 </script>

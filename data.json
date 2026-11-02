@@ -1,7 +1,7 @@
 {
  "discord": {
-  "url": "https://605hams.com/discord",
-  "label": "Join the 605 Hams Discord"
+  "url": "https://discord.605hams.com",
+  "label": "Join the SD Ham Discord"
  },
  "systems": {
   "sdlink": {
@@ -31,7 +31,7 @@
    "lon": -103.2003,
    "logo": "logos/w0blk.webp",
    "address": "South Dakota Mines, EEP Building (usually room EEP251A), 501 E St Joseph St, Rapid City, SD 57701",
-   "meeting": "3rd Friday, 7:00 PM. Social hour starts at 6:00 PM, with a program after the meeting.",
+   "meeting": "3rd Friday, 7:00 PM — social hour from 6:00 PM, program after the meeting",
    "mailing": "groups.io/g/W0BLK",
    "website": "https://www.w0blk.com",
    "discord": ""
@@ -107,20 +107,6 @@
    "discord": ""
   },
   {
-   "id": "c7",
-   "name": "Northern Hills Amateur Radio Club",
-   "callsign": "KC0BXH",
-   "city": "Belle Fourche",
-   "lat": 44.6723,
-   "lon": -103.8396,
-   "logo": "",
-   "address": "",
-   "meeting": "",
-   "mailing": "",
-   "website": "",
-   "discord": ""
-  },
-  {
    "id": "c8",
    "name": "Pierre Amateur Radio Club",
    "callsign": "W0PIR",
@@ -131,7 +117,7 @@
    "address": "Fire Station 4, 802 N Pierce Ave, Pierre, SD 57501",
    "meeting": "2nd Thursday, 7:00 PM",
    "mailing": "Reach out to the club through its website",
-   "website": "https://sdhams.net",
+   "website": "https://www.sdhams.com",
    "discord": ""
   },
   {
@@ -181,8 +167,12 @@
      "out": "444.825",
      "in": "449.825",
      "tone": "103.5",
-     "owner": "KD0ZP"
+     "owner": "KD0ZP",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -200,8 +190,12 @@
      "out": "444.975",
      "in": "449.975",
      "tone": "146.2",
-     "owner": "W0SD"
+     "owner": "W0SD",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -219,8 +213,12 @@
      "out": "443.225",
      "in": "448.225",
      "tone": "146.2",
-     "owner": "KB0WSV"
+     "owner": "KB0WSV",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -233,13 +231,17 @@
    "photos": [],
    "repeaters": [
     {
-     "label": "Salem W0SD UHF",
+     "label": "Salem UHF",
      "type": "UHF Repeater",
      "out": "442.075",
      "in": "447.075",
      "tone": "103.5",
-     "owner": "W0SD"
+     "owner": "W0SD",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -257,8 +259,12 @@
      "out": "146.775",
      "in": "146.175",
      "tone": "146.2",
-     "owner": "KC0OVC"
+     "owner": "KC0OVC",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -276,8 +282,12 @@
      "out": "442.000",
      "in": "447.000",
      "tone": "146.2",
-     "owner": "K0TY"
+     "owner": "K0TY",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -299,15 +309,12 @@
      "out": "147.345",
      "in": "147.945",
      "tone": "146.2",
-     "owner": "AA0F"
-    },
-    {
-     "label": "Wessington Springs UHF",
-     "type": "UHF Repeater",
-     "out": "444.650",
-     "in": "449.650",
-     "tone": ""
+     "owner": "KB0UZJ",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -325,8 +332,12 @@
      "out": "146.790",
      "in": "146.190",
      "tone": "146.2",
-     "owner": "N0AHL"
+     "owner": "N0AHL",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -344,8 +355,12 @@
      "out": "146.940",
      "in": "146.340",
      "tone": "146.2",
-     "owner": "N0NPO"
+     "owner": "N0NPO",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -363,16 +378,12 @@
      "out": "147.300",
      "in": "147.900",
      "tone": "146.2",
-     "owner": "AA0CT"
-    },
-    {
-     "label": "Murdo UHF",
-     "type": "UHF Repeater",
-     "out": "443.450",
-     "in": "448.450",
-     "tone": "103.5",
-     "owner": "AA0CT"
+     "owner": "AA0CT",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -391,8 +402,11 @@
      "in": "146.130",
      "tone": "146.2",
      "owner": "KD0S",
-     "note": "sdhams.com also lists 146.730 as a Pierre ARC machine."
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
@@ -410,17 +424,21 @@
      "out": "147.375",
      "in": "147.975",
      "tone": "146.2",
-     "owner": "N0OMP"
+     "owner": "N0OMP",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "sdlink"
    ]
   },
   {
    "id": "s13",
    "name": "Terry Peak",
    "system": "sdlink",
-   "lat": 44.3269,
-   "lon": -103.8422,
-   "notes": "",
+   "lat": 44.3275,
+   "lon": -103.835,
+   "notes": "Terry Peak, near Lead. The Northern Hills machine auto-connects to SD-LINK for the Wednesday net.",
    "photos": [],
    "repeaters": [
     {
@@ -429,35 +447,22 @@
      "out": "147.030",
      "in": "147.630",
      "tone": "146.2",
-     "owner": "WB0JEK"
+     "owner": "WB0JEK",
+     "sys": "sdlink"
     },
     {
-     "label": "Terry Peak UHF",
-     "type": "UHF Repeater",
-     "out": "443.650",
-     "in": "448.650",
-     "tone": "131.8",
-     "owner": "WB0JEK"
-    }
-   ]
-  },
-  {
-   "id": "s14",
-   "name": "Rapid City",
-   "system": "sdlink",
-   "lat": 44.105,
-   "lon": -103.26,
-   "notes": "",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Rapid City UHF",
-     "type": "UHF Repeater",
-     "out": "444.750",
-     "in": "449.750",
+     "label": "Terry Peak VHF",
+     "type": "VHF Repeater",
+     "out": "146.760",
+     "in": "146.160",
      "tone": "146.2",
-     "owner": "KE0QIB"
+     "owner": "KC0BXH",
+     "sys": "nh"
     }
+   ],
+   "systems": [
+    "sdlink",
+    "nh"
    ]
   },
   {
@@ -475,8 +480,12 @@
      "out": "146.850",
      "in": "146.250",
      "tone": "146.2",
-     "owner": "W0OJY"
+     "owner": "W0OJY",
+     "sys": "pdarc"
     }
+   ],
+   "systems": [
+    "pdarc"
    ]
   },
   {
@@ -494,8 +503,12 @@
      "out": "147.375",
      "in": "147.975",
      "tone": "146.2",
-     "owner": "W0OJY"
+     "owner": "W0OJY",
+     "sys": "pdarc"
     }
+   ],
+   "systems": [
+    "pdarc"
    ]
   },
   {
@@ -513,8 +526,12 @@
      "out": "147.210",
      "in": "147.810",
      "tone": "146.2",
-     "owner": "W0OJY"
+     "owner": "W0OJY",
+     "sys": "pdarc"
     }
+   ],
+   "systems": [
+    "pdarc"
    ]
   },
   {
@@ -533,17 +550,20 @@
      "in": "147.930",
      "tone": "131.8",
      "owner": "N0TO",
-     "note": "131.8 encode and decode."
+     "sys": "pdarc"
     }
+   ],
+   "systems": [
+    "pdarc"
    ]
   },
   {
    "id": "s19",
    "name": "Radar Hill",
    "system": "nh",
-   "lat": 44.0722,
-   "lon": -103.1594,
-   "notes": "Radar Hill, east of Rapid City.",
+   "lat": 44.0878,
+   "lon": -103.0869,
+   "notes": "Radar Hill, east of Rapid City. The Northern Hills machine auto-connects to SD-LINK for the Wednesday net.",
    "photos": [],
    "repeaters": [
     {
@@ -552,36 +572,31 @@
      "out": "146.940",
      "in": "146.340",
      "tone": "146.2",
-     "owner": "W0BLK"
-    }
-   ]
-  },
-  {
-   "id": "s20",
-   "name": "Terry Peak VHF",
-   "system": "nh",
-   "lat": 44.33,
-   "lon": -103.83,
-   "notes": "Terry Peak, near Lead.",
-   "photos": [],
-   "repeaters": [
+     "owner": "W0BLK",
+     "sys": "nh"
+    },
     {
-     "label": "Terry Peak VHF",
-     "type": "VHF Repeater",
-     "out": "146.760",
-     "in": "146.160",
+     "label": "Radar Hill UHF",
+     "type": "UHF Repeater",
+     "out": "444.750",
+     "in": "449.750",
      "tone": "146.2",
-     "owner": "KC0BXH"
+     "owner": "KE0QIB",
+     "sys": "sdlink"
     }
+   ],
+   "systems": [
+    "nh",
+    "sdlink"
    ]
   },
   {
    "id": "s21",
    "name": "Bear Mountain",
    "system": "nh",
-   "lat": 43.886,
-   "lon": -103.774,
-   "notes": "Bear Mountain, north of Custer.",
+   "lat": 43.87,
+   "lon": -103.744,
+   "notes": "Bear Mountain, north of Custer. Physically in Pennington County despite the Custer label. Auto-connects to SD-LINK for the Wednesday net.",
    "photos": [],
    "repeaters": [
     {
@@ -590,273 +605,12 @@
      "out": "146.850",
      "in": "146.250",
      "tone": "146.2",
-     "owner": "KC0BXH"
-    },
-    {
-     "label": "Bear Mountain 6 Meter",
-     "type": "6m Repeater",
-     "out": "53.170",
-     "in": "52.170",
-     "tone": "146.2",
-     "owner": "K0HS",
-     "note": "146.2 encode only."
+     "owner": "KC0BXH",
+     "sys": "nh"
     }
-   ]
-  },
-  {
-   "id": "s22",
-   "name": "New Underwood",
-   "system": "sdlink",
-   "lat": 44.1006,
-   "lon": -102.8352,
-   "notes": "",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "New Underwood VHF",
-     "type": "VHF Repeater",
-     "out": "146.970",
-     "in": "146.370",
-     "tone": "",
-     "owner": "KA1OTT"
-    }
-   ]
-  },
-  {
-   "id": "s23",
-   "name": "Sioux Falls (W0ZWY)",
-   "system": "none",
-   "lat": 43.55,
-   "lon": -96.728,
-   "notes": "Repeaters managed by the Sioux Empire ARC.",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Sioux Falls UHF",
-     "type": "UHF Repeater",
-     "out": "444.900",
-     "in": "449.900",
-     "tone": "146.2",
-     "owner": "KD0ZP",
-     "note": "EchoLink."
-    },
-    {
-     "label": "Sioux Falls 220",
-     "type": "1.25m Repeater",
-     "out": "223.860",
-     "in": "222.260",
-     "tone": "146.2",
-     "owner": "W0FSD"
-    },
-    {
-     "label": "Sioux Falls Fusion",
-     "type": "Digital",
-     "out": "444.200",
-     "in": "449.200",
-     "tone": "82.5",
-     "owner": "W0ZWY",
-     "note": "C4FM Fusion."
-    },
-    {
-     "label": "Sioux Falls VHF",
-     "type": "VHF Repeater",
-     "out": "146.895",
-     "in": "146.295",
-     "tone": "146.2",
-     "owner": "W0ZWY",
-     "note": "Multi-site receive."
-    },
-    {
-     "label": "Sioux Falls D-Star",
-     "type": "Digital",
-     "out": "442.750",
-     "in": "447.750",
-     "tone": "",
-     "owner": "W0ZWY",
-     "note": "D-Star, Module B."
-    }
-   ]
-  },
-  {
-   "id": "s24",
-   "name": "Brookings (W0BXO)",
-   "system": "none",
-   "lat": 44.309,
-   "lon": -96.79,
-   "notes": "",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Brookings VHF",
-     "type": "VHF Repeater",
-     "out": "146.940",
-     "in": "146.340",
-     "tone": "110.9",
-     "owner": "W0BXO"
-    }
-   ]
-  },
-  {
-   "id": "s25",
-   "name": "Watertown (W0WTN)",
-   "system": "none",
-   "lat": 44.9,
-   "lon": -97.11,
-   "notes": "",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Watertown VHF",
-     "type": "VHF Repeater",
-     "out": "146.850",
-     "in": "146.250",
-     "tone": "67.0",
-     "owner": "W0WTN",
-     "note": "67.0 Hz transmitted on the output."
-    }
-   ]
-  },
-  {
-   "id": "s26",
-   "name": "Aberdeen",
-   "system": "none",
-   "lat": 45.462,
-   "lon": -98.49,
-   "notes": "",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "W0ABR 2 Meter",
-     "type": "VHF Repeater",
-     "out": "146.910",
-     "in": "146.310",
-     "tone": "",
-     "owner": "W0ABR"
-    },
-    {
-     "label": "WB0JZZ C4FM",
-     "type": "Digital",
-     "out": "443.400",
-     "in": "448.400",
-     "tone": "146.2",
-     "owner": "WB0JZZ",
-     "note": "70 cm C4FM."
-    }
-   ]
-  },
-  {
-   "id": "s27",
-   "name": "Pierre (W0PIR)",
-   "system": "none",
-   "lat": 44.368,
-   "lon": -100.348,
-   "notes": "",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Pierre VHF",
-     "type": "VHF Repeater",
-     "out": "145.350",
-     "in": "144.750",
-     "tone": "146.2",
-     "owner": "W0PIR"
-    }
-   ]
-  },
-  {
-   "id": "s28",
-   "name": "Battle Mountain",
-   "system": "none",
-   "lat": 43.44,
-   "lon": -103.43,
-   "notes": "Near Hot Springs.",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Battle Mountain VHF",
-     "type": "VHF Repeater",
-     "out": "146.700",
-     "in": "146.100",
-     "tone": "146.2",
-     "owner": "K0HS"
-    }
-   ]
-  },
-  {
-   "id": "s29",
-   "name": "Mount Coolidge",
-   "system": "none",
-   "lat": 43.72,
-   "lon": -103.475,
-   "notes": "Custer State Park.",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Mount Coolidge VHF",
-     "type": "VHF Repeater",
-     "out": "147.120",
-     "in": "147.720",
-     "tone": "146.2",
-     "owner": "K0HS"
-    }
-   ]
-  },
-  {
-   "id": "s30",
-   "name": "Custer",
-   "system": "none",
-   "lat": 43.741,
-   "lon": -103.6185,
-   "notes": "Downtown Custer.",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Custer VHF",
-     "type": "VHF Repeater",
-     "out": "147.090",
-     "in": "147.690",
-     "tone": "146.2",
-     "owner": "K0HS"
-    }
-   ]
-  },
-  {
-   "id": "s31",
-   "name": "Pay Dirt",
-   "system": "none",
-   "lat": 43.78,
-   "lon": -103.7,
-   "notes": "West of Custer.",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Pay Dirt VHF",
-     "type": "VHF Repeater",
-     "out": "147.150",
-     "in": "147.750",
-     "tone": "146.2",
-     "owner": "K0HS"
-    }
-   ]
-  },
-  {
-   "id": "s32",
-   "name": "Edgemont",
-   "system": "none",
-   "lat": 43.2874,
-   "lon": -103.811,
-   "notes": "",
-   "photos": [],
-   "repeaters": [
-    {
-     "label": "Edgemont GMRS",
-     "type": "GMRS",
-     "out": "462.550",
-     "in": "467.550",
-     "tone": "141.3",
-     "owner": "K0HS",
-     "note": "Needs a GMRS licence rather than a ham licence."
-    }
+   ],
+   "systems": [
+    "nh"
    ]
   }
  ],
@@ -923,7 +677,7 @@
   },
   {
    "a": "s13",
-   "b": "s14",
+   "b": "s19",
    "system": "sdlink"
   },
   {
@@ -943,11 +697,11 @@
   },
   {
    "a": "s19",
-   "b": "s20",
+   "b": "s13",
    "system": "nh"
   },
   {
-   "a": "s20",
+   "a": "s13",
    "b": "s21",
    "system": "nh"
   },
@@ -965,6 +719,16 @@
      "label": "SD-LINK",
      "url": "https://sdlink.org/",
      "note": "The linked repeater system's own site"
+    }
+   ]
+  },
+  {
+   "group": "Getting licensed",
+   "items": [
+    {
+     "label": "HamStudy",
+     "url": "https://hamstudy.org/",
+     "note": "Free practice exams and flashcards for all three licence classes"
     }
    ]
   },
@@ -996,16 +760,6 @@
      "label": "Coverage planner",
      "url": "https://mesh.womod.org/#43.53569,-96.69025,30",
      "note": "Terrain based coverage and node placement"
-    }
-   ]
-  },
-  {
-   "group": "Getting licensed",
-   "items": [
-    {
-     "label": "HamStudy",
-     "url": "https://hamstudy.org/",
-     "note": "Free practice exams and flashcards for all three licence classes"
     }
    ]
   }
